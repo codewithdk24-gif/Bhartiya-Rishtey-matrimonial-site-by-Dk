@@ -184,12 +184,12 @@ function HeroSection() {
               A premium matrimonial platform that honors your heritage while helping you find a life partner who shares your values, culture, and dreams.
             </p>
 
-            <div className="flex flex-wrap gap-4 mb-12">
-              <Link href="/signup" className="btn-primary text-sm px-8 py-4">
+            <div className="flex flex-wrap gap-3 sm:gap-4 mb-12">
+              <Link href="/signup" className="btn-primary text-xs sm:text-sm px-6 py-3.5 sm:px-8 sm:py-4">
                 <span className="material-symbols-outlined text-lg">favorite</span>
                 Begin Your Journey
               </Link>
-              <Link href="/search" className="btn-secondary text-sm px-8 py-4">
+              <Link href="/search" className="btn-secondary text-xs sm:text-sm px-6 py-3.5 sm:px-8 sm:py-4">
                 Browse Matches
               </Link>
             </div>

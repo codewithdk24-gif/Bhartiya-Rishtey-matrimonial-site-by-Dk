@@ -62,7 +62,7 @@ export default function LoginPage() {
           <p className="text-sm text-stone-500">Sign in to continue your journey</p>
         </div>
 
-        <div className="glass-card p-8">
+        <div className="glass-card p-6 sm:p-8">
           <form onSubmit={handleSubmit} className="space-y-5">
             {error && (
               <div className="bg-error/5 border border-error/20 rounded-xl px-4 py-3 text-sm text-error font-medium flex items-center gap-2">

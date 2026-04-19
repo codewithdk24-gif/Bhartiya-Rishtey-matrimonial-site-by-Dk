@@ -35,10 +35,11 @@ function DashNav() {
           </div>
         </div>
       </nav>
-      <div className="md:hidden fixed bottom-0 left-0 right-0 nav-glass border-t border-stone-200/50 z-50 px-2 py-1 flex justify-around">
+      <div className="md:hidden fixed bottom-0 left-0 right-0 nav-glass border-t border-stone-200/50 z-50 px-1 py-1 flex justify-around">
         {links.map(link => (
-          <Link key={link.h} href={link.h} className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl text-[10px] font-medium transition-all ${link.h === '/profile' ? 'text-primary' : 'text-stone-400'}`}>
-            <span className="material-symbols-outlined text-xl">{link.i}</span>{link.l}
+          <Link key={link.h} href={link.h} className={`flex flex-col items-center gap-0 px-1 py-1.5 rounded-xl text-[8px] min-[360px]:text-[10px] font-medium transition-all ${link.h === '/profile' ? 'text-primary' : 'text-stone-400'}`}>
+            <span className="material-symbols-outlined text-lg min-[360px]:text-xl">{link.i}</span>
+            <span className="whitespace-nowrap">{link.l}</span>
           </Link>
         ))}
       </div>
@@ -165,7 +166,7 @@ export default function ProfilePage() {
       <DashNav />
       <div className="max-w-4xl mx-auto px-4 py-8 pb-24 animate-fade-in-up">
         {/* Profile Header */}
-        <div className="glass-card p-8 mb-8 relative overflow-hidden">
+        <div className="glass-card p-6 md:p-8 mb-8 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-48 h-48 bg-primary/5 rounded-full blur-3xl" />
           <div className="flex flex-col sm:flex-row items-center gap-6 relative z-10">
             <div className="w-24 h-24 rounded-2xl bg-linear-to-br from-primary/20 to-gold/20 flex items-center justify-center shrink-0 overflow-hidden">
@@ -249,7 +250,7 @@ export default function ProfilePage() {
             <h2 className="font-headline text-xl font-bold text-stone-900 mb-5 flex items-center gap-2">
               <span className="material-symbols-outlined text-primary">person</span> Basic Information
             </h2>
-            <div className="grid md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-semibold text-stone-700 mb-2">Full Name</label>
                 <input className="input-field" value={form.name} onChange={e => setForm({...form, name: e.target.value})} placeholder="Your full name" />
@@ -278,7 +279,7 @@ export default function ProfilePage() {
             <h2 className="font-headline text-xl font-bold text-stone-900 mb-5 flex items-center gap-2">
               <span className="material-symbols-outlined text-gold">diversity_3</span> Background
             </h2>
-            <div className="grid md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 min-[360px]:grid-cols-2 md:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-semibold text-stone-700 mb-2">Religion</label>
                 <select className="input-field" value={form.religion} onChange={e => setForm({...form, religion: e.target.value})}>
@@ -302,7 +303,7 @@ export default function ProfilePage() {
             <h2 className="font-headline text-xl font-bold text-stone-900 mb-5 flex items-center gap-2">
               <span className="material-symbols-outlined text-success">work</span> Career & Education
             </h2>
-            <div className="grid md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 min-[360px]:grid-cols-2 md:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-semibold text-stone-700 mb-2">Education</label>
                 <input className="input-field" value={form.education} onChange={e => setForm({...form, education: e.target.value})} placeholder="e.g., B.Tech" />

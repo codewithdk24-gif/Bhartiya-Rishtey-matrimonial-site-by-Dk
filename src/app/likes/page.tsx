@@ -35,10 +35,11 @@ function DashNav() {
           </div>
         </div>
       </nav>
-      <div className="md:hidden fixed bottom-0 left-0 right-0 nav-glass border-t border-stone-200/50 z-50 px-2 py-1 flex justify-around">
+      <div className="md:hidden fixed bottom-0 left-0 right-0 nav-glass border-t border-stone-200/50 z-50 px-1 py-1 flex justify-around">
         {links.map(link => (
-          <Link key={link.h} href={link.h} className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl text-[10px] font-medium transition-all ${link.h === '/likes' ? 'text-primary' : 'text-stone-400'}`}>
-            <span className="material-symbols-outlined text-xl">{link.i}</span>{link.l}
+          <Link key={link.h} href={link.h} className={`flex flex-col items-center gap-0 px-1 py-1.5 rounded-xl text-[8px] min-[360px]:text-[10px] font-medium transition-all ${link.h === '/likes' ? 'text-primary' : 'text-stone-400'}`}>
+            <span className="material-symbols-outlined text-lg min-[360px]:text-xl">{link.i}</span>
+            <span className="whitespace-nowrap">{link.l}</span>
           </Link>
         ))}
       </div>

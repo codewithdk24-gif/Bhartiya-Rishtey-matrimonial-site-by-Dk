@@ -23,52 +23,35 @@ function DashNav() {
   ];
 
   return (
-    <nav className="nav-glass sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
-        <Link href="/dashboard" className="flex items-center gap-3">
-          <span className="font-headline text-lg font-bold text-stone-900 hidden sm:block">Bhartiya Rishtey</span>
-        </Link>
-
-        <div className="hidden md:flex items-center gap-1">
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm text-stone-600 hover:text-primary hover:bg-primary/5 transition-all font-medium"
-            >
-              <span className="material-symbols-outlined text-lg">{link.icon}</span>
-              {link.label}
-            </Link>
-          ))}
-        </div>
-
-        <div className="flex items-center gap-3">
-          <Link href="/dashboard" className="relative p-2 rounded-xl hover:bg-stone-100 transition-colors">
-            <span className="material-symbols-outlined text-stone-600">notifications</span>
+    <>
+      <nav className="nav-glass sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2.5 flex items-center justify-between">
+          <Link href="/dashboard" className="flex items-center gap-2">
+            <span className="font-headline text-lg font-bold text-stone-900 hidden sm:block">Bhartiya Rishtey</span>
           </Link>
-          <button onClick={handleLogout} className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm text-stone-500 hover:text-error hover:bg-error/5 transition-all font-medium">
-            <span className="material-symbols-outlined text-lg">logout</span>
-            <span className="hidden sm:block">Logout</span>
-          </button>
-          <button className="md:hidden p-2 rounded-xl hover:bg-stone-100" onClick={() => setMenuOpen(!menuOpen)}>
-            <span className="material-symbols-outlined">{menuOpen ? 'close' : 'menu'}</span>
-          </button>
-        </div>
-      </div>
-
-      {menuOpen && (
-        <div className="md:hidden px-4 pb-4">
-          <div className="glass-card p-4 space-y-1 animate-fade-in-up">
-            {navLinks.map((link) => (
-              <Link key={link.href} href={link.href} className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-stone-600 hover:bg-primary/5 hover:text-primary transition-all font-medium" onClick={() => setMenuOpen(false)}>
-                <span className="material-symbols-outlined text-lg">{link.icon}</span>
-                {link.label}
+          <div className="hidden md:flex items-center gap-0.5">
+            {navLinks.map(link => (
+              <Link key={link.href} href={link.href} className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium text-stone-500 hover:text-primary hover:bg-primary/5 transition-all">
+                <span className="material-symbols-outlined text-lg">{link.icon}</span>{link.label}
               </Link>
             ))}
           </div>
+          <div className="flex items-center gap-2">
+            <Link href="/payment" className="p-2 rounded-xl hover:bg-gold/10 transition-colors"><span className="material-symbols-outlined text-gold">diamond</span></Link>
+            <button onClick={handleLogout} className="p-2 rounded-xl text-stone-400 hover:text-error hover:bg-error/5 transition-all"><span className="material-symbols-outlined text-lg">logout</span></button>
+          </div>
         </div>
-      )}
-    </nav>
+      </nav>
+      {/* Mobile bottom nav */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 nav-glass border-t border-stone-200/50 z-50 px-1 py-1 flex justify-around">
+        {navLinks.map(link => (
+          <Link key={link.href} href={link.href} className={`flex flex-col items-center gap-0 px-1 py-1.5 rounded-xl text-[8px] min-[360px]:text-[10px] font-medium transition-all ${link.href === '/dashboard' ? 'text-primary' : 'text-stone-400'}`}>
+            <span className="material-symbols-outlined text-lg min-[360px]:text-xl">{link.icon}</span>
+            <span className="whitespace-nowrap">{link.label}</span>
+          </Link>
+        ))}
+      </div>
+    </>
   );
 }
 
@@ -109,9 +92,9 @@ export default function DashboardPage() {
   return (
     <>
       <DashNav />
-      <div className="max-w-7xl mx-auto px-6 py-8 space-y-8 animate-fade-in-up">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 pb-24 space-y-6 animate-fade-in-up">
         {/* Welcome Banner */}
-        <div className="glass-card p-8 relative overflow-hidden">
+        <div className="glass-card p-6 md:p-8 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl" />
           <div className="relative z-10">
             <h1 className="font-headline text-3xl md:text-4xl font-bold text-stone-900 mb-2">

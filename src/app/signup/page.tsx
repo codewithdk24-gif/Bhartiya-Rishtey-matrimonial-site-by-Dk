@@ -71,7 +71,7 @@ export default function SignupPage() {
           <div className={`h-1.5 rounded-full flex-1 transition-colors ${step >= 2 ? 'bg-primary' : 'bg-stone-200'}`} />
         </div>
 
-        <div className="glass-card p-8">
+        <div className="glass-card p-6 sm:p-8">
           <form onSubmit={handleSubmit} className="space-y-5">
             {error && (
               <div className="bg-error/5 border border-error/20 rounded-xl px-4 py-3 text-sm text-error font-medium flex items-center gap-2">
@@ -153,12 +153,12 @@ export default function SignupPage() {
                 </div>
 
                 <div className="flex gap-3">
-                  <button type="button" onClick={() => setStep(1)} className="btn-secondary flex-1 py-3">
+                  <button type="button" onClick={() => setStep(1)} className="btn-secondary flex-1 py-3 text-xs sm:text-sm">
                     Back
                   </button>
-                  <button type="submit" disabled={loading} className="btn-primary flex-1 py-3.5">
+                  <button type="submit" disabled={loading} className="btn-primary flex-1 py-3.5 text-xs sm:text-sm">
                     {loading ? (
-                      <span className="flex items-center gap-2">
+                      <span className="flex items-center gap-2 justify-center">
                         <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                         Creating...
                       </span>

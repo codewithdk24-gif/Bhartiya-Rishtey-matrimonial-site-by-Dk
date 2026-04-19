@@ -5,7 +5,7 @@
    Premium Indian Matrimonial Platform
    ───────────────────────────────────────────────────────────────── */
 
-@theme {
+:root {
   --color-primary: #9b1c31;
   --color-primary-light: #be3249;
   --color-primary-dark: #7a1526;

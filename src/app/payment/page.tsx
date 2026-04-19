@@ -8,25 +8,44 @@ import { PLANS, getPlanById } from '@/lib/constants/plans';
 function DashNav() {
   const router = useRouter();
   const handleLogout = async () => { await fetch('/api/auth/logout', { method: 'POST' }); router.push('/'); };
+  const links = [
+    { h: '/dashboard', i: 'dashboard', l: 'Dashboard' },
+    { h: '/discover', i: 'local_fire_department', l: 'For You' },
+    { h: '/search', i: 'search', l: 'Search' },
+    { h: '/likes', i: 'favorite', l: 'Likes' },
+    { h: '/chat', i: 'chat', l: 'Messages' },
+    { h: '/profile', i: 'person', l: 'Profile' },
+  ];
   return (
-    <nav className="nav-glass sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
-        <Link href="/dashboard" className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-primary to-gold flex items-center justify-center text-white font-headline font-bold text-sm">B</div>
-          <span className="font-headline text-lg font-bold text-stone-900 hidden sm:block">Bhartiya Rishtey</span>
-        </Link>
-        <div className="hidden md:flex items-center gap-1">
-          {[{h:'/dashboard',i:'dashboard',l:'Dashboard'},{h:'/search',i:'search',l:'Search'},{h:'/chat',i:'chat',l:'Messages'},{h:'/profile',i:'person',l:'Profile'},{h:'/payment',i:'workspace_premium',l:'Premium'}].map(link=>(
-            <Link key={link.h} href={link.h} className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm text-stone-600 hover:text-primary hover:bg-primary/5 transition-all font-medium">
-              <span className="material-symbols-outlined text-lg">{link.i}</span>{link.l}
-            </Link>
-          ))}
+    <>
+      <nav className="nav-glass sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 py-2.5 flex items-center justify-between">
+          <Link href="/discover" className="flex items-center gap-2">
+            <span className="font-headline text-lg font-bold text-stone-900 hidden sm:block">Bhartiya Rishtey</span>
+          </Link>
+          <div className="hidden md:flex items-center gap-0.5">
+            {links.map(link => (
+              <Link key={link.h} href={link.h} className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium transition-all ${link.h === '/payment' ? 'text-primary bg-primary/5' : 'text-stone-500 hover:text-primary hover:bg-primary/5'}`}>
+                <span className="material-symbols-outlined text-lg">{link.i}</span>{link.l}
+              </Link>
+            ))}
+          </div>
+          <div className="flex items-center gap-2">
+            <Link href="/payment" className="p-2 rounded-xl hover:bg-gold/10 transition-colors"><span className="material-symbols-outlined text-gold">diamond</span></Link>
+            <button onClick={handleLogout} className="p-2 rounded-xl text-stone-400 hover:text-error hover:bg-error/5 transition-all"><span className="material-symbols-outlined text-lg">logout</span></button>
+          </div>
         </div>
-        <button onClick={handleLogout} className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm text-stone-500 hover:text-error hover:bg-error/5 transition-all font-medium">
-          <span className="material-symbols-outlined text-lg">logout</span><span className="hidden sm:block">Logout</span>
-        </button>
+      </nav>
+      {/* Mobile bottom nav */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 nav-glass border-t border-stone-200/50 z-50 px-1 py-1 flex justify-around">
+        {links.map(link => (
+          <Link key={link.h} href={link.h} className={`flex flex-col items-center gap-0 px-1 py-1.5 rounded-xl text-[8px] min-[360px]:text-[10px] font-medium transition-all ${link.h === '/payment' ? 'text-primary' : 'text-stone-400'}`}>
+            <span className="material-symbols-outlined text-lg min-[360px]:text-xl">{link.i}</span>
+            <span className="whitespace-nowrap">{link.l}</span>
+          </Link>
+        ))}
       </div>
-    </nav>
+    </>
   );
 }
 
@@ -50,7 +69,7 @@ export default function PaymentPage() {
   return (
     <>
       <DashNav />
-      <div className="max-w-5xl mx-auto px-6 py-8 animate-fade-in-up">
+      <div className="max-w-5xl mx-auto px-4 md:px-6 py-8 pb-24 animate-fade-in-up">
         <div className="text-center mb-12">
           <span className="text-xs font-bold tracking-[0.3em] uppercase text-gold mb-3 block">Upgrade Your Plan</span>
           <h1 className="font-headline text-4xl font-bold text-stone-900 mb-3">
@@ -91,7 +110,7 @@ export default function PaymentPage() {
         )}
 
         {/* Plans */}
-        <div className="grid md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 md:gap-8">
           {PLANS.map((plan, i) => (
             <div
               key={plan.id}
