@@ -129,7 +129,7 @@ function HeroSection() {
         {/* Image Section - Full bleed and seamless transition on mobile */}
         <div className="relative animate-fade-in-up-delay-1 order-1 lg:order-2 z-10 -mx-6 lg:mx-0">
           <div className="relative">
-            <div className="w-full aspect-[3/4] lg:aspect-[3/4] lg:rounded-3xl overflow-hidden relative lg:shadow-3xl lg:ring-1 lg:ring-black/5">
+            <div className="w-full aspect-[3/4] lg:aspect-auto lg:h-[550px] lg:rounded-3xl overflow-hidden relative lg:shadow-3xl lg:ring-1 lg:ring-black/5">
               <img 
                  src="https://images.unsplash.com/photo-1583939003579-730e3918a45a?auto=format&fit=crop&w=800&q=80" 
                  alt="Happy couple" 
@@ -173,10 +173,9 @@ function HeroSection() {
             <span className="text-[10px] font-bold text-primary tracking-[0.15em] uppercase">Trusted by 10,000+ families</span>
           </div>
 
-          <h1 className="font-headline text-4xl xs:text-5xl md:text-8xl font-extrabold leading-[1.1] text-stone-900 mb-8">
-            Where <span className="text-primary block sm:inline">Trusted</span><br className="hidden sm:block" />
-            <span className="text-primary">Rishtey</span> Meet<br />
-            Tradition
+          <h1 className="font-headline text-3xl xs:text-4xl md:text-6xl font-extrabold leading-[1.2] text-stone-900 mb-6">
+            Where <span className="text-primary">Trusted Rishtey</span><br className="hidden md:block" />
+            Meet Tradition
           </h1>
 
           <div className="lg:bg-transparent lg:backdrop-blur-none px-0 py-8 lg:mx-0 lg:px-0 lg:py-0">
