@@ -104,7 +104,7 @@ function Navbar() {
         )}
       </nav>
 
-      {/* Floating Mobile Menu Button */}
+
       <button
         className="md:hidden fixed bottom-6 right-6 w-14 h-14 rounded-full bg-primary text-white shadow-2xl z-[70] flex items-center justify-center hover:scale-110 active:scale-95 transition-all duration-300"
         onClick={() => setMobileOpen(!mobileOpen)}
@@ -286,11 +286,17 @@ function FeaturesSection() {
             <div 
               key={i} 
               onClick={() => setActiveIdx(activeIdx === i ? null : i)}
-              className={`glass-card glass-card-hover p-4 md:p-8 group relative overflow-hidden border-transparent transition-all duration-500 cursor-pointer ${
-                activeIdx === i ? 'ring-2 ring-primary/30 shadow-2xl scale-[1.02] z-20' : 'hover:border-white/50'
-              }`}
-              style={{ boxShadow: activeIdx === i ? `0 20px 50px ${f.glow}` : `0 10px 40px ${f.glow}` }}
+              className={`glass-card glass-card-hover p-4 md:p-8 group relative overflow-hidden border-transparent transition-all duration-700 cursor-pointer ${
+                activeIdx === i ? 'ring-2 ring-primary/40 shadow-2xl scale-[1.05] z-30' : 'hover:border-white/50 z-10'
+              } ${i % 2 === 0 ? 'float-animation' : 'float-animation-delay'}`}
+              style={{ 
+                boxShadow: activeIdx === i ? `0 30px 60px ${f.glow}` : `0 10px 40px ${f.glow}`,
+                perspective: '1000px'
+              }}
             >
+              {/* Glass Shine Effect */}
+              <div className="absolute inset-0 w-1/2 h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -rotate-45 -translate-x-full group-hover:animate-shine pointer-events-none" />
+
               {/* Stylish watermark icon */}
               <span className={`material-symbols-outlined absolute -right-4 -top-4 text-7xl md:text-9xl opacity-[0.03] group-hover:opacity-[0.07] transition-opacity duration-700 pointer-events-none select-none ${
                 activeIdx === i ? 'opacity-[0.1]' : ''
