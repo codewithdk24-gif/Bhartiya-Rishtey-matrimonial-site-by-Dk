@@ -220,146 +220,81 @@ function FeaturesSection() {
   const [activeIdx, setActiveIdx] = React.useState<number | null>(null);
 
   const features = [
-    {
-      icon: 'shield',
-      title: 'Privacy First',
-      desc: 'End-to-end encrypted conversations. Your data is safe with military-grade security.',
-      color: 'maroon',
-      glow: 'rgba(155, 28, 49, 0.1)',
-    },
-    {
-      icon: 'psychology',
-      title: 'Smart Matchmaking',
-      desc: 'Our intelligent algorithm considers 20+ compatibility factors to find your ideal partner.',
-      color: 'indigo',
-      glow: 'rgba(79, 70, 229, 0.1)',
-    },
-    {
-      icon: 'verified_user',
-      title: 'Verified Profiles',
-      desc: 'Every profile is manually verified with ID proof to ensure a safe and genuine experience.',
-      color: 'emerald',
-      glow: 'rgba(16, 185, 129, 0.1)',
-    },
-    {
-      icon: 'diversity_3',
-      title: 'Cultural Respect',
-      desc: 'Filter by religion, community, language, and traditions. Your heritage matters to us.',
-      color: 'amber',
-      glow: 'rgba(245, 158, 11, 0.1)',
-    },
-    {
-      icon: 'chat_bubble',
-      title: 'Real-Time Chat',
-      desc: 'Connect instantly through our real-time messaging system with typing indicators.',
-      color: 'rose',
-      glow: 'rgba(225, 29, 72, 0.1)',
-    },
-    {
-      icon: 'workspace_premium',
-      title: 'Premium Experience',
-      desc: 'Unlock advanced filters, priority matches, and concierge support with premium plans.',
-      color: 'blue',
-      glow: 'rgba(37, 99, 235, 0.1)',
-    },
+    { icon: 'shield', title: 'Privacy First', desc: 'Secure encrypted conversations for your safety.', color: 'maroon', number: '01' },
+    { icon: 'psychology', title: 'Smart Match', desc: 'AI algorithm matching your core values.', color: 'indigo', number: '02' },
+    { icon: 'verified_user', title: 'Verified Only', desc: 'Profiles manually checked for authenticity.', color: 'emerald', number: '03' },
+    { icon: 'diversity_3', title: 'Cultural Roots', desc: 'Find partners who share your heritage.', color: 'amber', number: '04' },
+    { icon: 'chat_bubble', title: 'Instant Chat', desc: 'Connect instantly with real-time messaging.', color: 'rose', number: '05' },
+    { icon: 'workspace_premium', title: 'Royal Perks', desc: 'Priority matches and premium concierge.', color: 'blue', number: '06' },
   ];
 
   return (
-    <section className="py-24 relative overflow-hidden">
-      {/* Background blobs for color */}
-      <div className="absolute top-1/4 -left-20 w-96 h-96 bg-primary/5 rounded-full blur-[120px]" />
-      <div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-gold/5 rounded-full blur-[120px]" />
-      
+    <section className="py-24 relative overflow-hidden bg-white/30">
       <div className="max-w-7xl mx-auto px-6 relative z-10">
-        <div className="text-center mb-16 animate-fade-in-up">
-          <span className="text-xs font-bold tracking-[0.3em] uppercase text-primary/60 mb-4 block">Why Choose Us</span>
-          <h2 className="font-headline text-4xl md:text-5xl font-bold text-stone-900 mb-4">
-            Built with <span className="text-gradient">Love & Trust</span>
+        <div className="text-center mb-20">
+          <div className="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-primary/5 border border-primary/10 mb-6">
+            <span className="w-2 h-2 rounded-full bg-primary animate-ping" />
+            <span className="text-[10px] font-extrabold tracking-[0.2em] uppercase text-primary">The Premium Edge</span>
+          </div>
+          <h2 className="font-headline text-4xl md:text-6xl font-bold text-stone-900 mb-6">
+            Crafted for <span className="text-gradient">True Connection</span>
           </h2>
-          <p className="text-stone-500 max-w-2xl mx-auto font-medium">
-            We combine traditional values with modern technology to create the most trusted matrimonial experience.
+          <p className="text-stone-500 max-w-2xl mx-auto font-medium text-lg">
+            Experience the next generation of matrimonial technology.
           </p>
         </div>
 
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
           {features.map((f, i) => (
             <div 
               key={i} 
               onClick={() => setActiveIdx(activeIdx === i ? null : i)}
-              className={`glass-card glass-card-hover p-4 md:p-8 group relative overflow-hidden border-transparent transition-all duration-700 cursor-pointer ${
-                activeIdx === i ? 'ring-2 ring-primary/40 shadow-2xl scale-[1.05] z-30' : 'hover:border-white/50 z-10'
-              } ${i % 2 === 0 ? 'float-animation' : 'float-animation-delay'}`}
-              style={{ 
-                boxShadow: activeIdx === i ? `0 30px 60px ${f.glow}` : `0 10px 40px ${f.glow}`,
-                perspective: '1000px'
-              }}
+              className={`group relative p-6 md:p-10 rounded-[2rem] bg-white border border-stone-100 transition-all duration-700 cursor-pointer overflow-hidden ${
+                activeIdx === i ? 'scale-[1.03] shadow-2xl z-30' : 'hover:-translate-y-2 z-10 shadow-sm hover:shadow-xl'
+              }`}
             >
-              {/* Glass Shine Effect */}
-              <div className="absolute inset-0 w-1/2 h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -rotate-45 -translate-x-full group-hover:animate-shine pointer-events-none" />
-
-              {/* Stylish watermark icon */}
-              <span className={`material-symbols-outlined absolute -right-4 -top-4 text-7xl md:text-9xl opacity-[0.03] group-hover:opacity-[0.07] transition-opacity duration-700 pointer-events-none select-none ${
-                activeIdx === i ? 'opacity-[0.1]' : ''
-              }`}>
-                {f.icon}
+              {/* Decorative Number */}
+              <span className="absolute top-6 right-8 font-headline text-6xl md:text-8xl font-black text-stone-100/50 group-hover:text-primary/5 transition-colors duration-700 select-none">
+                {f.number}
               </span>
 
-              {/* Subtle hover glow */}
-              <div 
-                className={`absolute inset-0 transition-opacity duration-500 pointer-events-none ${
-                  activeIdx === i ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
-                }`}
-                style={{ background: `radial-gradient(circle at top right, ${f.glow}, transparent)` }}
-              />
-
-              <div
-                className={`w-10 h-10 md:w-16 md:h-16 rounded-xl md:rounded-2xl flex items-center justify-center mb-4 md:mb-8 transition-all duration-500 ${
-                  activeIdx === i ? 'scale-110 rotate-6 shadow-lg' : 'group-hover:scale-110 group-hover:rotate-6'
-                } ${
-                  f.color === 'maroon' ? 'bg-primary/10 text-primary' :
-                  f.color === 'indigo' ? 'bg-indigo-50 text-indigo-600' :
-                  f.color === 'emerald' ? 'bg-emerald-50 text-emerald-600' :
-                  f.color === 'amber' ? 'bg-amber-50 text-amber-600' :
-                  f.color === 'rose' ? 'bg-rose-50 text-rose-600' :
-                  'bg-blue-50 text-blue-600'
-                } shadow-md md:shadow-lg`}
-              >
-                <span className="material-symbols-outlined text-xl md:text-3xl font-light">{f.icon}</span>
-              </div>
-              
-              <h3 className={`font-headline text-base md:text-2xl font-bold transition-colors ${
-                activeIdx === i ? 'text-primary' : 'text-stone-900 group-hover:text-primary'
-              } mb-2 md:mb-4`}>{f.title}</h3>
-              
-              <p className={`text-[10px] md:text-base text-stone-500 leading-tight md:leading-relaxed font-medium transition-all duration-500 ${
-                activeIdx === i ? 'line-clamp-none' : 'line-clamp-2 md:line-clamp-none'
-              }`}>
-                {f.desc}
-              </p>
-              
-              {/* Decorative corner element */}
-              <div className={`absolute -bottom-2 -right-2 w-8 h-8 md:w-12 md:h-12 rounded-full blur-xl md:blur-2xl transition-opacity ${
-                 activeIdx === i ? 'opacity-60' : 'opacity-0 group-hover:opacity-40'
-              } ${
-                 f.color === 'maroon' ? 'bg-primary' :
-                 f.color === 'indigo' ? 'bg-indigo-600' :
-                 f.color === 'emerald' ? 'bg-emerald-600' :
-                 f.color === 'amber' ? 'bg-amber-600' :
-                 f.color === 'rose' ? 'bg-rose-600' :
-                 'bg-blue-600'
-              }`} />
-
-              {/* Tap hint for mobile */}
-              {activeIdx === null && (
-                <div className="absolute bottom-2 right-2 md:hidden">
-                  <span className="material-symbols-outlined text-[10px] text-stone-300 animate-pulse">touch_app</span>
+              <div className="relative z-10">
+                <div className={`w-12 h-12 md:w-20 md:h-20 rounded-2xl flex items-center justify-center mb-6 md:mb-10 transition-all duration-700 ${
+                    activeIdx === i ? 'scale-110 rotate-[15deg] shadow-2xl' : 'group-hover:scale-110 group-hover:rotate-6'
+                  } ${
+                    f.color === 'maroon' ? 'bg-primary text-white' :
+                    f.color === 'indigo' ? 'bg-indigo-600 text-white' :
+                    f.color === 'emerald' ? 'bg-emerald-600 text-white' :
+                    f.color === 'amber' ? 'bg-amber-600 text-white' :
+                    f.color === 'rose' ? 'bg-rose-600 text-white' :
+                    'bg-blue-600 text-white'
+                  }`}>
+                  <span className="material-symbols-outlined text-2xl md:text-4xl font-light">{f.icon}</span>
                 </div>
-              )}
+                
+                <h3 className={`font-headline text-xl md:text-3xl font-bold mb-3 md:mb-5 transition-colors ${
+                  activeIdx === i ? 'text-primary' : 'text-stone-900 group-hover:text-primary'
+                }`}>{f.title}</h3>
+                
+                <p className={`text-xs md:text-lg text-stone-500 leading-relaxed font-medium transition-all duration-700 ${
+                  activeIdx === i ? 'opacity-100 h-auto' : 'line-clamp-2 md:line-clamp-none'
+                }`}>{f.desc}</p>
+              </div>
+
+              {/* Interaction Indicator */}
+              <div className={`mt-6 flex items-center gap-2 transition-all duration-700 ${activeIdx === i ? 'opacity-100' : 'opacity-0 translate-y-4'}`}>
+                <div className="h-[2px] flex-1 bg-primary/20 rounded-full overflow-hidden">
+                  <div className="h-full bg-primary w-full animate-pulse" />
+                </div>
+                <span className="text-[10px] font-bold text-primary uppercase tracking-widest">Active</span>
+              </div>
             </div>
           ))}
         </div>
       </div>
     </section>
+  );
+}
   );
 }
 
