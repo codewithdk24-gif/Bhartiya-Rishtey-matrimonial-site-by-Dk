@@ -31,7 +31,7 @@ function Navbar() {
               <Link href="/search" className="text-sm font-medium text-stone-600 hover:text-primary transition-colors">Browse Matches</Link>
               <Link href="/premium" className="text-sm font-medium text-stone-600 hover:text-primary transition-colors">Premium Plans</Link>
             </div>
-            
+
             <div className="flex items-center gap-1 md:gap-3">
               <Link href="/login" className="btn-secondary !text-[8px] min-[360px]:!text-[9px] md:!text-xs !px-2 md:!px-4 !py-1 md:!py-2.5 whitespace-nowrap">Login</Link>
               <Link href="/signup" className="btn-primary !text-[8px] min-[360px]:!text-[9px] md:!text-xs !px-2 md:!px-4 !py-1 md:!py-2.5 whitespace-nowrap">Join</Link>
@@ -42,7 +42,7 @@ function Navbar() {
         {mobileOpen && (
           <div className="md:hidden fixed inset-0 z-[60] flex justify-end">
             <div className="absolute inset-0 bg-stone-900/40 backdrop-blur-md animate-fade-in" onClick={() => setMobileOpen(false)} />
-            
+
             <div className="relative w-[85%] max-w-sm bg-white h-full shadow-2xl animate-slide-in-right overflow-hidden flex flex-col">
               {/* Decorative background elements in menu */}
               <div className="absolute -top-20 -right-20 w-64 h-64 bg-primary/5 rounded-full blur-3xl" />
@@ -67,9 +67,9 @@ function Navbar() {
                     { label: 'Success Stories', icon: 'auto_awesome', href: '/stories', color: 'secondary' },
                     { label: 'About Us', icon: 'info', href: '/about', color: 'stone-500' },
                   ].map((item) => (
-                    <Link 
+                    <Link
                       key={item.href}
-                      href={item.href} 
+                      href={item.href}
                       className="flex items-center gap-4 p-3.5 rounded-2xl hover:bg-stone-50 transition-all group"
                       onClick={() => setMobileOpen(false)}
                     >
@@ -92,7 +92,7 @@ function Navbar() {
                     <p className="text-[10px] text-stone-500">Talk to our experts</p>
                   </div>
                 </div>
-                
+
                 <div className="grid grid-cols-2 gap-3">
                   <Link href="/login" className="btn-secondary py-3 text-center text-xs font-bold rounded-xl" onClick={() => setMobileOpen(false)}>Log In</Link>
                   <Link href="/signup" className="btn-primary py-3 text-center text-xs font-bold rounded-xl" onClick={() => setMobileOpen(false)}>Join Now</Link>
@@ -105,7 +105,7 @@ function Navbar() {
       </nav>
 
       {/* Floating Mobile Menu Button */}
-      <button 
+      <button
         className="md:hidden fixed bottom-6 right-6 w-14 h-14 rounded-full bg-primary text-white shadow-2xl z-[70] flex items-center justify-center hover:scale-110 active:scale-95 transition-all duration-300"
         onClick={() => setMobileOpen(!mobileOpen)}
       >
@@ -130,14 +130,14 @@ function HeroSection() {
         <div className="relative animate-fade-in-up-delay-1 order-1 lg:order-2 z-10 -mx-6 lg:mx-0">
           <div className="relative">
             <div className="w-full aspect-[3/4] lg:aspect-auto lg:h-[550px] lg:rounded-3xl overflow-hidden relative lg:shadow-3xl lg:ring-1 lg:ring-black/5">
-              <img 
-                 src="https://images.unsplash.com/photo-1583939003579-730e3918a45a?auto=format&fit=crop&w=800&q=80" 
-                 alt="Happy couple" 
-                 className="w-full h-full object-cover lg:hover:scale-105 transition-transform duration-1000"
+              <img
+                src="https://images.unsplash.com/photo-1583939003579-730e3918a45a?auto=format&fit=crop&w=800&q=80"
+                alt="Happy couple"
+                className="w-full h-full object-cover lg:hover:scale-105 transition-transform duration-1000"
               />
               {/* Elliptical Softener - Positioned low to only affect the transition point */}
               <div className="absolute -bottom-16 left-1/2 -translate-x-1/2 w-[150%] h-48 bg-[#FAF1ED] blur-[60px] rounded-[100%] lg:hidden z-30" />
-              
+
               {/* Seamless gradient layers - TOP IS CLEAR, BLUR ONLY FOR TEXT */}
               <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[#FAF1ED] via-[#FAF1ED]/40 to-transparent lg:hidden z-20" />
               <div className="absolute inset-0 backdrop-blur-[20px] [mask-image:linear-gradient(to_bottom,transparent_0%,transparent_45%,black_85%,black_100%)] lg:hidden pointer-events-none z-10" />
@@ -160,7 +160,7 @@ function HeroSection() {
                 <span className="material-symbols-outlined text-primary text-lg">favorite</span>
               </div>
               <div>
-                <p className="font-bold text-xs text-stone-900">Tradition First</p>
+                <p className="font-bold text-xs text-primary">Tradition First</p>
                 <p className="text-[10px] text-stone-400 whitespace-nowrap">Rooted in values</p>
               </div>
             </div>
@@ -174,8 +174,8 @@ function HeroSection() {
           </div>
 
           <h1 className="font-headline text-3xl xs:text-4xl md:text-6xl font-extrabold leading-[1.2] text-stone-900 mb-6">
-            Where <span className="text-primary">Trusted Rishtey</span><br className="hidden md:block" />
-            Meet Tradition
+            Meaningful <span className="text-primary">Rishtey</span><br className="hidden md:block" />
+            Made for Life
           </h1>
 
           <div className="lg:bg-transparent lg:backdrop-blur-none px-0 py-8 lg:mx-0 lg:px-0 lg:py-0">
@@ -273,19 +273,17 @@ function FeaturesSection() {
           {features.map((f, i) => (
             <div key={i} className="glass-card glass-card-hover p-8 group">
               <div
-                className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-5 transition-transform group-hover:scale-110 ${
-                  f.color === 'primary' ? 'bg-primary/10' :
-                  f.color === 'gold' ? 'bg-gold/10' :
-                  f.color === 'success' ? 'bg-success/10' :
-                  'bg-accent/10'
-                }`}
+                className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-5 transition-transform group-hover:scale-110 ${f.color === 'primary' ? 'bg-primary/10' :
+                    f.color === 'gold' ? 'bg-gold/10' :
+                      f.color === 'success' ? 'bg-success/10' :
+                        'bg-accent/10'
+                  }`}
               >
-                <span className={`material-symbols-outlined text-2xl ${
-                  f.color === 'primary' ? 'text-primary' :
-                  f.color === 'gold' ? 'text-gold' :
-                  f.color === 'success' ? 'text-success' :
-                  'text-accent'
-                }`}>{f.icon}</span>
+                <span className={`material-symbols-outlined text-2xl ${f.color === 'primary' ? 'text-primary' :
+                    f.color === 'gold' ? 'text-gold' :
+                      f.color === 'success' ? 'text-success' :
+                        'text-accent'
+                  }`}>{f.icon}</span>
               </div>
               <h3 className="font-headline text-xl font-bold text-stone-900 mb-2">{f.title}</h3>
               <p className="text-sm text-stone-500 leading-relaxed">{f.desc}</p>
@@ -333,7 +331,8 @@ function SuccessStoriesSection() {
         </p>
       </div>
 
-      <style dangerouslySetInnerHTML={{__html: `
+      <style dangerouslySetInnerHTML={{
+        __html: `
         @keyframes scroll {
           0% { transform: translateX(0); }
           100% { transform: translateX(calc(-250px * 4 - 2rem * 4)); }
@@ -413,13 +412,13 @@ function PricingSection() {
 function Footer() {
   return (
     <footer className="bg-white text-stone-600 py-12 border-t-[32px] border-primary">
-        <div className="max-w-7xl mx-auto px-6">
+      <div className="max-w-7xl mx-auto px-6">
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
           {/* Column 1: Brand */}
           <div>
             <div className="flex items-center gap-4 mb-8">
               <div className="hidden sm:block">
-                <h3 className="font-headline text-2xl font-bold text-stone-900 leading-tight">Bhartiya Rishtey</h3>
+                <h3 className="font-headline text-2xl font-bold text-primary leading-tight">Bhartiya Rishtey</h3>
                 <p className="text-[10px] tracking-widest uppercase text-primary font-bold mt-1">Trusted Matrimony</p>
               </div>
             </div>
@@ -497,10 +496,10 @@ function Footer() {
 
         <div className="border-t border-stone-100 pt-6 flex flex-col md:flex-row justify-between items-center md:items-end gap-6">
           <p className="text-[9px] font-bold text-stone-400 uppercase tracking-widest leading-normal text-center md:text-left">
-            © 2016 Bhartiya Rishtey. All rights reserved.<br/>
+            © 2016 Bhartiya Rishtey. All rights reserved.<br />
             The most trusted name in Indian Matrimony.
           </p>
-          
+
           <div className="flex flex-col items-center md:items-end">
             <div className="bg-stone-50/50 border border-stone-100 rounded-xl p-2.5 flex items-center gap-3 shadow-sm">
               <div className="text-right">
