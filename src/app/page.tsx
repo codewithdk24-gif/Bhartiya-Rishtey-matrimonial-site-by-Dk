@@ -217,9 +217,9 @@ function HeroSection() {
 }
 
 function FeaturesSection() {
-  const [currentIdx, setCurrentIdx] = React.useState(0);
-  const [rolling, setRolling] = React.useState(false);
-  const [diceValue, setDiceValue] = React.useState(1);
+  const [currentIdx, setCurrentIdx] = useState(0);
+  const [rolling, setRolling] = useState(false);
+  const [diceValue, setDiceValue] = useState(1);
 
   const features = [
     { icon: 'shield', title: 'Privacy First', desc: 'Secure encrypted conversations for your safety.', color: 'maroon', diceIcon: 'casino' },
@@ -332,8 +332,6 @@ function FeaturesSection() {
         </div>
       </div>
     </section>
-  );
-}
   );
 }
 
