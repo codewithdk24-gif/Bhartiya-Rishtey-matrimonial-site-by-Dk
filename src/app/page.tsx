@@ -178,9 +178,9 @@ function HeroSection() {
             <span className="!text-[#BE123C] italic">Zindagi Bhar</span>
           </h1>
 
-          <div className="lg:bg-transparent lg:backdrop-blur-none px-0 py-8 lg:mx-0 lg:px-0 lg:py-0">
-            <p className="text-lg text-stone-500 leading-relaxed max-w-lg mb-8">
-              A trusted matrimonial platform designed to connect you with like-minded individuals who share your values, culture, and vision for a meaningful future.
+          <div className="lg:bg-transparent lg:backdrop-blur-none px-0 py-8 lg:mx-0 lg:px-0 lg:py-0 mt-2">
+            <p className="text-lg md:text-xl text-stone-500 leading-relaxed max-w-lg mb-10 font-medium">
+              A premium matrimonial platform <span className="text-primary/80">rooted in Indian values</span>, designed to help you find a life partner who understands your <span className="text-primary/80">culture & vision</span>.
             </p>
 
             <div className="flex flex-wrap gap-3 sm:gap-4 mb-12">
