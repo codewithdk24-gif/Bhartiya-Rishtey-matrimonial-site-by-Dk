@@ -150,8 +150,8 @@ function HeroSection() {
                 <span className="material-symbols-outlined text-success text-lg">verified</span>
               </div>
               <div>
-                <p className="font-bold text-xs text-stone-900">100% Verified</p>
-                <p className="text-[10px] text-stone-400 whitespace-nowrap">Manually ID Verified</p>
+                <p className="font-bold text-xs text-stone-900">Trusted Rishtey</p>
+                <p className="text-[10px] text-stone-400 whitespace-nowrap">ID Verified Profiles</p>
               </div>
             </div>
 
@@ -160,8 +160,8 @@ function HeroSection() {
                 <span className="material-symbols-outlined text-primary text-lg">favorite</span>
               </div>
               <div>
-                <p className="font-bold text-xs text-stone-900">New Match!</p>
-                <p className="text-[10px] text-stone-400 whitespace-nowrap">98% compatible</p>
+                <p className="font-bold text-xs text-stone-900">Tradition First</p>
+                <p className="text-[10px] text-stone-400 whitespace-nowrap">Rooted in values</p>
               </div>
             </div>
           </div>
@@ -169,19 +169,18 @@ function HeroSection() {
 
         {/* Text Section - Positioned high up over the blurred image area */}
         <div className="relative z-30 animate-fade-in-up order-2 lg:order-1 -mt-72 lg:mt-0 px-6 lg:px-0">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/40 border border-white/20 mb-6 backdrop-blur-xl shadow-lg shadow-black/5">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6 backdrop-blur-xl shadow-lg">
             <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-            <span className="text-xs font-semibold text-primary tracking-widest uppercase">Trusted by 10,000+ families</span>
+            <span className="text-xs font-bold text-primary tracking-wider uppercase">Trusted by 10,000+ families</span>
           </div>
 
           <h1 className="font-headline text-3xl xs:text-4xl md:text-7xl font-extrabold leading-[1.2] text-stone-900 mb-6">
-            Where <span className="text-primary">Trusted Vows</span> Meet{' '}
-            <span className="text-secondary">Heritage</span>
+            Where <span className="text-primary">Trusted Rishtey</span> Meet <span className="text-stone-900 lg:text-gold">Tradition</span>
           </h1>
 
           <div className="lg:bg-transparent lg:backdrop-blur-none px-0 py-8 lg:mx-0 lg:px-0 lg:py-0">
             <p className="text-lg text-stone-500 leading-relaxed max-w-lg mb-8">
-              A premium matrimonial platform that honors your heritage while helping you find a life partner who shares your values, culture, and dreams.
+              A premium matrimonial platform rooted in Indian values, designed to help you find a life partner who truly understands your culture, vision, and aspirations.
             </p>
 
             <div className="flex flex-wrap gap-3 sm:gap-4 mb-12">
