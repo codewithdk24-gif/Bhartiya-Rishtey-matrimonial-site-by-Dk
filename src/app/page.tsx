@@ -175,7 +175,7 @@ function HeroSection() {
 
           <h1 className="font-headline text-3xl xs:text-4xl md:text-6xl font-extrabold leading-[1.4] text-stone-900 mb-6">
             Dil Ke <span className="text-primary">Rishtey,</span><br />
-            <span className="text-gold">Zindagi Bhar</span>
+            <span className="!text-[#C5A059] italic">Zindagi Bhar</span>
           </h1>
 
           <div className="lg:bg-transparent lg:backdrop-blur-none px-0 py-8 lg:mx-0 lg:px-0 lg:py-0">
