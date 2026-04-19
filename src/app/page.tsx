@@ -279,15 +279,15 @@ function FeaturesSection() {
           </p>
         </div>
 
-        <div className="flex lg:grid lg:grid-cols-3 gap-6 overflow-x-auto lg:overflow-visible pb-8 snap-x snap-mandatory hide-scrollbar -mx-6 px-6 lg:mx-0 lg:px-0">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
           {features.map((f, i) => (
             <div 
               key={i} 
-              className="min-w-[85vw] sm:min-w-[320px] lg:min-w-0 snap-center glass-card glass-card-hover p-8 group relative overflow-hidden border-transparent hover:border-white/50"
+              className="glass-card glass-card-hover p-4 md:p-8 group relative overflow-hidden border-transparent hover:border-white/50"
               style={{ boxShadow: `0 10px 40px ${f.glow}` }}
             >
               {/* Stylish watermark icon */}
-              <span className={`material-symbols-outlined absolute -right-4 -top-4 text-9xl opacity-[0.03] group-hover:opacity-[0.07] transition-opacity duration-700 pointer-events-none select-none`}>
+              <span className={`material-symbols-outlined absolute -right-4 -top-4 text-7xl md:text-9xl opacity-[0.03] group-hover:opacity-[0.07] transition-opacity duration-700 pointer-events-none select-none`}>
                 {f.icon}
               </span>
 
@@ -298,23 +298,23 @@ function FeaturesSection() {
               />
 
               <div
-                className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-8 transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 ${
-                  f.color === 'maroon' ? 'bg-primary/10 text-primary shadow-maroon-100' :
+                className={`w-10 h-10 md:w-16 md:h-16 rounded-xl md:rounded-2xl flex items-center justify-center mb-4 md:mb-8 transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 ${
+                  f.color === 'maroon' ? 'bg-primary/10 text-primary' :
                   f.color === 'indigo' ? 'bg-indigo-50 text-indigo-600' :
                   f.color === 'emerald' ? 'bg-emerald-50 text-emerald-600' :
                   f.color === 'amber' ? 'bg-amber-50 text-amber-600' :
                   f.color === 'rose' ? 'bg-rose-50 text-rose-600' :
                   'bg-blue-50 text-blue-600'
-                } shadow-lg`}
+                } shadow-md md:shadow-lg`}
               >
-                <span className="material-symbols-outlined text-3xl font-light">{f.icon}</span>
+                <span className="material-symbols-outlined text-xl md:text-3xl font-light">{f.icon}</span>
               </div>
               
-              <h3 className="font-headline text-2xl font-bold text-stone-900 mb-4 group-hover:text-primary transition-colors">{f.title}</h3>
-              <p className="text-stone-500 leading-relaxed font-medium">{f.desc}</p>
+              <h3 className="font-headline text-base md:text-2xl font-bold text-stone-900 mb-2 md:mb-4 group-hover:text-primary transition-colors">{f.title}</h3>
+              <p className="text-[10px] md:text-base text-stone-500 leading-tight md:leading-relaxed font-medium line-clamp-2 md:line-clamp-none">{f.desc}</p>
               
               {/* Decorative corner element */}
-              <div className={`absolute -bottom-2 -right-2 w-12 h-12 rounded-full blur-2xl opacity-0 group-hover:opacity-40 transition-opacity ${
+              <div className={`absolute -bottom-2 -right-2 w-8 h-8 md:w-12 md:h-12 rounded-full blur-xl md:blur-2xl opacity-0 group-hover:opacity-40 transition-opacity ${
                  f.color === 'maroon' ? 'bg-primary' :
                  f.color === 'indigo' ? 'bg-indigo-600' :
                  f.color === 'emerald' ? 'bg-emerald-600' :
