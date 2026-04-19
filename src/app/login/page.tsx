@@ -54,7 +54,7 @@ export default function LoginPage() {
           
           <Link href="/" className="flex items-center justify-center gap-3 mb-6 group">
             <div>
-              <h1 className="font-headline text-2xl font-bold text-stone-900">Bhartiya Rishtey</h1>
+              <h1 className="font-headline text-2xl font-bold text-[#9b1c31]">Bhartiya Rishtey</h1>
               <p className="text-[10px] tracking-[0.25em] uppercase text-stone-400 font-bold">Premium Matrimony</p>
             </div>
           </Link>

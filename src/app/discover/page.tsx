@@ -20,7 +20,7 @@ function DashNav() {
     <nav className="nav-glass sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 py-2.5 flex items-center justify-between">
         <Link href="/discover" className="flex items-center gap-2">
-          <span className="font-headline text-lg font-bold text-stone-900 hidden sm:block">Bhartiya Rishtey</span>
+          <span className="font-headline text-lg font-bold text-[#9b1c31] hidden sm:block">Bhartiya Rishtey</span>
         </Link>
         <div className="hidden md:flex items-center gap-0.5">
           {links.map(link => (

@@ -173,9 +173,9 @@ function HeroSection() {
             <span className="text-[10px] font-bold text-[#9b1c31] tracking-[0.15em] uppercase">Trusted by 10,000+ families</span>
           </div>
 
-          <h1 className="font-headline text-3xl xs:text-4xl md:text-6xl font-extrabold leading-[1.2] text-stone-900 mb-6">
-            Dil Ke <span className="text-primary"> Rishtey, </span><br className="hidden md:block" />
-            Zindagi Bhar
+          <h1 className="font-headline text-3xl xs:text-4xl md:text-6xl font-extrabold leading-[1.4] text-stone-900 mb-6">
+            Dil Ke <span className="text-primary">Rishtey,</span><br />
+            <span className="text-gold">Zindagi Bhar</span>
           </h1>
 
           <div className="lg:bg-transparent lg:backdrop-blur-none px-0 py-8 lg:mx-0 lg:px-0 lg:py-0">
