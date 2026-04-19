@@ -145,23 +145,23 @@ function HeroSection() {
             </div>
 
             {/* Floating badges - only visible on desktop to keep mobile clear */}
-            <div className="absolute bottom-12 left-12 bg-white rounded-xl border border-stone-100 p-3 items-center gap-3 animate-fade-in-up-delay-2 shadow-xl z-20 transition-transform hover:scale-105 hidden lg:flex float-animation">
-              <div className="w-10 h-10 rounded-full bg-success/10 flex items-center justify-center shrink-0">
-                <span className="material-symbols-outlined text-success text-lg">verified</span>
+            <div className="absolute bottom-12 left-12 bg-white rounded-2xl border border-stone-100 p-3.5 items-center gap-3.5 shadow-2xl z-20 transition-transform hover:scale-110 hidden lg:flex float-animation ring-4 ring-white/50">
+              <div className="w-11 h-11 rounded-full bg-blue-500 flex items-center justify-center shrink-0 shadow-lg shadow-blue-200 animate-pulse">
+                <span className="material-symbols-outlined text-white text-xl">verified</span>
               </div>
               <div>
-                <p className="font-bold text-[10px] sm:text-xs text-primary">Trusted Rishtey</p>
-                <p className="text-[10px] text-stone-400 whitespace-nowrap">ID Verified Profiles</p>
+                <p className="font-bold text-xs text-stone-900">Trusted Rishtey ✅</p>
+                <p className="text-[10px] text-stone-400 font-medium">Verified Profiles</p>
               </div>
             </div>
 
-            <div className="absolute top-12 right-12 bg-white rounded-xl border border-stone-100 p-3 items-center gap-3 animate-fade-in-up-delay-3 shadow-xl z-20 transition-transform hover:scale-105 hidden lg:flex float-animation-delay">
-              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0 pulse-ring">
-                <span className="material-symbols-outlined text-primary text-lg">favorite</span>
+            <div className="absolute top-12 right-12 bg-white rounded-2xl border border-stone-100 p-3.5 items-center gap-3.5 shadow-2xl z-20 transition-transform hover:scale-110 hidden lg:flex float-animation-delay ring-4 ring-white/50">
+              <div className="w-11 h-11 rounded-full bg-pink-500 flex items-center justify-center shrink-0 shadow-lg shadow-pink-200 pulse-ring">
+                <span className="material-symbols-outlined text-white text-xl">favorite</span>
               </div>
               <div>
-                <p className="font-bold text-xs text-stone-900">Tradition First</p>
-                <p className="text-[10px] text-stone-400 whitespace-nowrap">Rooted in values</p>
+                <p className="font-bold text-xs text-stone-900">Tradition First ❤️</p>
+                <p className="text-[10px] text-stone-400 font-medium">Rooted in values</p>
               </div>
             </div>
           </div>
