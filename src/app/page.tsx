@@ -21,7 +21,7 @@ function Navbar() {
         <div className="max-w-7xl mx-auto px-4 md:px-6 h-full flex items-center justify-between gap-1">
           <Link href="/" className="flex items-center gap-1 shrink-0">
             <div className="flex flex-col">
-              <h1 className="font-headline text-[12px] min-[360px]:text-[15px] xs:text-lg md:text-2xl font-extrabold text-stone-900 leading-tight whitespace-nowrap">Bhartiya Rishtey</h1>
+              <h1 className="font-headline text-[12px] min-[360px]:text-[15px] xs:text-lg md:text-2xl font-extrabold text-primary leading-tight whitespace-nowrap">Bhartiya Rishtey</h1>
               <p className="text-[6px] min-[360px]:text-[7px] md:text-[10px] tracking-[0.15em] md:tracking-[0.2em] uppercase text-primary font-bold block">Trusted Since 2016</p>
             </div>
           </Link>
@@ -51,7 +51,7 @@ function Navbar() {
               <div className="p-8 relative z-10">
                 <div className="flex items-center justify-between mb-10">
                   <div className="flex flex-col">
-                    <h2 className="font-headline text-xl font-bold text-stone-900">Bhartiya Rishtey</h2>
+                    <h2 className="font-headline text-xl font-bold text-primary">Bhartiya Rishtey</h2>
                     <p className="text-[9px] tracking-widest uppercase text-primary font-bold">Premium Matrimony</p>
                   </div>
                   <button className="w-10 h-10 rounded-full bg-stone-50 flex items-center justify-center text-stone-400 hover:text-stone-900 transition-colors" onClick={() => setMobileOpen(false)}>
@@ -169,8 +169,8 @@ function HeroSection() {
 
         {/* Text Section - Positioned high up over the blurred image area */}
         <div className="relative z-30 animate-fade-in-up order-2 lg:order-1 -mt-72 lg:mt-0 px-6 lg:px-0">
-          <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white border border-stone-200 mb-8 shadow-sm">
-            <span className="text-[10px] font-bold text-stone-900 tracking-[0.15em] uppercase">Trusted by 10,000+ families</span>
+          <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white border border-primary/20 mb-8 shadow-sm">
+            <span className="text-[10px] font-bold text-primary tracking-[0.15em] uppercase">Trusted by 10,000+ families</span>
           </div>
 
           <h1 className="font-headline text-4xl xs:text-5xl md:text-8xl font-extrabold leading-[1.1] text-stone-900 mb-8">
