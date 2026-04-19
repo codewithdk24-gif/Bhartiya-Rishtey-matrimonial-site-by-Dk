@@ -169,13 +169,14 @@ function HeroSection() {
 
         {/* Text Section - Positioned high up over the blurred image area */}
         <div className="relative z-30 animate-fade-in-up order-2 lg:order-1 -mt-72 lg:mt-0 px-6 lg:px-0">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6 backdrop-blur-xl shadow-lg">
-            <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-            <span className="text-xs font-bold text-primary tracking-wider uppercase">Trusted by 10,000+ families</span>
+          <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white border border-stone-200 mb-8 shadow-sm">
+            <span className="text-[10px] font-bold text-stone-900 tracking-[0.15em] uppercase">Trusted by 10,000+ families</span>
           </div>
 
-          <h1 className="font-headline text-3xl xs:text-4xl md:text-7xl font-extrabold leading-[1.2] text-stone-900 mb-6">
-            Where <span className="text-primary">Trusted Rishtey</span> Meet Tradition
+          <h1 className="font-headline text-4xl xs:text-5xl md:text-8xl font-extrabold leading-[1.1] text-stone-900 mb-8">
+            Where <span className="text-primary block sm:inline">Trusted</span><br className="hidden sm:block" />
+            <span className="text-primary">Rishtey</span> Meet<br />
+            Tradition
           </h1>
 
           <div className="lg:bg-transparent lg:backdrop-blur-none px-0 py-8 lg:mx-0 lg:px-0 lg:py-0">
