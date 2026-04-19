@@ -217,6 +217,8 @@ function HeroSection() {
 }
 
 function FeaturesSection() {
+  const [activeIdx, setActiveIdx] = React.useState<number | null>(null);
+
   const features = [
     {
       icon: 'shield',
@@ -283,22 +285,31 @@ function FeaturesSection() {
           {features.map((f, i) => (
             <div 
               key={i} 
-              className="glass-card glass-card-hover p-4 md:p-8 group relative overflow-hidden border-transparent hover:border-white/50"
-              style={{ boxShadow: `0 10px 40px ${f.glow}` }}
+              onClick={() => setActiveIdx(activeIdx === i ? null : i)}
+              className={`glass-card glass-card-hover p-4 md:p-8 group relative overflow-hidden border-transparent transition-all duration-500 cursor-pointer ${
+                activeIdx === i ? 'ring-2 ring-primary/30 shadow-2xl scale-[1.02] z-20' : 'hover:border-white/50'
+              }`}
+              style={{ boxShadow: activeIdx === i ? `0 20px 50px ${f.glow}` : `0 10px 40px ${f.glow}` }}
             >
               {/* Stylish watermark icon */}
-              <span className={`material-symbols-outlined absolute -right-4 -top-4 text-7xl md:text-9xl opacity-[0.03] group-hover:opacity-[0.07] transition-opacity duration-700 pointer-events-none select-none`}>
+              <span className={`material-symbols-outlined absolute -right-4 -top-4 text-7xl md:text-9xl opacity-[0.03] group-hover:opacity-[0.07] transition-opacity duration-700 pointer-events-none select-none ${
+                activeIdx === i ? 'opacity-[0.1]' : ''
+              }`}>
                 {f.icon}
               </span>
 
               {/* Subtle hover glow */}
               <div 
-                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+                className={`absolute inset-0 transition-opacity duration-500 pointer-events-none ${
+                  activeIdx === i ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                }`}
                 style={{ background: `radial-gradient(circle at top right, ${f.glow}, transparent)` }}
               />
 
               <div
-                className={`w-10 h-10 md:w-16 md:h-16 rounded-xl md:rounded-2xl flex items-center justify-center mb-4 md:mb-8 transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 ${
+                className={`w-10 h-10 md:w-16 md:h-16 rounded-xl md:rounded-2xl flex items-center justify-center mb-4 md:mb-8 transition-all duration-500 ${
+                  activeIdx === i ? 'scale-110 rotate-6 shadow-lg' : 'group-hover:scale-110 group-hover:rotate-6'
+                } ${
                   f.color === 'maroon' ? 'bg-primary/10 text-primary' :
                   f.color === 'indigo' ? 'bg-indigo-50 text-indigo-600' :
                   f.color === 'emerald' ? 'bg-emerald-50 text-emerald-600' :
@@ -310,11 +321,20 @@ function FeaturesSection() {
                 <span className="material-symbols-outlined text-xl md:text-3xl font-light">{f.icon}</span>
               </div>
               
-              <h3 className="font-headline text-base md:text-2xl font-bold text-stone-900 mb-2 md:mb-4 group-hover:text-primary transition-colors">{f.title}</h3>
-              <p className="text-[10px] md:text-base text-stone-500 leading-tight md:leading-relaxed font-medium line-clamp-2 md:line-clamp-none">{f.desc}</p>
+              <h3 className={`font-headline text-base md:text-2xl font-bold transition-colors ${
+                activeIdx === i ? 'text-primary' : 'text-stone-900 group-hover:text-primary'
+              } mb-2 md:mb-4`}>{f.title}</h3>
+              
+              <p className={`text-[10px] md:text-base text-stone-500 leading-tight md:leading-relaxed font-medium transition-all duration-500 ${
+                activeIdx === i ? 'line-clamp-none' : 'line-clamp-2 md:line-clamp-none'
+              }`}>
+                {f.desc}
+              </p>
               
               {/* Decorative corner element */}
-              <div className={`absolute -bottom-2 -right-2 w-8 h-8 md:w-12 md:h-12 rounded-full blur-xl md:blur-2xl opacity-0 group-hover:opacity-40 transition-opacity ${
+              <div className={`absolute -bottom-2 -right-2 w-8 h-8 md:w-12 md:h-12 rounded-full blur-xl md:blur-2xl transition-opacity ${
+                 activeIdx === i ? 'opacity-60' : 'opacity-0 group-hover:opacity-40'
+              } ${
                  f.color === 'maroon' ? 'bg-primary' :
                  f.color === 'indigo' ? 'bg-indigo-600' :
                  f.color === 'emerald' ? 'bg-emerald-600' :
@@ -322,6 +342,13 @@ function FeaturesSection() {
                  f.color === 'rose' ? 'bg-rose-600' :
                  'bg-blue-600'
               }`} />
+
+              {/* Tap hint for mobile */}
+              {activeIdx === null && (
+                <div className="absolute bottom-2 right-2 md:hidden">
+                  <span className="material-symbols-outlined text-[10px] text-stone-300 animate-pulse">touch_app</span>
+                </div>
+              )}
             </div>
           ))}
         </div>
