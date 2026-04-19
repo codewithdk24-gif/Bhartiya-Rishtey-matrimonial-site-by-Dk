@@ -145,7 +145,7 @@ function HeroSection() {
             </div>
 
             {/* Floating badges - only visible on desktop to keep mobile clear */}
-            <div className="absolute bottom-12 left-12 bg-white/30 backdrop-blur-xl rounded-xl border border-white/20 p-3 items-center gap-3 animate-fade-in-up-delay-2 shadow-2xl z-20 transition-transform hover:scale-105 hidden lg:flex">
+            <div className="absolute bottom-12 left-12 bg-white/10 backdrop-blur-2xl rounded-xl border border-white/40 p-3 items-center gap-3 animate-fade-in-up-delay-2 shadow-2xl z-20 transition-transform hover:scale-105 hidden lg:flex">
               <div className="w-10 h-10 rounded-full bg-success/10 flex items-center justify-center shrink-0">
                 <span className="material-symbols-outlined text-success text-lg">verified</span>
               </div>
@@ -155,7 +155,7 @@ function HeroSection() {
               </div>
             </div>
 
-            <div className="absolute top-12 right-12 bg-white/30 backdrop-blur-xl rounded-xl border border-white/20 p-3 items-center gap-3 animate-fade-in-up-delay-3 shadow-2xl z-20 transition-transform hover:scale-105 hidden lg:flex">
+            <div className="absolute top-12 right-12 bg-white/10 backdrop-blur-2xl rounded-xl border border-white/40 p-3 items-center gap-3 animate-fade-in-up-delay-3 shadow-2xl z-20 transition-transform hover:scale-105 hidden lg:flex">
               <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0 pulse-ring">
                 <span className="material-symbols-outlined text-primary text-lg">favorite</span>
               </div>
@@ -169,7 +169,7 @@ function HeroSection() {
 
         {/* Text Section - Positioned high up over the blurred image area */}
         <div className="relative z-30 animate-fade-in-up order-2 lg:order-1 -mt-72 lg:mt-0 px-6 lg:px-0">
-          <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/30 backdrop-blur-xl border border-white/20 mb-8 shadow-2xl">
+          <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/10 backdrop-blur-2xl border border-white/40 mb-8 shadow-2xl">
             <span className="text-[10px] font-bold text-[#9b1c31] tracking-[0.15em] uppercase">Trusted by 10,000+ families</span>
           </div>
 
