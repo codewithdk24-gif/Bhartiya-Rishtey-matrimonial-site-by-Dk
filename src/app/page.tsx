@@ -18,23 +18,23 @@ function Navbar() {
   return (
     <>
       <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b ${scrolled ? 'nav-glass h-16 md:h-20 border-stone-100/50' : 'h-18 md:h-24 bg-transparent border-transparent'}`}>
-        <div className="max-w-7xl mx-auto px-4 md:px-6 h-full flex items-center justify-between gap-2">
+        <div className="max-w-7xl mx-auto px-2 min-[360px]:px-4 md:px-6 h-full flex items-center justify-between gap-1 min-[360px]:gap-2">
           <Link href="/" className="flex items-center gap-1 shrink-0">
             <div className="flex flex-col">
-              <h1 className="font-headline text-[15px] xs:text-lg md:text-2xl font-extrabold text-stone-900 leading-tight whitespace-nowrap">Bhartiya Rishtey</h1>
-              <p className="text-[7px] md:text-[10px] tracking-[0.15em] md:tracking-[0.2em] uppercase text-primary font-bold block">Trusted Since 2016</p>
+              <h1 className="font-headline text-[11px] min-[360px]:text-[15px] xs:text-lg md:text-2xl font-extrabold text-stone-900 leading-tight whitespace-nowrap">Bhartiya Rishtey</h1>
+              <p className="text-[5px] min-[360px]:text-[7px] md:text-[10px] tracking-[0.15em] md:tracking-[0.2em] uppercase text-primary font-bold block">Trusted Since 2016</p>
             </div>
           </Link>
 
-          <div className="flex items-center gap-1 md:gap-8">
+          <div className="flex items-center gap-0.5 md:gap-8">
             <div className="hidden md:flex items-center gap-8 mr-4">
               <Link href="/search" className="text-sm font-medium text-stone-600 hover:text-primary transition-colors">Browse Matches</Link>
               <Link href="/premium" className="text-sm font-medium text-stone-600 hover:text-primary transition-colors">Premium Plans</Link>
             </div>
             
-            <div className="flex items-center gap-1.5 md:gap-3">
-              <Link href="/login" className="btn-secondary text-[9px] md:text-xs px-2.5 md:px-4 py-1.5 md:py-2.5 whitespace-nowrap">Log In</Link>
-              <Link href="/signup" className="btn-primary text-[9px] md:text-xs px-2.5 md:px-4 py-1.5 md:py-2.5 whitespace-nowrap">Get Started</Link>
+            <div className="flex items-center gap-1 md:gap-3">
+              <Link href="/login" className="btn-secondary !text-[8px] min-[360px]:!text-[9px] md:!text-xs !px-2 md:!px-4 !py-1 md:!py-2.5 whitespace-nowrap">Login</Link>
+              <Link href="/signup" className="btn-primary !text-[8px] min-[360px]:!text-[9px] md:!text-xs !px-2 md:!px-4 !py-1 md:!py-2.5 whitespace-nowrap">Join</Link>
             </div>
           </div>
         </div>
