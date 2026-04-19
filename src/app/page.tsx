@@ -150,7 +150,7 @@ function HeroSection() {
                 <span className="material-symbols-outlined text-success text-lg">verified</span>
               </div>
               <div>
-                <p className="font-bold text-[10px] sm:text-xs text-primary italic">Trusted <span className="text-gold">Rishtey</span></p>
+                <p className="font-bold text-[10px] sm:text-xs text-primary">Trusted Rishtey</p>
                 <p className="text-[10px] text-stone-400 whitespace-nowrap">ID Verified Profiles</p>
               </div>
             </div>
@@ -175,7 +175,7 @@ function HeroSection() {
           </div>
 
           <h1 className="font-headline text-3xl xs:text-4xl md:text-7xl font-extrabold leading-[1.2] text-stone-900 mb-6">
-            Where <span className="text-primary">Trusted</span> <span className="text-gold">Rishtey</span> Meet Tradition
+            Where <span className="text-primary">Trusted Rishtey</span> Meet Tradition
           </h1>
 
           <div className="lg:bg-transparent lg:backdrop-blur-none px-0 py-8 lg:mx-0 lg:px-0 lg:py-0">
