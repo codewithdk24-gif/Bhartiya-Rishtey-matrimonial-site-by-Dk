@@ -21,7 +21,7 @@ function Navbar() {
         <div className="max-w-7xl mx-auto px-4 md:px-6 h-full flex items-center justify-between gap-1">
           <Link href="/" className="flex items-center gap-1 shrink-0">
             <div className="flex flex-col">
-              <h1 className="font-headline text-[12px] min-[360px]:text-[15px] xs:text-lg md:text-2xl font-extrabold text-primary leading-tight whitespace-nowrap">Bhartiya Rishtey</h1>
+              <h1 className="font-headline text-[12px] min-[360px]:text-[15px] xs:text-lg md:text-2xl font-extrabold !text-[#9b1c31] leading-tight whitespace-nowrap">Bhartiya Rishtey</h1>
               <p className="text-[6px] min-[360px]:text-[7px] md:text-[10px] tracking-[0.15em] md:tracking-[0.2em] uppercase text-primary font-bold block">Trusted Since 2016</p>
             </div>
           </Link>
@@ -51,7 +51,7 @@ function Navbar() {
               <div className="p-8 relative z-10">
                 <div className="flex items-center justify-between mb-10">
                   <div className="flex flex-col">
-                    <h2 className="font-headline text-xl font-bold text-primary">Bhartiya Rishtey</h2>
+                    <h2 className="font-headline text-xl font-bold !text-[#9b1c31]">Bhartiya Rishtey</h2>
                     <p className="text-[9px] tracking-widest uppercase text-primary font-bold">Premium Matrimony</p>
                   </div>
                   <button className="w-10 h-10 rounded-full bg-stone-50 flex items-center justify-center text-stone-400 hover:text-stone-900 transition-colors" onClick={() => setMobileOpen(false)}>
@@ -160,7 +160,7 @@ function HeroSection() {
                 <span className="material-symbols-outlined text-primary text-lg">favorite</span>
               </div>
               <div>
-                <p className="font-bold text-xs text-primary">Tradition First</p>
+                <p className="font-bold text-xs text-stone-900">Tradition First</p>
                 <p className="text-[10px] text-stone-400 whitespace-nowrap">Rooted in values</p>
               </div>
             </div>
@@ -170,17 +170,17 @@ function HeroSection() {
         {/* Text Section - Positioned high up over the blurred image area */}
         <div className="relative z-30 animate-fade-in-up order-2 lg:order-1 -mt-72 lg:mt-0 px-6 lg:px-0">
           <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white border border-primary/20 mb-8 shadow-sm">
-            <span className="text-[10px] font-bold text-primary tracking-[0.15em] uppercase">Trusted by 10,000+ families</span>
+            <span className="text-[10px] font-bold text-[#9b1c31] tracking-[0.15em] uppercase">Trusted by 10,000+ families</span>
           </div>
 
           <h1 className="font-headline text-3xl xs:text-4xl md:text-6xl font-extrabold leading-[1.2] text-stone-900 mb-6">
-            Meaningful <span className="text-primary">Rishtey</span><br className="hidden md:block" />
-            Made for Life
+            Dil Ke <span className="text-primary"> Rishtey, </span><br className="hidden md:block" />
+            Zindagi Bhar
           </h1>
 
           <div className="lg:bg-transparent lg:backdrop-blur-none px-0 py-8 lg:mx-0 lg:px-0 lg:py-0">
             <p className="text-lg text-stone-500 leading-relaxed max-w-lg mb-8">
-              A premium matrimonial platform rooted in Indian values, designed to help you find a life partner who truly understands your culture, vision, and aspirations.
+              A trusted matrimonial platform designed to connect you with like-minded individuals who share your values, culture, and vision for a meaningful future.
             </p>
 
             <div className="flex flex-wrap gap-3 sm:gap-4 mb-12">
@@ -274,15 +274,15 @@ function FeaturesSection() {
             <div key={i} className="glass-card glass-card-hover p-8 group">
               <div
                 className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-5 transition-transform group-hover:scale-110 ${f.color === 'primary' ? 'bg-primary/10' :
-                    f.color === 'gold' ? 'bg-gold/10' :
-                      f.color === 'success' ? 'bg-success/10' :
-                        'bg-accent/10'
+                  f.color === 'gold' ? 'bg-gold/10' :
+                    f.color === 'success' ? 'bg-success/10' :
+                      'bg-accent/10'
                   }`}
               >
                 <span className={`material-symbols-outlined text-2xl ${f.color === 'primary' ? 'text-primary' :
-                    f.color === 'gold' ? 'text-gold' :
-                      f.color === 'success' ? 'text-success' :
-                        'text-accent'
+                  f.color === 'gold' ? 'text-gold' :
+                    f.color === 'success' ? 'text-success' :
+                      'text-accent'
                   }`}>{f.icon}</span>
               </div>
               <h3 className="font-headline text-xl font-bold text-stone-900 mb-2">{f.title}</h3>
@@ -418,7 +418,7 @@ function Footer() {
           <div>
             <div className="flex items-center gap-4 mb-8">
               <div className="hidden sm:block">
-                <h3 className="font-headline text-2xl font-bold text-primary leading-tight">Bhartiya Rishtey</h3>
+                <h3 className="font-headline text-2xl font-bold text-[#9b1c31] leading-tight">Bhartiya Rishtey</h3>
                 <p className="text-[10px] tracking-widest uppercase text-primary font-bold mt-1">Trusted Matrimony</p>
               </div>
             </div>
