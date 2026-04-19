@@ -18,11 +18,11 @@ function Navbar() {
   return (
     <>
       <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b ${scrolled ? 'nav-glass h-16 md:h-20 border-stone-100/50' : 'h-18 md:h-24 bg-transparent border-transparent'}`}>
-        <div className="max-w-7xl mx-auto px-2 min-[360px]:px-4 md:px-6 h-full flex items-center justify-between gap-1 min-[360px]:gap-2">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 h-full flex items-center justify-between gap-1">
           <Link href="/" className="flex items-center gap-1 shrink-0">
             <div className="flex flex-col">
-              <h1 className="font-headline text-[11px] min-[360px]:text-[15px] xs:text-lg md:text-2xl font-extrabold text-stone-900 leading-tight whitespace-nowrap">Bhartiya Rishtey</h1>
-              <p className="text-[5px] min-[360px]:text-[7px] md:text-[10px] tracking-[0.15em] md:tracking-[0.2em] uppercase text-primary font-bold block">Trusted Since 2016</p>
+              <h1 className="font-headline text-[12px] min-[360px]:text-[15px] xs:text-lg md:text-2xl font-extrabold text-stone-900 leading-tight whitespace-nowrap">Bhartiya Rishtey</h1>
+              <p className="text-[6px] min-[360px]:text-[7px] md:text-[10px] tracking-[0.15em] md:tracking-[0.2em] uppercase text-primary font-bold block">Trusted Since 2016</p>
             </div>
           </Link>
 
@@ -174,7 +174,7 @@ function HeroSection() {
             <span className="text-xs font-semibold text-primary tracking-widest uppercase">Trusted by 10,000+ families</span>
           </div>
 
-          <h1 className="font-headline text-5xl md:text-7xl font-extrabold leading-[1.1] text-stone-900 mb-6">
+          <h1 className="font-headline text-3xl xs:text-4xl md:text-7xl font-extrabold leading-[1.2] text-stone-900 mb-6">
             Where <span className="text-primary">Trusted Vows</span> Meet{' '}
             <span className="text-secondary">Heritage</span>
           </h1>
@@ -194,20 +194,20 @@ function HeroSection() {
               </Link>
             </div>
 
-            <div className="flex items-center gap-8 relative z-40">
+            <div className="grid grid-cols-2 sm:flex sm:items-center gap-4 sm:gap-8 relative z-40">
               <div>
-                <p className="font-headline text-3xl font-bold text-stone-900">50K+</p>
-                <p className="text-xs text-stone-400 font-medium">Active Profiles</p>
+                <p className="font-headline text-2xl sm:text-3xl font-bold text-stone-900">50K+</p>
+                <p className="text-[10px] sm:text-xs text-stone-400 font-medium">Active Profiles</p>
               </div>
-              <div className="w-px h-10 bg-stone-200" />
+              <div className="hidden sm:block w-px h-10 bg-stone-200" />
               <div>
-                <p className="font-headline text-3xl font-bold text-stone-900">1,200+</p>
-                <p className="text-xs text-stone-400 font-medium">Successful Matches</p>
+                <p className="font-headline text-2xl sm:text-3xl font-bold text-stone-900">1,200+</p>
+                <p className="text-[10px] sm:text-xs text-stone-400 font-medium">Successful Matches</p>
               </div>
-              <div className="w-px h-10 bg-stone-200" />
-              <div>
-                <p className="font-headline text-3xl font-bold text-stone-900">98%</p>
-                <p className="text-xs text-stone-400 font-medium">Verified Profiles</p>
+              <div className="hidden sm:block w-px h-10 bg-stone-200" />
+              <div className="col-span-2 sm:col-span-1">
+                <p className="font-headline text-2xl sm:text-3xl font-bold text-stone-900">98%</p>
+                <p className="text-[10px] sm:text-xs text-stone-400 font-medium">Verified Profiles</p>
               </div>
             </div>
           </div>
