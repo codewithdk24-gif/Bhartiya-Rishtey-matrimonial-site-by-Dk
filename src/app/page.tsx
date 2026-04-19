@@ -222,71 +222,101 @@ function FeaturesSection() {
       icon: 'shield',
       title: 'Privacy First',
       desc: 'End-to-end encrypted conversations. Your data is safe with military-grade security.',
-      color: 'primary',
+      color: 'maroon',
+      glow: 'rgba(155, 28, 49, 0.1)',
     },
     {
       icon: 'psychology',
       title: 'Smart Matchmaking',
       desc: 'Our intelligent algorithm considers 20+ compatibility factors to find your ideal partner.',
-      color: 'gold',
+      color: 'indigo',
+      glow: 'rgba(79, 70, 229, 0.1)',
     },
     {
       icon: 'verified_user',
       title: 'Verified Profiles',
       desc: 'Every profile is manually verified with ID proof to ensure a safe and genuine experience.',
-      color: 'success',
+      color: 'emerald',
+      glow: 'rgba(16, 185, 129, 0.1)',
     },
     {
       icon: 'diversity_3',
       title: 'Cultural Respect',
       desc: 'Filter by religion, community, language, and traditions. Your heritage matters to us.',
-      color: 'accent',
+      color: 'amber',
+      glow: 'rgba(245, 158, 11, 0.1)',
     },
     {
       icon: 'chat_bubble',
       title: 'Real-Time Chat',
       desc: 'Connect instantly through our real-time messaging system with typing indicators.',
-      color: 'primary',
+      color: 'rose',
+      glow: 'rgba(225, 29, 72, 0.1)',
     },
     {
       icon: 'workspace_premium',
       title: 'Premium Experience',
       desc: 'Unlock advanced filters, priority matches, and concierge support with premium plans.',
-      color: 'gold',
+      color: 'blue',
+      glow: 'rgba(37, 99, 235, 0.1)',
     },
   ];
 
   return (
-    <section className="py-24 relative">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="text-center mb-16">
+    <section className="py-24 relative overflow-hidden">
+      {/* Background blobs for color */}
+      <div className="absolute top-1/4 -left-20 w-96 h-96 bg-primary/5 rounded-full blur-[120px]" />
+      <div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-gold/5 rounded-full blur-[120px]" />
+      
+      <div className="max-w-7xl mx-auto px-6 relative z-10">
+        <div className="text-center mb-16 animate-fade-in-up">
           <span className="text-xs font-bold tracking-[0.3em] uppercase text-primary/60 mb-4 block">Why Choose Us</span>
           <h2 className="font-headline text-4xl md:text-5xl font-bold text-stone-900 mb-4">
             Built with <span className="text-gradient">Love & Trust</span>
           </h2>
-          <p className="text-stone-500 max-w-2xl mx-auto">
+          <p className="text-stone-500 max-w-2xl mx-auto font-medium">
             We combine traditional values with modern technology to create the most trusted matrimonial experience.
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {features.map((f, i) => (
-            <div key={i} className="glass-card glass-card-hover p-8 group">
+            <div 
+              key={i} 
+              className="glass-card glass-card-hover p-10 group relative overflow-hidden border-transparent hover:border-white/50"
+              style={{ boxShadow: `0 10px 40px ${f.glow}` }}
+            >
+              {/* Subtle hover glow */}
+              <div 
+                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+                style={{ background: `radial-gradient(circle at top right, ${f.glow}, transparent)` }}
+              />
+
               <div
-                className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-5 transition-transform group-hover:scale-110 ${f.color === 'primary' ? 'bg-primary/10' :
-                  f.color === 'gold' ? 'bg-gold/10' :
-                    f.color === 'success' ? 'bg-success/10' :
-                      'bg-accent/10'
-                  }`}
+                className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-8 transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 ${
+                  f.color === 'maroon' ? 'bg-primary/10 text-primary shadow-maroon-100' :
+                  f.color === 'indigo' ? 'bg-indigo-50 text-indigo-600' :
+                  f.color === 'emerald' ? 'bg-emerald-50 text-emerald-600' :
+                  f.color === 'amber' ? 'bg-amber-50 text-amber-600' :
+                  f.color === 'rose' ? 'bg-rose-50 text-rose-600' :
+                  'bg-blue-50 text-blue-600'
+                } shadow-lg`}
               >
-                <span className={`material-symbols-outlined text-2xl ${f.color === 'primary' ? 'text-primary' :
-                  f.color === 'gold' ? 'text-gold' :
-                    f.color === 'success' ? 'text-success' :
-                      'text-accent'
-                  }`}>{f.icon}</span>
+                <span className="material-symbols-outlined text-3xl font-light">{f.icon}</span>
               </div>
-              <h3 className="font-headline text-xl font-bold text-stone-900 mb-2">{f.title}</h3>
-              <p className="text-sm text-stone-500 leading-relaxed">{f.desc}</p>
+              
+              <h3 className="font-headline text-2xl font-bold text-stone-900 mb-4 group-hover:text-primary transition-colors">{f.title}</h3>
+              <p className="text-stone-500 leading-relaxed font-medium">{f.desc}</p>
+              
+              {/* Decorative corner element */}
+              <div className={`absolute -bottom-2 -right-2 w-12 h-12 rounded-full blur-2xl opacity-0 group-hover:opacity-40 transition-opacity ${
+                 f.color === 'maroon' ? 'bg-primary' :
+                 f.color === 'indigo' ? 'bg-indigo-600' :
+                 f.color === 'emerald' ? 'bg-emerald-600' :
+                 f.color === 'amber' ? 'bg-amber-600' :
+                 f.color === 'rose' ? 'bg-rose-600' :
+                 'bg-blue-600'
+              }`} />
             </div>
           ))}
         </div>
