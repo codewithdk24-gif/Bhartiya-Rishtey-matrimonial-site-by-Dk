@@ -279,13 +279,18 @@ function FeaturesSection() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {features.map((f, i) => (
             <div 
               key={i} 
-              className="glass-card glass-card-hover p-10 group relative overflow-hidden border-transparent hover:border-white/50"
+              className="glass-card glass-card-hover p-8 group relative overflow-hidden border-transparent hover:border-white/50"
               style={{ boxShadow: `0 10px 40px ${f.glow}` }}
             >
+              {/* Stylish watermark icon */}
+              <span className={`material-symbols-outlined absolute -right-4 -top-4 text-9xl opacity-[0.03] group-hover:opacity-[0.07] transition-opacity duration-700 pointer-events-none select-none`}>
+                {f.icon}
+              </span>
+
               {/* Subtle hover glow */}
               <div 
                 className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
