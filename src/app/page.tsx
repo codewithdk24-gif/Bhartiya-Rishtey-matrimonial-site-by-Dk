@@ -145,7 +145,7 @@ function HeroSection() {
             </div>
 
             {/* Floating badges - only visible on desktop to keep mobile clear */}
-            <div className="absolute bottom-12 left-12 bg-white/10 backdrop-blur-2xl rounded-xl border border-white/40 p-3 items-center gap-3 animate-fade-in-up-delay-2 shadow-2xl z-20 transition-transform hover:scale-105 hidden lg:flex">
+            <div className="absolute bottom-12 left-12 bg-white rounded-xl border border-stone-100 p-3 items-center gap-3 animate-fade-in-up-delay-2 shadow-xl z-20 transition-transform hover:scale-105 hidden lg:flex float-animation">
               <div className="w-10 h-10 rounded-full bg-success/10 flex items-center justify-center shrink-0">
                 <span className="material-symbols-outlined text-success text-lg">verified</span>
               </div>
@@ -155,7 +155,7 @@ function HeroSection() {
               </div>
             </div>
 
-            <div className="absolute top-12 right-12 bg-white/10 backdrop-blur-2xl rounded-xl border border-white/40 p-3 items-center gap-3 animate-fade-in-up-delay-3 shadow-2xl z-20 transition-transform hover:scale-105 hidden lg:flex">
+            <div className="absolute top-12 right-12 bg-white rounded-xl border border-stone-100 p-3 items-center gap-3 animate-fade-in-up-delay-3 shadow-xl z-20 transition-transform hover:scale-105 hidden lg:flex float-animation-delay">
               <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0 pulse-ring">
                 <span className="material-symbols-outlined text-primary text-lg">favorite</span>
               </div>
