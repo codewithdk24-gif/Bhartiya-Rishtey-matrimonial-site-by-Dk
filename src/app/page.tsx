@@ -279,11 +279,11 @@ function FeaturesSection() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="flex lg:grid lg:grid-cols-3 gap-6 overflow-x-auto lg:overflow-visible pb-8 snap-x snap-mandatory hide-scrollbar -mx-6 px-6 lg:mx-0 lg:px-0">
           {features.map((f, i) => (
             <div 
               key={i} 
-              className="glass-card glass-card-hover p-8 group relative overflow-hidden border-transparent hover:border-white/50"
+              className="min-w-[85vw] sm:min-w-[320px] lg:min-w-0 snap-center glass-card glass-card-hover p-8 group relative overflow-hidden border-transparent hover:border-white/50"
               style={{ boxShadow: `0 10px 40px ${f.glow}` }}
             >
               {/* Stylish watermark icon */}
