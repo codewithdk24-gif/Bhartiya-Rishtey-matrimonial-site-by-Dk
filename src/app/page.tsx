@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { PLANS } from '@/lib/constants/plans';
+import Image from 'next/image';
 
 function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -130,13 +131,15 @@ function HeroSection() {
         <div className="relative animate-fade-in-up-delay-1 order-1 lg:order-2 z-10 -mx-6 lg:mx-0">
           <div className="relative">
             <div className="w-full aspect-[3/4] lg:aspect-auto lg:h-[550px] lg:rounded-3xl overflow-hidden relative lg:shadow-3xl lg:ring-1 lg:ring-black/5">
-              <img
+              <Image
                 src="https://images.unsplash.com/photo-1583939003579-730e3918a45a?auto=format&fit=crop&w=800&q=80"
                 alt="Happy couple"
-                className="w-full h-full object-cover lg:hover:scale-105 transition-transform duration-1000"
+                fill
+                priority
+                className="object-cover lg:hover:scale-105 transition-transform duration-1000"
               />
-              {/* Elliptical Softener - Positioned low to only affect the transition point */}
-              <div className="absolute -bottom-16 left-1/2 -translate-x-1/2 w-[150%] h-48 bg-[#FAF1ED] blur-[60px] rounded-[100%] lg:hidden z-30" />
+              {/* Elliptical Softener - Improved transition */}
+              <div className="absolute -bottom-24 left-1/2 -translate-x-1/2 w-[160%] h-64 bg-[#FAF1ED] blur-[80px] rounded-[100%] lg:hidden z-30" />
 
               {/* Seamless gradient layers - TOP IS CLEAR, BLUR ONLY FOR TEXT */}
               <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[#FAF1ED] via-[#FAF1ED]/40 to-transparent lg:hidden z-20" />
@@ -168,7 +171,8 @@ function HeroSection() {
         </div>
 
         {/* Text Section - Positioned high up over the blurred image area */}
-        <div className="relative z-30 animate-fade-in-up order-2 lg:order-1 -mt-72 lg:mt-0 px-6 lg:px-0">
+        {/* Text Section - Adjusted margin for better readability on mobile */}
+        <div className="relative z-30 animate-fade-in-up order-2 lg:order-1 -mt-40 xs:-mt-48 lg:mt-0 px-6 lg:px-0">
           <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/10 backdrop-blur-2xl border border-white/40 mb-8 shadow-2xl">
             <span className="text-[10px] font-bold text-[#9b1c31] tracking-[0.15em] uppercase">Trusted by 10,000+ families</span>
           </div>
@@ -217,118 +221,79 @@ function HeroSection() {
 }
 
 function FeaturesSection() {
-  const [currentIdx, setCurrentIdx] = useState(0);
-  const [rolling, setRolling] = useState(false);
-  const [diceValue, setDiceValue] = useState(1);
+  const [activeIdx, setActiveIdx] = useState<number | null>(null);
 
   const features = [
-    { icon: 'shield', title: 'Privacy First', desc: 'Secure encrypted conversations for your safety.', color: 'maroon', diceIcon: 'casino' },
-    { icon: 'psychology', title: 'Smart Match', desc: 'AI algorithm matching your core values.', color: 'indigo', diceIcon: 'casino' },
-    { icon: 'verified_user', title: 'Verified Only', desc: 'Profiles manually checked for authenticity.', color: 'emerald', diceIcon: 'casino' },
-    { icon: 'diversity_3', title: 'Cultural Roots', desc: 'Find partners who share your heritage.', color: 'amber', diceIcon: 'casino' },
-    { icon: 'chat_bubble', title: 'Instant Chat', desc: 'Connect instantly with real-time messaging.', color: 'rose', diceIcon: 'casino' },
-    { icon: 'workspace_premium', title: 'Royal Perks', desc: 'Priority matches and premium concierge.', color: 'blue', diceIcon: 'casino' },
+    { icon: 'shield', title: 'Privacy First', desc: 'Secure encrypted conversations for your safety.', color: 'maroon', number: '01' },
+    { icon: 'psychology', title: 'Smart Match', desc: 'AI algorithm matching your core values.', color: 'indigo', number: '02' },
+    { icon: 'verified_user', title: 'Verified Only', desc: 'Profiles manually checked for authenticity.', color: 'emerald', number: '03' },
+    { icon: 'diversity_3', title: 'Cultural Roots', desc: 'Find partners who share your heritage.', color: 'amber', number: '04' },
+    { icon: 'chat_bubble', title: 'Instant Chat', desc: 'Connect instantly with real-time messaging.', color: 'rose', number: '05' },
+    { icon: 'workspace_premium', title: 'Royal Perks', desc: 'Priority matches and premium concierge.', color: 'blue', number: '06' },
   ];
 
-  const rollDice = () => {
-    if (rolling) return;
-    setRolling(true);
-    
-    // Animate dice numbers
-    const interval = setInterval(() => {
-      setDiceValue(Math.floor(Math.random() * 6) + 1);
-    }, 100);
-
-    setTimeout(() => {
-      clearInterval(interval);
-      let next;
-      do {
-        next = Math.floor(Math.random() * features.length);
-      } while (next === currentIdx);
-      
-      setCurrentIdx(next);
-      setDiceValue(next + 1);
-      setRolling(false);
-    }, 800);
-  };
-
-  const activeFeature = features[currentIdx];
-
   return (
-    <section className="py-24 relative overflow-hidden bg-[#fafafa]">
-      <div className="max-w-4xl mx-auto px-6 relative z-10">
-        <div className="text-center mb-16">
-          <span className="text-[10px] font-extrabold tracking-[0.3em] uppercase text-primary mb-4 block">Interactive Discovery</span>
-          <h2 className="font-headline text-4xl md:text-5xl font-bold text-stone-900">
-            Roll to Explore <span className="text-gradient">Our Soul</span>
+    <section className="py-24 relative overflow-hidden bg-white/30">
+      <div className="max-w-7xl mx-auto px-6 relative z-10">
+        <div className="text-center mb-20">
+          <div className="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-primary/5 border border-primary/10 mb-6">
+            <span className="w-2 h-2 rounded-full bg-primary animate-ping" />
+            <span className="text-[10px] font-extrabold tracking-[0.2em] uppercase text-primary">The Premium Edge</span>
+          </div>
+          <h2 className="font-headline text-4xl md:text-6xl font-bold text-stone-900 mb-6">
+            Crafted for <span className="text-gradient">True Connection</span>
           </h2>
+          <p className="text-stone-500 max-w-2xl mx-auto font-medium text-lg">
+            Experience the next generation of matrimonial technology.
+          </p>
         </div>
 
-        <div className="relative group">
-          {/* Main Feature Display */}
-          <div className={`glass-card p-10 md:p-16 rounded-[3rem] transition-all duration-700 bg-white shadow-2xl relative overflow-hidden border-stone-100 ${rolling ? 'opacity-40 scale-95 blur-sm' : 'opacity-100 scale-100 blur-0'}`}>
-             {/* Decorative Background Icon */}
-             <span className="material-symbols-outlined absolute -right-10 -bottom-10 text-[15rem] text-stone-50/50 select-none pointer-events-none">
-               {activeFeature.icon}
-             </span>
-
-             <div className="flex flex-col md:flex-row items-center gap-10 relative z-10">
-               <div className={`w-24 h-24 md:w-32 md:h-32 rounded-3xl flex items-center justify-center shrink-0 transition-transform duration-700 ${rolling ? 'rotate-[360deg]' : 'rotate-0'} ${
-                 activeFeature.color === 'maroon' ? 'bg-primary text-white shadow-primary/20' :
-                 activeFeature.color === 'indigo' ? 'bg-indigo-600 text-white shadow-indigo-600/20' :
-                 activeFeature.color === 'emerald' ? 'bg-emerald-600 text-white shadow-emerald-600/20' :
-                 activeFeature.color === 'amber' ? 'bg-amber-600 text-white shadow-amber-600/20' :
-                 activeFeature.color === 'rose' ? 'bg-rose-600 text-white shadow-rose-600/20' :
-                 'bg-blue-600 text-white shadow-blue-600/20'
-               } shadow-2xl`}>
-                 <span className="material-symbols-outlined text-5xl md:text-6xl font-light">{activeFeature.icon}</span>
-               </div>
-
-               <div className="text-center md:text-left">
-                 <h3 className="font-headline text-3xl md:text-5xl font-bold text-stone-900 mb-4">{activeFeature.title}</h3>
-                 <p className="text-lg md:text-2xl text-stone-500 font-medium leading-relaxed max-w-lg">
-                   {activeFeature.desc}
-                 </p>
-               </div>
-             </div>
-          </div>
-
-          {/* Dice Roller Control */}
-          <div className="mt-12 flex flex-col items-center gap-6">
-            <button 
-              onClick={rollDice}
-              disabled={rolling}
-              className="relative group/dice active:scale-90 transition-transform"
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
+          {features.map((f, i) => (
+            <div 
+              key={i} 
+              onClick={() => setActiveIdx(activeIdx === i ? null : i)}
+              className={`group relative p-6 md:p-10 rounded-[2rem] bg-white border border-stone-100 transition-all duration-700 cursor-pointer overflow-hidden ${
+                activeIdx === i ? 'scale-[1.03] shadow-2xl z-30' : 'hover:-translate-y-2 z-10 shadow-sm hover:shadow-xl'
+              }`}
             >
-              <div className={`w-24 h-24 bg-white rounded-2xl shadow-2xl flex items-center justify-center border-b-8 border-stone-200 transition-all ${rolling ? 'animate-shake' : 'group-hover:-translate-y-2'}`}>
-                 <div className="grid grid-cols-3 gap-2 p-4">
-                   {/* Dice Dots based on diceValue */}
-                   {[...Array(9)].map((_, i) => {
-                     const show = (
-                       (diceValue === 1 && i === 4) ||
-                       (diceValue === 2 && (i === 0 || i === 8)) ||
-                       (diceValue === 3 && (i === 0 || i === 4 || i === 8)) ||
-                       (diceValue === 4 && (i === 0 || i === 2 || i === 6 || i === 8)) ||
-                       (diceValue === 5 && (i === 0 || i === 2 || i === 4 || i === 6 || i === 8)) ||
-                       (diceValue === 6 && (i === 0 || i === 2 || i === 3 || i === 5 || i === 6 || i === 8))
-                     );
-                     return <div key={i} className={`w-3 h-3 rounded-full transition-opacity duration-100 ${show ? 'bg-primary' : 'bg-stone-50'}`} />;
-                   })}
-                 </div>
-              </div>
-              
-              {/* Tooltip */}
-              <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-stone-900 text-white text-[10px] font-bold px-3 py-1.5 rounded-lg opacity-0 group-hover/dice:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
-                TAP TO ROLL DICE
-              </div>
-            </button>
+              {/* Decorative Number */}
+              <span className="absolute top-6 right-8 font-headline text-6xl md:text-8xl font-black text-stone-100/50 group-hover:text-primary/5 transition-colors duration-700 select-none">
+                {f.number}
+              </span>
 
-            <p className="text-stone-400 font-bold text-xs tracking-widest uppercase flex items-center gap-2">
-              <span className="w-8 h-[1px] bg-stone-200" />
-              Feature {currentIdx + 1} of 6
-              <span className="w-8 h-[1px] bg-stone-200" />
-            </p>
-          </div>
+              <div className="relative z-10">
+                <div className={`w-12 h-12 md:w-20 md:h-20 rounded-2xl flex items-center justify-center mb-6 md:mb-10 transition-all duration-700 ${
+                    activeIdx === i ? 'scale-110 rotate-[15deg] shadow-2xl' : 'group-hover:scale-110 group-hover:rotate-6'
+                  } ${
+                    f.color === 'maroon' ? 'bg-primary text-white' :
+                    f.color === 'indigo' ? 'bg-indigo-600 text-white' :
+                    f.color === 'emerald' ? 'bg-emerald-600 text-white' :
+                    f.color === 'amber' ? 'bg-amber-600 text-white' :
+                    f.color === 'rose' ? 'bg-rose-600 text-white' :
+                    'bg-blue-600 text-white'
+                  }`}>
+                  <span className="material-symbols-outlined text-2xl md:text-4xl font-light">{f.icon}</span>
+                </div>
+                
+                <h3 className={`font-headline text-xl md:text-3xl font-bold mb-3 md:mb-5 transition-colors ${
+                  activeIdx === i ? 'text-primary' : 'text-stone-900 group-hover:text-primary'
+                }`}>{f.title}</h3>
+                
+                <p className={`text-xs md:text-lg text-stone-500 leading-relaxed font-medium transition-all duration-700 ${
+                  activeIdx === i ? 'opacity-100 h-auto' : 'line-clamp-2 md:line-clamp-none'
+                }`}>{f.desc}</p>
+              </div>
+
+              {/* Interaction Indicator */}
+              <div className={`mt-6 flex items-center gap-2 transition-all duration-700 ${activeIdx === i ? 'opacity-100' : 'opacity-0 translate-y-4'}`}>
+                <div className="h-[2px] flex-1 bg-primary/20 rounded-full overflow-hidden">
+                  <div className="h-full bg-primary w-full animate-pulse" />
+                </div>
+                <span className="text-[10px] font-bold text-primary uppercase tracking-widest">Active</span>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </section>
@@ -390,7 +355,7 @@ function SuccessStoriesSection() {
         {[...stories, ...stories].map((story, i) => (
           <div key={i} className="w-[250px] flex-shrink-0 glass-card p-4 flex flex-col hover:-translate-y-2 transition-transform duration-300">
             <div className="aspect-square rounded-2xl overflow-hidden mb-4 relative">
-              <img src={story.image} alt={story.name} className="w-full h-full object-cover" />
+              <Image src={story.image} alt={story.name} fill className="object-cover" />
             </div>
             <div className="text-center px-2">
               <h3 className="font-headline font-bold text-lg text-stone-900">{story.name}</h3>

@@ -235,19 +235,19 @@ body {
   border-radius: 0.75rem;
 }
 
-/* ── Dice Roll Animation ─────────────── */
+/* ── Magic Flow Animation ────────────── */
 
-@keyframes shake {
-  0% { transform: rotate(0deg); }
-  25% { transform: rotate(10deg) scale(1.1); }
-  50% { transform: rotate(-10deg) scale(1.1); }
-  75% { transform: rotate(10deg) scale(1.1); }
-  100% { transform: rotate(0deg); }
+@keyframes magic-flow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
-.animate-shake {
-  animation: shake 0.5s ease-in-out infinite;
+.animate-magic {
+  background-size: 200% 200%;
+  animation: magic-flow 3s ease infinite;
 }
+
 
 /* ── Shine Animation ──────────────────── */
 
