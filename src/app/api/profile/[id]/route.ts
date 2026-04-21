@@ -10,12 +10,12 @@ import { getPlanLimits } from '@/lib/plans';
  */
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const currentUserId = getUserIdFromRequest(request);
   if (!currentUserId) return unauthorizedResponse();
 
-  const targetId = params.id;
+  const { id: targetId } = await params;
 
   try {
     // 1. Safety Check: If blocked (either way), return 404

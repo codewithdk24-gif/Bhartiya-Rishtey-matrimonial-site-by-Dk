@@ -27,7 +27,7 @@ export async function GET(request: Request) {
       {
         status: latestRequest.status,
         rejectionReason: latestRequest.rejectionReason ?? null,
-        tier: latestRequest.tier,
+        tier: latestRequest.plan,
         submittedAt: latestRequest.createdAt,
       },
       { status: 200 }

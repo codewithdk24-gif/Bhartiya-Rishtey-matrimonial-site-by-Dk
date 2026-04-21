@@ -48,7 +48,7 @@ export async function POST(request: Request) {
     }
 
     // FIX: Respect block relationships
-    const blockCheck = await prisma.blockList.findFirst({
+    const blockCheck = await prisma.block.findFirst({
       where: {
         OR: [
           { blockerId: userId, blockedId: targetUserId },
@@ -73,9 +73,9 @@ export async function POST(request: Request) {
     await prisma.notification.create({
       data: {
         userId: targetUserId,
-        type: 'INTEREST',
+        type: 'INTEREST_RECEIVED',
         message: `${senderProfile?.fullName ?? 'Someone'} has sent you a connection request.`,
-        actionUrl: '/dashboard',
+        link: '/dashboard',
       },
     });
 

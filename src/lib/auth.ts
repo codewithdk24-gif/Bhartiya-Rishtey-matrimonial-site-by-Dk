@@ -100,3 +100,21 @@ export function getUserIdFromRequest(request: Request): string | null {
 export function unauthorizedResponse() {
   return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 }
+
+/**
+ * Standard forbidden response
+ */
+export function forbiddenResponse() {
+  return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+}
+
+/**
+ * Retrieves basic session info from request headers.
+ * Assumes middleware has injected 'x-user-id' and 'x-user-role'.
+ */
+export function getSessionFromRequest(request: Request) {
+  const userId = request.headers.get('x-user-id');
+  const role = request.headers.get('x-user-role');
+  if (!userId) return null;
+  return { userId, role };
+}

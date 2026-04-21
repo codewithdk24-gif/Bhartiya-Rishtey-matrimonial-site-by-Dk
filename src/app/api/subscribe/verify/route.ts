@@ -84,9 +84,9 @@ export async function POST(request: Request) {
     await prisma.notification.create({
       data: {
         userId,
-        type: 'PAYMENT',
+        type: 'SYSTEM_ALERT',
         message: `Your ${plan} membership is now active! Enjoy your benefits.`,
-        actionUrl: '/dashboard',
+        link: '/dashboard',
       },
     });
 

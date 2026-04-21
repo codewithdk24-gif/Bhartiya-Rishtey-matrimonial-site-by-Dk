@@ -67,7 +67,7 @@ export async function PATCH(request: Request) {
 
     if (action === 'approve') {
       // Approve: update payment + create subscription
-      const plan = getPlanById(paymentReq.tier);
+      const plan = getPlanById(paymentReq.plan);
       const durationMonths = plan ? plan.months : 1;
       
       const expiresAt = new Date();
@@ -82,12 +82,12 @@ export async function PATCH(request: Request) {
       await prisma.$transaction([
         prisma.paymentRequest.update({
           where: { id },
-          data: { status: 'APPROVED', reviewedBy: session.userId },
+          data: { status: 'APPROVED', adminId: session.userId },
         }),
         prisma.subscription.create({
           data: {
             userId: paymentReq.userId,
-            tier: paymentReq.tier,
+            tier: paymentReq.plan,
             status: 'active',
             expiresAt,
           },
@@ -95,9 +95,9 @@ export async function PATCH(request: Request) {
         prisma.notification.create({
           data: {
             userId: paymentReq.userId,
-            type: 'PAYMENT',
-            message: `Your ${paymentReq.tier} membership has been activated! Enjoy premium features for ${durationMonths} months.`,
-            actionUrl: '/dashboard',
+            type: 'SYSTEM_ALERT',
+            message: `Your ${paymentReq.plan} membership has been activated! Enjoy premium features for ${durationMonths} months.`,
+            link: '/dashboard',
           },
         }),
       ]);
@@ -107,7 +107,7 @@ export async function PATCH(request: Request) {
         ip,
         action: 'ADMIN_ACTION',
         status: 'SUCCESS',
-        details: `Approved payment request ${id} for user ${paymentReq.userId} (${paymentReq.tier}) for ${durationMonths} months`,
+        details: `Approved payment request ${id} for user ${paymentReq.userId} (${paymentReq.plan}) for ${durationMonths} months`,
       });
 
       return NextResponse.json({ message: 'Payment approved and subscription activated.' }, { status: 200 });
@@ -118,16 +118,16 @@ export async function PATCH(request: Request) {
         data: {
           status: 'REJECTED',
           rejectionReason: rejectionReason || 'Payment could not be verified.',
-          reviewedBy: session.userId,
+          adminId: session.userId,
         },
       });
 
       await prisma.notification.create({
         data: {
           userId: paymentReq.userId,
-          type: 'PAYMENT',
+          type: 'SYSTEM_ALERT',
           message: `Your payment was not approved. Reason: ${rejectionReason || 'Could not be verified.'}`,
-          actionUrl: '/payment',
+          link: '/payment',
         },
       });
 
