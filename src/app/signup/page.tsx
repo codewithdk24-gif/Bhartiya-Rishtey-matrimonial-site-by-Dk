@@ -123,16 +123,17 @@ export default function SignupPage() {
             className="object-cover"
             priority
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#ff758f]/80 via-transparent to-black/30" />
+          {/* Subtle natural dark gradient for text readability only */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
           
-          <div className="absolute top-10 left-10">
-            <Link href="/" className="inline-flex items-center gap-3 group/logo">
-              <div className="w-10 h-10 rounded-xl bg-white/30 backdrop-blur-xl flex items-center justify-center border border-white/40 shadow-xl">
-                <span className="material-symbols-outlined text-white font-black text-xl">favorite</span>
+          <div className="absolute top-10 left-10 z-10">
+            <Link href="/" className="inline-flex items-center gap-4 group/logo">
+              <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-xl flex items-center justify-center border border-white/20 shadow-2xl">
+                <span className="material-symbols-outlined text-white font-black text-2xl drop-shadow-lg">favorite</span>
               </div>
-              <div>
-                <h1 className="font-headline text-xl font-black text-white leading-tight drop-shadow-md">Bhartiya Rishtey</h1>
-                <p className="text-[8px] tracking-[0.3em] uppercase text-white/80 font-black drop-shadow-sm">Premium Matrimony</p>
+              <div className="drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]">
+                <h1 className="font-headline text-2xl font-black text-white leading-tight">Bhartiya Rishtey</h1>
+                <p className="text-[10px] tracking-[0.3em] uppercase text-white font-black opacity-90">Premium Matrimony</p>
               </div>
             </Link>
           </div>
