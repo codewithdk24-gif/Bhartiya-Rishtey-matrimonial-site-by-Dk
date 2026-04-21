@@ -5,6 +5,17 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { PLANS } from '@/lib/constants/plans';
 import Image from 'next/image';
+import { 
+  Shield, 
+  Brain, 
+  UserCheck, 
+  Globe, 
+  MessageSquare, 
+  Crown,
+  Check,
+  X,
+  ArrowRight
+} from 'lucide-react';
 
 function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -18,7 +29,7 @@ function Navbar() {
 
   return (
     <>
-      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b ${scrolled ? 'nav-glass h-16 md:h-20 border-stone-100/50' : 'h-18 md:h-24 bg-transparent border-transparent'}`}>
+      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'nav-glass h-16 md:h-20 border-b border-stone-100/50' : 'h-18 md:h-24 bg-transparent border-none'}`}>
         <div className="max-w-7xl mx-auto px-4 md:px-6 h-full flex items-center justify-between gap-1">
           <Link href="/" className="flex items-center gap-1 shrink-0">
             <div className="flex flex-col">
@@ -120,31 +131,33 @@ function Navbar() {
 
 function HeroSection() {
   return (
-    <section className="relative min-h-screen flex items-center overflow-hidden pt-20">
+    <section className="relative min-h-screen flex items-center overflow-hidden pt-20 bg-[#f8f6f4]">
+      {/* Seamless transition to next section */}
+      <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-b from-transparent via-[#f8f6f4]/60 to-[#f8f6f4] pointer-events-none z-20" />
       {/* Decorative elements */}
       <div className="absolute top-20 right-10 w-72 h-72 bg-primary/5 rounded-full blur-3xl float-animation" />
       <div className="absolute bottom-20 left-10 w-96 h-96 bg-gold/5 rounded-full blur-3xl float-animation-delay" />
       <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-accent/5 rounded-full blur-3xl" />
 
-      <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-16 items-center relative z-10">
+      <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 lg:gap-16 items-center relative z-10">
         {/* Image Section - Full bleed and seamless transition on mobile */}
         <div className="relative animate-fade-in-up-delay-1 order-1 lg:order-2 z-10 -mx-6 lg:mx-0">
           <div className="relative">
-            <div className="w-full aspect-[3/4] lg:aspect-auto lg:h-[550px] lg:rounded-3xl overflow-hidden relative lg:shadow-3xl lg:ring-1 lg:ring-black/5">
+            <div className="w-full aspect-[3/4] lg:aspect-auto lg:h-[550px] lg:rounded-3xl relative lg:overflow-hidden lg:shadow-3xl lg:ring-1 lg:ring-black/5">
               <Image
                 src="https://images.unsplash.com/photo-1583939003579-730e3918a45a?auto=format&fit=crop&w=800&q=80"
                 alt="Happy couple"
                 fill
                 priority
-                className="object-cover lg:hover:scale-105 transition-transform duration-1000"
+                className="object-cover lg:hover:scale-105 transition-transform duration-1000 lg:rounded-3xl"
               />
-              {/* Elliptical Softener - Improved transition */}
-              <div className="absolute -bottom-24 left-1/2 -translate-x-1/2 w-[160%] h-64 bg-[#FAF1ED] blur-[80px] rounded-[100%] lg:hidden z-30" />
-
-              {/* Seamless gradient layers - TOP IS CLEAR, BLUR ONLY FOR TEXT */}
-              <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[#FAF1ED] via-[#FAF1ED]/40 to-transparent lg:hidden z-20" />
+               {/* Elliptical Softener - Unified with background */}
+              <div className="absolute -bottom-24 left-1/2 -translate-x-1/2 w-[160%] h-64 bg-[#f8f6f4] blur-[80px] rounded-[100%] lg:hidden z-30" />
+              
+              {/* Seamless gradient layers - Unified colors */}
+              <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[#f8f6f4] via-[#f8f6f4]/60 to-transparent lg:hidden z-20" />
               <div className="absolute inset-0 backdrop-blur-[20px] [mask-image:linear-gradient(to_bottom,transparent_0%,transparent_45%,black_85%,black_100%)] lg:hidden pointer-events-none z-10" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#f8f6f4]/20 via-transparent to-transparent pointer-events-none z-10" />
             </div>
 
             {/* Floating badges - only visible on desktop to keep mobile clear */}
@@ -197,20 +210,35 @@ function HeroSection() {
               </Link>
             </div>
 
-            <div className="grid grid-cols-2 sm:flex sm:items-center gap-4 sm:gap-8 relative z-40">
-              <div>
-                <p className="font-headline text-2xl sm:text-3xl font-bold text-stone-900">50K+</p>
-                <p className="text-[10px] sm:text-xs text-stone-400 font-medium">Active Profiles</p>
+            <div className="relative z-40 mt-8 flex flex-wrap items-center justify-center lg:justify-start gap-y-6 gap-x-8 md:gap-12">
+              <div className="flex items-center gap-3 min-w-[140px] justify-center lg:justify-start">
+                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                  <UserCheck className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="font-headline text-2xl md:text-3xl font-black text-stone-900 leading-none mb-1">50K+</p>
+                  <p className="text-[10px] md:text-xs text-stone-500 font-bold uppercase tracking-wider">Active Profiles</p>
+                </div>
               </div>
-              <div className="hidden sm:block w-px h-10 bg-stone-200" />
-              <div>
-                <p className="font-headline text-2xl sm:text-3xl font-bold text-stone-900">1,200+</p>
-                <p className="text-[10px] sm:text-xs text-stone-400 font-medium">Successful Matches</p>
+              
+              <div className="flex items-center gap-3 min-w-[140px] justify-center lg:justify-start">
+                <div className="w-10 h-10 rounded-full bg-gold/10 flex items-center justify-center text-gold shrink-0">
+                  <Crown className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="font-headline text-2xl md:text-3xl font-black text-stone-900 leading-none mb-1">1,200+</p>
+                  <p className="text-[10px] md:text-xs text-stone-500 font-bold uppercase tracking-wider">Success Stories</p>
+                </div>
               </div>
-              <div className="hidden sm:block w-px h-10 bg-stone-200" />
-              <div className="col-span-2 sm:col-span-1">
-                <p className="font-headline text-2xl sm:text-3xl font-bold text-stone-900">98%</p>
-                <p className="text-[10px] sm:text-xs text-stone-400 font-medium">Verified Profiles</p>
+              
+              <div className="flex items-center gap-3 min-w-[140px] justify-center lg:justify-start">
+                <div className="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center text-green-700 shrink-0 shadow-sm">
+                  <Shield className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="font-headline text-2xl md:text-3xl font-black text-stone-900 leading-none mb-1">98%</p>
+                  <p className="text-[10px] md:text-xs text-stone-500 font-bold uppercase tracking-wider">Verified Profiles</p>
+                </div>
               </div>
             </div>
           </div>
@@ -221,111 +249,232 @@ function HeroSection() {
 }
 
 function FeaturesSection() {
-  const [activeIdx, setActiveIdx] = useState<number | null>(null);
+
+  const [activeFeature, setActiveFeature] = useState<null | typeof features[0]>(null);
 
   const features = [
-    { icon: 'shield', title: 'Privacy First', desc: 'Secure encrypted conversations for your safety.', color: 'maroon', number: '01' },
-    { icon: 'psychology', title: 'Smart Match', desc: 'AI algorithm matching your core values.', color: 'indigo', number: '02' },
-    { icon: 'verified_user', title: 'Verified Only', desc: 'Profiles manually checked for authenticity.', color: 'emerald', number: '03' },
-    { icon: 'diversity_3', title: 'Cultural Roots', desc: 'Find partners who share your heritage.', color: 'amber', number: '04' },
-    { icon: 'chat_bubble', title: 'Instant Chat', desc: 'Connect instantly with real-time messaging.', color: 'rose', number: '05' },
-    { icon: 'workspace_premium', title: 'Royal Perks', desc: 'Priority matches and premium concierge.', color: 'blue', number: '06' },
+    { 
+      icon: Shield, 
+      title: 'Privacy First', 
+      desc: 'Secure encrypted conversations for your safety.', 
+      fullDesc: 'Your privacy is our top priority. We use military-grade encryption to ensure your private conversations stay private.',
+      points: ['End-to-end encrypted chats', 'Data protection protocols', 'Safe & secure communication'],
+      gradient: 'from-gray-800 to-black',
+      shadow: 'shadow-gray-900/30',
+      glow: 'bg-gray-400/20',
+      number: '01' 
+    },
+    { 
+      icon: Brain, 
+      title: 'Smart Match', 
+      desc: 'AI algorithm matching your core values.', 
+      fullDesc: 'Our advanced AI analyzes thousands of data points to find partners who truly align with your lifestyle and vision.',
+      points: ['AI Compatibility analysis', 'Core value matching', 'Personality-based insights'],
+      gradient: 'from-indigo-500 to-purple-600',
+      shadow: 'shadow-indigo-500/30',
+      glow: 'bg-indigo-500/20',
+      number: '02' 
+    },
+    { 
+      icon: UserCheck, 
+      title: 'Verified Only', 
+      desc: 'Profiles manually checked for authenticity.', 
+      fullDesc: 'We maintain a high-quality community by manually verifying every profile through a strict multi-step process.',
+      points: ['Manual profile screening', 'ID verification options', '100% Genuine members'],
+      gradient: 'from-green-500 to-emerald-600',
+      shadow: 'shadow-green-500/30',
+      glow: 'bg-green-500/20',
+      number: '03' 
+    },
+    { 
+      icon: Globe, 
+      title: 'Cultural Roots', 
+      desc: 'Find partners who share your heritage.', 
+      fullDesc: 'Connect with people who understand your culture, language, and traditions for a more meaningful partnership.',
+      points: ['Heritage-based matching', 'Language preferences', 'Community-focused search'],
+      gradient: 'from-orange-400 to-orange-600',
+      shadow: 'shadow-orange-500/30',
+      glow: 'bg-orange-500/20',
+      number: '04' 
+    },
+    { 
+      icon: MessageSquare, 
+      title: 'Instant Chat', 
+      desc: 'Connect instantly with real-time messaging.', 
+      fullDesc: 'Break the ice immediately with our fast and secure real-time messaging system built for serious seekers.',
+      points: ['Real-time instant delivery', 'Secure media sharing', 'Smart push notifications'],
+      gradient: 'from-pink-500 to-red-500',
+      shadow: 'shadow-pink-500/30',
+      glow: 'bg-pink-500/20',
+      number: '05' 
+    },
+    { 
+      icon: Crown, 
+      title: 'Royal Perks', 
+      desc: 'Priority matches and premium concierge.', 
+      fullDesc: 'Experience luxury matchmaking with priority visibility and dedicated support to find your match faster.',
+      points: ['Priority profile boosting', 'Exclusive premium badge', '24/7 Concierge support'],
+      gradient: 'from-blue-500 to-indigo-600',
+      shadow: 'shadow-blue-500/30',
+      glow: 'bg-blue-500/20',
+      number: '06' 
+    },
   ];
 
   return (
-    <section className="py-24 relative overflow-hidden bg-white/30">
-      <div className="max-w-7xl mx-auto px-6 relative z-10">
-        <div className="text-center mb-20">
-          <div className="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-primary/5 border border-primary/10 mb-6">
-            <span className="w-2 h-2 rounded-full bg-primary animate-ping" />
-            <span className="text-[10px] font-extrabold tracking-[0.2em] uppercase text-primary">The Premium Edge</span>
+    <section className="min-h-screen pt-20 pb-12 md:py-20 lg:py-28 relative overflow-hidden bg-gradient-to-b from-[#f8f6f4] via-[#ebe7e3] to-[#ebe7e3] flex flex-col justify-start animate-fade-in-up">
+      <style dangerouslySetInnerHTML={{ __html: `
+        @keyframes float {
+          0% { transform: translateY(0px); }
+          50% { transform: translateY(-6px); }
+          100% { transform: translateY(0px); }
+        }
+        .animate-float {
+          animation: float 3s ease-in-out infinite;
+        }
+      `}} />
+      <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-primary/5 rounded-full blur-[100px] -mr-32 -mt-32 opacity-60" />
+      <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-gold/5 rounded-full blur-[100px] -ml-32 -mb-32 opacity-60" />
+      
+      <div className="max-w-7xl mx-auto px-4 md:px-6 relative z-10">
+        <div className="text-center mb-6 md:mb-16">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white shadow-sm border border-stone-100 mb-3 md:mb-4">
+            <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+            <span className="text-[9px] md:text-[10px] font-black tracking-[0.2em] uppercase text-stone-400">Everything You Need</span>
           </div>
-          <h2 className="font-headline text-4xl md:text-6xl font-bold text-stone-900 mb-6">
-            Crafted for <span className="text-gradient">True Connection</span>
+          <h2 className="font-headline text-3xl md:text-4xl lg:text-5xl font-semibold text-stone-900 mb-1.5 md:mb-4 tracking-tight">
+            Built for <span className="text-gradient">Serious Relationships</span>
           </h2>
-          <p className="text-stone-500 max-w-2xl mx-auto font-medium text-lg">
-            Experience the next generation of matrimonial technology.
+          <p className="text-stone-500 max-w-lg md:max-w-xl mx-auto font-medium text-[11px] md:text-base leading-relaxed opacity-80">
+            A premium platform designed to help you find a life partner who understands your <span className="text-primary/70">culture & vision</span>.
           </p>
         </div>
 
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
+        <div className={`grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-8 lg:gap-10 select-none touch-none [-webkit-tap-highlight-color:transparent] transition-all duration-500 ${activeFeature ? 'blur-sm opacity-40 scale-[0.98]' : ''} max-w-6xl mx-auto`}>
           {features.map((f, i) => (
             <div 
               key={i} 
-              onClick={() => setActiveIdx(activeIdx === i ? null : i)}
-              className={`group relative p-6 md:p-10 rounded-[2rem] bg-white border border-stone-100 transition-all duration-700 cursor-pointer overflow-hidden ${
-                activeIdx === i ? 'scale-[1.03] shadow-2xl z-30' : 'hover:-translate-y-2 z-10 shadow-sm hover:shadow-xl'
-              }`}
+              onClick={() => setActiveFeature(f)}
+              style={{ animationDelay: `${i * 0.2}s` }}
+              className="group relative p-4 md:p-6 rounded-2xl md:rounded-[2rem] bg-white/70 backdrop-blur-md border border-white/40 md:border-[#ece7e2] transition-all duration-300 shadow-lg hover:shadow-xl md:hover:-translate-y-2 flex flex-col items-center text-center overflow-hidden aspect-[1.1/1] md:aspect-auto justify-center cursor-pointer hover:scale-105 md:hover:scale-100 active:scale-95 animate-fade-in-up md:max-w-[320px] md:mx-auto"
             >
-              {/* Decorative Number */}
-              <span className="absolute top-6 right-8 font-headline text-6xl md:text-8xl font-black text-stone-100/50 group-hover:text-primary/5 transition-colors duration-700 select-none">
+              {/* Soft Color Glow behind icon */}
+              <div className={`absolute w-12 h-12 blur-2xl opacity-40 rounded-full transition-all duration-500 group-hover:scale-150 ${f.glow}`} />
+
+              <div className={`w-12 h-12 md:w-12 md:h-12 lg:w-14 lg:h-14 rounded-xl md:rounded-2xl flex items-center justify-center mb-3 md:mb-6 bg-gradient-to-br ${f.gradient} ${f.shadow} transition-all duration-500 group-hover:brightness-110 group-hover:scale-110 shadow-lg relative z-10 animate-float`} style={{ animationDelay: `${i * 0.2}s` }}>
+                <f.icon className="w-6 h-6 md:w-6 md:h-6 lg:w-7 lg:h-7 text-white" strokeWidth={2.5} />
+              </div>
+              
+              <h3 className="font-headline text-sm md:text-xl font-black mb-1 md:mb-3 text-stone-900 tracking-tight group-hover:text-primary transition-colors">
+                {f.title}
+              </h3>
+              
+              <p className="text-[11px] md:text-sm text-stone-500 leading-tight md:leading-relaxed font-medium line-clamp-1 md:line-clamp-none">
+                {f.desc}
+              </p>
+
+              <span className="absolute top-1 right-2 text-[8px] font-black text-stone-100 md:hidden">
                 {f.number}
               </span>
-
-              <div className="relative z-10">
-                <div className={`w-12 h-12 md:w-20 md:h-20 rounded-2xl flex items-center justify-center mb-6 md:mb-10 transition-all duration-700 ${
-                    activeIdx === i ? 'scale-110 rotate-[15deg] shadow-2xl' : 'group-hover:scale-110 group-hover:rotate-6'
-                  } ${
-                    f.color === 'maroon' ? 'bg-primary text-white' :
-                    f.color === 'indigo' ? 'bg-indigo-600 text-white' :
-                    f.color === 'emerald' ? 'bg-emerald-600 text-white' :
-                    f.color === 'amber' ? 'bg-amber-600 text-white' :
-                    f.color === 'rose' ? 'bg-rose-600 text-white' :
-                    'bg-blue-600 text-white'
-                  }`}>
-                  <span className="material-symbols-outlined text-2xl md:text-4xl font-light">{f.icon}</span>
-                </div>
-                
-                <h3 className={`font-headline text-xl md:text-3xl font-bold mb-3 md:mb-5 transition-colors ${
-                  activeIdx === i ? 'text-primary' : 'text-stone-900 group-hover:text-primary'
-                }`}>{f.title}</h3>
-                
-                <p className={`text-xs md:text-lg text-stone-500 leading-relaxed font-medium transition-all duration-700 ${
-                  activeIdx === i ? 'opacity-100 h-auto' : 'line-clamp-2 md:line-clamp-none'
-                }`}>{f.desc}</p>
-              </div>
-
-              {/* Interaction Indicator */}
-              <div className={`mt-6 flex items-center gap-2 transition-all duration-700 ${activeIdx === i ? 'opacity-100' : 'opacity-0 translate-y-4'}`}>
-                <div className="h-[2px] flex-1 bg-primary/20 rounded-full overflow-hidden">
-                  <div className="h-full bg-primary w-full animate-pulse" />
-                </div>
-                <span className="text-[10px] font-bold text-primary uppercase tracking-widest">Active</span>
-              </div>
             </div>
           ))}
         </div>
       </div>
+
+      {/* Feature Modal */}
+      {activeFeature && (
+        <div 
+          className="fixed inset-0 z-[100] flex items-center justify-center p-6 animate-fade-in"
+          onClick={() => setActiveFeature(null)}
+        >
+          <div className="absolute inset-0 bg-stone-900/40 backdrop-blur-md" />
+          
+          <div 
+            className="relative w-full max-w-sm bg-white rounded-[2.5rem] p-8 shadow-3xl animate-scale-in overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Decoration */}
+            <div className={`absolute top-0 right-0 w-32 h-32 blur-3xl opacity-20 rounded-full -mr-16 -mt-16 bg-gradient-to-br ${activeFeature.gradient}`} />
+
+            <button 
+              onClick={() => setActiveFeature(null)}
+              className="absolute top-6 right-6 w-10 h-10 rounded-full bg-stone-50 flex items-center justify-center text-stone-400 hover:text-stone-900 transition-colors z-10"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-6 shadow-xl bg-gradient-to-br ${activeFeature.gradient} ${activeFeature.shadow}`}>
+              <activeFeature.icon className="w-8 h-8 text-white" strokeWidth={2.5} />
+            </div>
+
+            <h3 className="font-headline text-2xl font-black text-stone-900 mb-3 tracking-tight">
+              {activeFeature.title}
+            </h3>
+            
+            <p className="text-sm text-stone-500 leading-relaxed mb-8 font-medium">
+              {activeFeature.fullDesc}
+            </p>
+
+            <div className="space-y-3">
+              {activeFeature.points.map((point, idx) => (
+                <div key={idx} className="flex items-center gap-3">
+                  <div className={`w-5 h-5 rounded-full flex items-center justify-center bg-gradient-to-br ${activeFeature.gradient} ${activeFeature.shadow}`}>
+                    <Check className="w-3 h-3 text-white" strokeWidth={3} />
+                  </div>
+                  <span className="text-xs font-bold text-stone-700">{point}</span>
+                </div>
+              ))}
+            </div>
+
+            <button 
+              onClick={() => setActiveFeature(null)}
+              className="w-full mt-10 py-4 bg-stone-900 text-white rounded-2xl text-xs font-bold uppercase tracking-widest hover:bg-stone-800 transition-all shadow-xl shadow-stone-900/10"
+            >
+              Got it, thanks
+            </button>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
 
 function SuccessStoriesSection() {
+  const [activeStory, setActiveStory] = useState<null | typeof stories[0]>(null);
+
   const stories = [
     {
       name: "Rahul & Priya",
       image: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=400&q=80",
       message: "We found our perfect match within 2 months! The platform is incredibly safe and easy to use.",
+      fullStory: "Our journey started with a simple interest request. From the very first conversation, we realized we shared the same family values and life goals. Bhartiya Rishtey made it so easy to connect and verify each other's backgrounds. We're now happily married for a year!",
+      date: "October 2023"
     },
     {
       name: "Vikram & Anjali",
       image: "https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?auto=format&fit=crop&w=400&q=80",
       message: "It felt like destiny. The detailed profiles helped us know we shared the same values before we even spoke.",
+      fullStory: "What I loved most about this platform was the depth of the profiles. I knew Vikram's career aspirations and his love for travel before we even met. It saved us so much time and led us directly to our forever after.",
+      date: "January 2024"
     },
     {
       name: "Aditya & Sneha",
       image: "https://images.unsplash.com/photo-1469334031218-e382a71b716b?auto=format&fit=crop&w=400&q=80",
       message: "Thank you Bhartiya Rishtey for bringing us together. Our families couldn't be happier!",
+      fullStory: "Coming from two different states, we never thought our paths would cross. But thanks to the advanced search filters, we found each other. Our families met and immediately bonded. It truly is a platform for families.",
+      date: "March 2024"
     },
     {
       name: "Karan & Neha",
       image: "https://images.unsplash.com/photo-1533107862482-0e6974b06ec4?auto=format&fit=crop&w=400&q=80",
       message: "The premium matchmaking features are brilliant. Met the love of my life through the 'For You' swipe!",
+      fullStory: "The AI matches were surprisingly accurate. I was skeptical at first, but Neha was the first person the app suggested to me. We spoke for weeks on the platform before meeting. It was the best decision of our lives.",
+      date: "June 2023"
     },
   ];
 
   return (
-    <section className="py-24 relative overflow-hidden bg-stone-50 border-y border-stone-200">
+    <section className="py-24 relative overflow-hidden bg-[#f8f6f4]">
       <div className="max-w-7xl mx-auto px-6 mb-12 text-center">
         <span className="text-xs font-bold tracking-[0.3em] uppercase text-accent mb-4 block">Success Stories</span>
         <h2 className="font-headline text-4xl md:text-5xl font-bold text-stone-900 mb-4">
@@ -353,9 +502,13 @@ function SuccessStoriesSection() {
       <div className="flex w-[200%] gap-8 animate-scroll pl-8">
         {/* Render twice for continuous seamless sliding effect */}
         {[...stories, ...stories].map((story, i) => (
-          <div key={i} className="w-[250px] flex-shrink-0 glass-card p-4 flex flex-col hover:-translate-y-2 transition-transform duration-300">
-            <div className="aspect-square rounded-2xl overflow-hidden mb-4 relative">
-              <Image src={story.image} alt={story.name} fill className="object-cover" />
+          <div 
+            key={i} 
+            onClick={() => setActiveStory(story)}
+            className="w-[250px] flex-shrink-0 glass-card p-4 flex flex-col hover:-translate-y-2 transition-transform duration-300 cursor-pointer active:scale-95 group"
+          >
+            <div className="aspect-square rounded-2xl overflow-hidden mb-4 relative shadow-md group-hover:shadow-xl transition-shadow">
+              <Image src={story.image} alt={story.name} fill className="object-cover group-hover:scale-110 transition-transform duration-700" />
             </div>
             <div className="text-center px-2">
               <h3 className="font-headline font-bold text-lg text-stone-900">{story.name}</h3>
@@ -364,13 +517,68 @@ function SuccessStoriesSection() {
           </div>
         ))}
       </div>
+
+      {/* Success Story Modal */}
+      {activeStory && (
+        <div 
+          className="fixed inset-0 z-[100] flex items-center justify-center p-6 animate-fade-in"
+          onClick={() => setActiveStory(null)}
+        >
+          <div className="absolute inset-0 bg-stone-900/60 backdrop-blur-md" />
+          
+          <div 
+            className="relative w-full max-w-lg bg-white rounded-[2.5rem] p-0 shadow-3xl animate-scale-in overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="relative h-64 sm:h-80">
+              <Image src={activeStory.image} alt={activeStory.name} fill className="object-cover" />
+              <div className="absolute inset-0 bg-gradient-to-t from-white via-white/20 to-transparent" />
+              <button 
+                onClick={() => setActiveStory(null)}
+                className="absolute top-6 right-6 w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white border border-white/40 hover:bg-white/40 transition-all z-10"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="px-8 pb-10 -mt-16 relative z-10">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 mb-4">
+                <span className="material-symbols-outlined text-[10px] text-primary fill-1">auto_awesome</span>
+                <span className="text-[10px] font-bold text-primary uppercase tracking-widest">Matched on Platform</span>
+              </div>
+              
+              <h3 className="font-headline text-3xl font-black text-stone-900 mb-2 tracking-tight">
+                {activeStory.name}
+              </h3>
+              <p className="text-xs font-bold text-gold uppercase tracking-widest mb-6">{activeStory.date}</p>
+              
+              <div className="bg-stone-50 rounded-3xl p-6 mb-8 border border-stone-100">
+                <p className="text-sm md:text-base text-stone-600 leading-relaxed italic font-medium">
+                  "{activeStory.fullStory}"
+                </p>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div className="flex -space-x-2">
+                  {[1,2,3].map(i => (
+                    <div key={i} className="w-8 h-8 rounded-full border-2 border-white bg-stone-100 flex items-center justify-center">
+                      <span className="material-symbols-outlined text-xs text-stone-400">person</span>
+                    </div>
+                  ))}
+                </div>
+                <p className="text-[10px] font-bold text-stone-400 uppercase tracking-tighter">Shared with permission</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
 
 function PricingSection() {
   return (
-    <section className="py-24 relative" id="pricing">
+    <section className="py-24 relative bg-[#ebe7e3]" id="pricing">
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center mb-16">
           <span className="text-xs font-bold tracking-[0.3em] uppercase text-gold mb-4 block">Membership Plans</span>
@@ -416,16 +624,14 @@ function PricingSection() {
 
 function Footer() {
   return (
-    <footer className="bg-white text-stone-600 py-12 border-t-[32px] border-primary">
+    <footer className="bg-[#f8f6f4] text-stone-600 py-16 relative">
       <div className="max-w-7xl mx-auto px-6">
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
           {/* Column 1: Brand */}
           <div>
-            <div className="flex items-center gap-4 mb-8">
-              <div className="hidden sm:block">
-                <h3 className="font-headline text-2xl font-bold text-[#9b1c31] leading-tight">Bhartiya Rishtey</h3>
-                <p className="text-[10px] tracking-widest uppercase text-primary font-bold mt-1">Trusted Matrimony</p>
-              </div>
+            <div className="mb-8">
+              <h3 className="font-headline text-2xl font-black text-[#9b1c31] leading-tight">Bhartiya Rishtey</h3>
+              <p className="text-[10px] tracking-[0.2em] uppercase text-stone-400 font-black mt-1">Trusted Since 2016</p>
             </div>
             <p className="text-sm leading-relaxed text-stone-500 mb-6 font-medium">
               Verified matrimonial excellence, serving Indian families with trust and heritage for nearly a decade.
