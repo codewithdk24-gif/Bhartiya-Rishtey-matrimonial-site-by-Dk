@@ -112,15 +112,16 @@ export default function LoginPage() {
           </div>
 
           <div className="absolute bottom-12 left-12 right-12 text-white">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/20 backdrop-blur-md border border-white/30 mb-6">
-              <div className="flex -space-x-1.5">
-                {[1,2,3].map(i => (
-                  <div key={i} className="w-6 h-6 rounded-full border-2 border-white bg-stone-300 shadow-md" />
-                ))}
+            <div className="inline-flex items-center gap-4 px-4 py-2 rounded-full bg-black/20 backdrop-blur-md border border-white/10 mb-8">
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-[14px] text-white">verified</span>
+                <span className="text-[9px] font-black uppercase tracking-wider">100% Verified</span>
               </div>
-              <p className="text-[8px] font-black uppercase tracking-widest text-white">
-                50,000+ Happy Couples
-              </p>
+              <div className="w-[1px] h-3 bg-white/30" />
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-[14px] text-white">groups</span>
+                <span className="text-[9px] font-black uppercase tracking-wider">50K+ Members</span>
+              </div>
             </div>
             <h2 className="font-headline text-5xl font-bold leading-[1.1] mb-4 drop-shadow-2xl">
               Your Journey <br />

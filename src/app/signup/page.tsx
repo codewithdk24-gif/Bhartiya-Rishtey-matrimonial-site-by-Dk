@@ -139,14 +139,15 @@ export default function SignupPage() {
           </div>
 
           <div className="absolute bottom-12 left-12 right-12 text-white">
-             <div className="grid grid-cols-2 gap-3 mb-6">
-              <div className="p-3 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 shadow-xl text-center">
-                <p className="text-lg font-black text-white mb-0.5">100%</p>
-                <p className="text-[7px] font-bold text-white/70 uppercase tracking-widest leading-tight">Verified Profiles</p>
+            <div className="inline-flex items-center gap-4 px-4 py-2 rounded-full bg-black/20 backdrop-blur-md border border-white/10 mb-8">
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-[14px] text-white">verified</span>
+                <span className="text-[9px] font-black uppercase tracking-wider">100% Verified</span>
               </div>
-              <div className="p-3 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 shadow-xl text-center">
-                <p className="text-lg font-black text-white mb-0.5">50K+</p>
-                <p className="text-[7px] font-bold text-white/70 uppercase tracking-widest leading-tight">Active Members</p>
+              <div className="w-[1px] h-3 bg-white/30" />
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-[14px] text-white">groups</span>
+                <span className="text-[9px] font-black uppercase tracking-wider">50K+ Members</span>
               </div>
             </div>
             <h2 className="font-headline text-5xl font-bold leading-[1.1] mb-4 drop-shadow-2xl">
