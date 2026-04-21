@@ -75,8 +75,6 @@ export default function DashboardPage() {
         setInterests(prev => prev.filter(i => i.id !== interestId));
         if (action === 'ACCEPT') {
           const data = await res.json();
-          // Optionally redirect to chat or show success
-          console.log("Accepted! Conversation created:", data.conversationId);
         }
       }
     } catch (err) {
