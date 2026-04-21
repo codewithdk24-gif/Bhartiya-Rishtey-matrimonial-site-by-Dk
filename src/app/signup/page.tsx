@@ -186,7 +186,7 @@ export default function SignupPage() {
 
               <div className="space-y-4">
                 <div>
-                  <label className="block text-[10px] font-black text-stone-400 uppercase tracking-[0.2em] px-1 mb-1.5">Full Name</label>
+                <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider px-1 mb-1.5">Full Name</label>
                   <input
                     type="text"
                     className="w-full h-12 md:h-13 px-5 rounded-xl md:rounded-2xl bg-white border-2 border-[#e7ded7] text-stone-900 placeholder:text-stone-300 focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all outline-none text-sm font-medium"
@@ -198,7 +198,7 @@ export default function SignupPage() {
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-black text-stone-400 uppercase tracking-[0.2em] px-1 mb-1.5">Email Address</label>
+                <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider px-1 mb-1.5">Email Address</label>
                   <input
                     type="email"
                     className="w-full h-12 md:h-13 px-5 rounded-xl md:rounded-2xl bg-white border-2 border-[#e7ded7] text-stone-900 placeholder:text-stone-300 focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all outline-none text-sm font-medium"
@@ -210,7 +210,7 @@ export default function SignupPage() {
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-black text-stone-400 uppercase tracking-[0.2em] px-1 mb-1.5">Phone Number</label>
+                <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider px-1 mb-1.5">Phone Number</label>
                   <input
                     type="tel"
                     className="w-full h-12 md:h-13 px-5 rounded-xl md:rounded-2xl bg-white border-2 border-[#e7ded7] text-stone-900 placeholder:text-stone-300 focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all outline-none text-sm font-medium"
@@ -224,7 +224,7 @@ export default function SignupPage() {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-[10px] font-black text-stone-400 uppercase tracking-[0.2em] px-1 mb-1.5">Password</label>
+                    <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider px-1 mb-1.5">Password</label>
                     <input
                       type="password"
                       className="w-full h-12 md:h-13 px-5 rounded-xl md:rounded-2xl bg-white border-2 border-[#e7ded7] text-stone-900 placeholder:text-stone-300 focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all outline-none text-sm font-medium"
@@ -236,7 +236,7 @@ export default function SignupPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-[10px] font-black text-stone-400 uppercase tracking-[0.2em] px-1 mb-1.5">Confirm</label>
+                    <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider px-1 mb-1.5">Confirm</label>
                     <input
                       type="password"
                       className="w-full h-12 md:h-13 px-5 rounded-xl md:rounded-2xl bg-white border-2 border-[#e7ded7] text-stone-900 placeholder:text-stone-300 focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all outline-none text-sm font-medium"

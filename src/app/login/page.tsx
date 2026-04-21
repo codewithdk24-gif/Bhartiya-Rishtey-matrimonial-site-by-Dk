@@ -158,7 +158,7 @@ export default function LoginPage() {
               )}
 
               <div className="space-y-2">
-                <label className="block text-[10px] font-black text-stone-400 uppercase tracking-[0.2em] px-1">Email Address</label>
+                <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider px-1 mb-1.5">Email Address</label>
                 <input
                   id="login-email"
                   type="email"
@@ -172,7 +172,7 @@ export default function LoginPage() {
 
               <div className="space-y-2">
                 <div className="flex justify-between items-center px-1">
-                  <label className="block text-[10px] font-black text-stone-400 uppercase tracking-[0.2em]">Password</label>
+                  <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider">Password</label>
                   <Link href="/forgot-password" title="Coming Soon" className="text-[10px] text-primary hover:underline font-bold">
                     Forgot?
                   </Link>
