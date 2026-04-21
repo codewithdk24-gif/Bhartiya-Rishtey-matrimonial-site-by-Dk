@@ -17,9 +17,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Phone must be exactly 10 digits' }, { status: 400 });
     }
 
+    // Normalize email
+    const emailLower = email.toLowerCase();
+
     // Check if email already exists
     const existingUser = await prisma.user.findUnique({
-      where: { email },
+      where: { email: emailLower },
     });
 
     if (existingUser) {
@@ -33,10 +36,10 @@ export async function POST(request: Request) {
     const user = await prisma.user.create({
       data: {
         name,
-        email,
+        email: emailLower,
         phone,
         passwordHash: hashedPassword,
-        plan: "free",
+        plan: "FREE",
       },
     });
 
