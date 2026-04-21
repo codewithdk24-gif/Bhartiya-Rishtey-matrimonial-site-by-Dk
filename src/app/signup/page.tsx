@@ -162,9 +162,11 @@ export default function SignupPage() {
 
         {/* Right Side: Form Card */}
         <div className="w-full flex items-center justify-center p-8 md:p-12 relative bg-white">
-          <Link href="/" className="absolute top-8 right-10 flex items-center gap-2 text-stone-400 hover:text-[#ff4d6d] transition-all text-[10px] font-black uppercase tracking-widest hover:-translate-x-1">
-            <span className="material-symbols-outlined text-sm">arrow_back</span>
-            Back to Home
+          <Link href="/" className="absolute top-6 left-6 md:top-8 md:left-10 md:right-auto flex items-center gap-2 text-stone-400 hover:text-[#ff4d6d] transition-all text-[10px] font-black uppercase tracking-widest hover:-translate-x-1 z-50">
+            <div className="w-8 h-8 md:w-auto md:h-auto rounded-full bg-stone-100 md:bg-transparent flex items-center justify-center">
+              <span className="material-symbols-outlined text-base md:text-sm">arrow_back</span>
+            </div>
+            <span className="hidden md:block">Back to Home</span>
           </Link>
 
           <div className="w-full max-w-sm">
