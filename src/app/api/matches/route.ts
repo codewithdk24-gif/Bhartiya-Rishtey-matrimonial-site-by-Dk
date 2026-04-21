@@ -1,144 +1,186 @@
-/**
- * FIXES APPLIED:
- * 1. Replaced new PrismaClient() + duplicate getUserIdFromRequest with centralized libs
- * 2. Added isVisible: true filter — Royal tier "Invisible Mode" was advertised but never enforced
- * 3. Added block list filtering — blocked users were appearing in matches (privacy/safety bug)
- * 4. Removed the flawed age calculation using setFullYear (mutates Date in place, causes bugs around year boundaries)
- * 5. Score computation: fuzzy fallback base score logic was inverted (isFuzzy gave higher base)
- * 6. Added pagination support (take/skip) to prevent unbounded result sets
- * 7. Profiles with placeholder DOB (1990-01-01) are excluded from age filtering
- */
-
-import { NextResponse } from 'next/server';
-import { getUserIdFromRequest, unauthorizedResponse } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
-
-function subtractYears(years: number): Date {
-  // FIX: Create a new Date instead of mutating with setFullYear
-  const d = new Date();
-  d.setFullYear(d.getFullYear() - years);
-  return d;
-}
+import { getServerSession } from "next-auth/next";
+import { NextResponse } from "next/server";
+import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+import { getBlockedUserIds } from "@/lib/safety";
+import { getPlanLimits } from "@/lib/plans";
 
 export async function GET(request: Request) {
-  const userId = getUserIdFromRequest(request);
-  if (!userId) return unauthorizedResponse();
-
-  const url = new URL(request.url);
-  const page = Math.max(1, parseInt(url.searchParams.get('page') ?? '1'));
-  const limit = Math.min(20, parseInt(url.searchParams.get('limit') ?? '20'));
-  const skip = (page - 1) * limit;
-
   try {
-    const currentUserProfile = await prisma.profile.findUnique({ where: { userId } });
-    if (!currentUserProfile) {
-      return NextResponse.json({ error: 'Please complete your profile to view matches.' }, { status: 404 });
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { gender } = currentUserProfile;
-    let prefs: any = {};
-    if (currentUserProfile.preferences) {
-      try { prefs = typeof currentUserProfile.preferences === 'string' ? JSON.parse(currentUserProfile.preferences) : currentUserProfile.preferences; } catch { prefs = {}; }
-    }
+    const userId = session.user.id;
 
-    const targetGender =
-      prefs.partnerGender ??
-      (gender === 'A Groom' ? 'A Bride' : gender === 'A Bride' ? 'A Groom' : undefined);
-
-    // FIX: Get both match exclusions AND blocked users
-    const [existingInteractions, blockRelations] = await Promise.all([
-      prisma.match.findMany({
-        where: { OR: [{ user1Id: userId }, { user2Id: userId }] },
-        select: { user1Id: true, user2Id: true },
-      }),
-      prisma.blockList.findMany({
-        where: { OR: [{ blockerId: userId }, { blockedId: userId }] },
-        select: { blockerId: true, blockedId: true },
-      }),
-    ]);
-
-    const excludeIds = new Set<string>([userId]);
-    existingInteractions.forEach(m => { excludeIds.add(m.user1Id); excludeIds.add(m.user2Id); });
-    blockRelations.forEach(b => { excludeIds.add(b.blockerId); excludeIds.add(b.blockedId); });
-
-    const baseWhere: any = {
-      userId: { notIn: Array.from(excludeIds) },
-      isCompleted: true,
-      isVisible: true, // FIX: respect Invisible Mode
-    };
-
-    if (targetGender) baseWhere.gender = targetGender;
-
-    // FIX: Safe date range calculation
-    if (prefs.minAge || prefs.maxAge) {
-      baseWhere.dateOfBirth = {};
-      if (prefs.maxAge) baseWhere.dateOfBirth.gte = subtractYears(prefs.maxAge);
-      if (prefs.minAge) baseWhere.dateOfBirth.lte = subtractYears(prefs.minAge);
-    }
-
-    if (prefs.religion && prefs.religion !== 'Any') {
-      baseWhere.religion = prefs.religion;
-    }
-
-    let potentialMatches = await prisma.profile.findMany({
-      where: baseWhere,
-      skip,
-      take: limit,
+    // 1. Get current user's profile and preferences
+    const currentUser = await prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        profile: true,
+        preferences: true,
+      },
     });
 
-    let isFuzzy = false;
-
-    // Phase 2: Fuzzy fallback
-    if (potentialMatches.length === 0 && page === 1) {
-      isFuzzy = true;
-      const relaxedWhere: any = {
-        userId: { notIn: Array.from(excludeIds) },
-        isCompleted: true,
-        isVisible: true,
-      };
-
-      if (targetGender) relaxedWhere.gender = targetGender;
-
-      if (prefs.minAge || prefs.maxAge) {
-        const relaxMin = prefs.minAge ? prefs.minAge - 4 : undefined;
-        const relaxMax = prefs.maxAge ? prefs.maxAge + 4 : undefined;
-        relaxedWhere.dateOfBirth = {};
-        if (relaxMax) relaxedWhere.dateOfBirth.gte = subtractYears(relaxMax);
-        if (relaxMin) relaxedWhere.dateOfBirth.lte = subtractYears(relaxMin);
-      }
-
-      potentialMatches = await prisma.profile.findMany({
-        where: relaxedWhere,
-        take: 30,
-      });
+    if (!currentUser || !currentUser.profile) {
+      return NextResponse.json({ error: "Profile not found" }, { status: 404 });
     }
 
-    // Score
-    const scoredMatches = potentialMatches
-      .map(p => {
-        // FIX: Exact match base should be higher than fuzzy, not equal to it
-        let score = isFuzzy ? 55 : 80;
-        if (prefs.education && p.education === prefs.education) score += 5;
-        if (prefs.caste && p.caste === prefs.caste) score += 5;
-        if (prefs.religion && p.religion === prefs.religion) score += isFuzzy ? 15 : 5;
-        if (prefs.maxHeightCm && p.heightCm && p.heightCm <= prefs.maxHeightCm) score += 5;
-        return {
-          ...p,
-          matchScore: Math.min(score, 100),
-          matchType: isFuzzy ? 'CLOSE_MATCH' : 'EXACT_MATCH',
-        };
-      })
-      .sort((a, b) => b.matchScore - a.matchScore);
+    const myProfile = currentUser.profile;
+    const myPrefs = currentUser.preferences;
 
-    return NextResponse.json(
-      {
-        matches: scoredMatches,
-        meta: { page, limit, fuzzyModeEnabled: isFuzzy, count: scoredMatches.length },
-      },
-      { status: 200 }
-    );
+    // Opposite gender logic
+    const targetGender = myProfile.gender === "Male" ? "Female" : "Male";
+
+    // Helper to calculate score
+    const calculateScore = (profile: any) => {
+      let score = 0;
+      
+      // same religion → +20
+      if (profile.religion === myProfile.religion) score += 20;
+      
+      // same city → +15
+      if (profile.city === myProfile.city) score += 15;
+      
+      // same education → +10
+      if (profile.education === myProfile.education) score += 10;
+      
+      // same state → +8
+      if (profile.state === myProfile.state) score += 8;
+      
+      // profile has photo → +5
+      if (profile.profilePhoto) score += 5;
+      
+      // recently active → +5 (last 24 hours)
+      const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+      if (profile.user.lastActive > oneDayAgo) score += 5;
+
+      return Math.min(score, 100);
+    };
+
+    // 2. Fetch blocked users list (Bidirectional)
+    const blockedIds = await getBlockedUserIds(userId);
+
+    // Helper to build filters
+    const getBaseQuery = (ageBuffer = 0, ignoreReligion = false, ignoreCaste = false) => {
+      const minAge = (myPrefs?.minAge || 18) - ageBuffer;
+      const maxAge = (myPrefs?.maxAge || 60) + ageBuffer;
+      
+      const minDob = new Date();
+      minDob.setFullYear(minDob.getFullYear() - maxAge);
+      
+      const maxDob = new Date();
+      maxDob.setFullYear(maxDob.getFullYear() - minAge);
+
+      const where: any = {
+        userId: { 
+          not: userId,
+          notIn: blockedIds 
+        },
+        gender: targetGender,
+        isCompleted: true,
+        dateOfBirth: {
+          gte: minDob,
+          lte: maxDob,
+        },
+      };
+
+      if (!ignoreReligion && myPrefs?.religions) {
+        const religions = JSON.parse(myPrefs.religions);
+        if (religions.length > 0) where.religion = { in: religions };
+      }
+
+      if (!ignoreCaste && myPrefs?.castes) {
+        const castes = JSON.parse(myPrefs.castes);
+        if (castes.length > 0) where.caste = { in: castes };
+      }
+
+      if (myPrefs?.locations) {
+        const locations = JSON.parse(myPrefs.locations);
+        if (locations.length > 0) {
+          where.OR = [
+            { city: { in: locations } },
+            { state: { in: locations } }
+          ];
+        }
+      }
+
+      return where;
+    };
+
+    let fuzzyUsed = false;
+    let profiles: any[] = [];
+
+    // Attempt 1: Strict matching
+    profiles = await prisma.profile.findMany({
+      where: getBaseQuery(),
+      include: { user: { select: { lastActive: true } } },
+    });
+
+    // Step 6: FUZZY MATCHING logic
+    if (profiles.length < 5) {
+      fuzzyUsed = true;
+      
+      // Expand age range +/- 3
+      profiles = await prisma.profile.findMany({
+        where: getBaseQuery(3),
+        include: { user: { select: { lastActive: true } } },
+      });
+
+      if (profiles.length < 5) {
+        // Expand age range +/- 5
+        profiles = await prisma.profile.findMany({
+          where: getBaseQuery(5),
+          include: { user: { select: { lastActive: true } } },
+        });
+      }
+
+      if (profiles.length < 5) {
+        // Remove caste filter
+        profiles = await prisma.profile.findMany({
+          where: getBaseQuery(5, false, true),
+          include: { user: { select: { lastActive: true } } },
+        });
+      }
+
+      if (profiles.length < 5) {
+        // Remove religion filter
+        profiles = await prisma.profile.findMany({
+          where: getBaseQuery(5, true, true),
+          include: { user: { select: { lastActive: true } } },
+        });
+      }
+    }
+
+    // Step 4 & 5: Calculate Score and Sort
+    const results = profiles.map(p => ({
+      ...p,
+      matchScore: calculateScore(p),
+      lastActive: p.user.lastActive
+    }));
+
+    results.sort((a, b) => {
+      if (b.matchScore !== a.matchScore) return b.matchScore - a.matchScore;
+      return b.lastActive.getTime() - a.lastActive.getTime();
+    });
+
+    // Step 7: Apply Plan Capping (FREE users limited to 10)
+    const limits = getPlanLimits(currentUser.plan || 'FREE');
+    const isCapped = results.length > limits.searchLimit;
+    const finalResults = isCapped ? results.slice(0, limits.searchLimit) : results;
+
+    return NextResponse.json({
+      profiles: finalResults,
+      total: results.length,
+      fuzzyUsed,
+      capped: isCapped,
+      cappedAt: isCapped ? limits.searchLimit : undefined
+    });
+
   } catch (error) {
-    console.error('GET Matches Error:', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    console.error("Match API Error:", error);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

@@ -1,190 +1,245 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
+import DashNav from '@/components/DashNav';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { PLANS, getPlanById } from '@/lib/constants/plans';
 
-function DashNav() {
+function PaymentContent() {
+  const searchParams = useSearchParams();
   const router = useRouter();
-  const handleLogout = async () => { await fetch('/api/auth/logout', { method: 'POST' }); router.push('/'); };
-  const links = [
-    { h: '/dashboard', i: 'dashboard', l: 'Dashboard' },
-    { h: '/discover', i: 'local_fire_department', l: 'For You' },
-    { h: '/search', i: 'search', l: 'Search' },
-    { h: '/likes', i: 'favorite', l: 'Likes' },
-    { h: '/chat', i: 'chat', l: 'Messages' },
-    { h: '/profile', i: 'person', l: 'Profile' },
-  ];
-  return (
-    <>
-      <nav className="nav-glass sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 py-2.5 flex items-center justify-between">
-          <Link href="/discover" className="flex items-center gap-2">
-            <span className="font-headline text-lg font-bold text-stone-900 hidden sm:block">Bhartiya Rishtey</span>
-          </Link>
-          <div className="hidden md:flex items-center gap-0.5">
-            {links.map(link => (
-              <Link key={link.h} href={link.h} className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium transition-all ${link.h === '/payment' ? 'text-primary bg-primary/5' : 'text-stone-500 hover:text-primary hover:bg-primary/5'}`}>
-                <span className="material-symbols-outlined text-lg">{link.i}</span>{link.l}
-              </Link>
-            ))}
+  const planId = searchParams.get('plan') || 'PRIME';
+  
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [requestId, setRequestId] = useState<string | null>(null);
+  
+  const [utr, setUtr] = useState('');
+  const [screenshotUrl, setScreenshotUrl] = useState(''); // Placeholder for upload logic
+
+  const PLANS_INFO: Record<string, { name: string; price: number; duration: string }> = {
+    PRIME: { name: 'Prime', price: 1100, duration: '90 Days' },
+    ROYAL: { name: 'Royal', price: 2500, duration: '180 Days' },
+    LEGACY: { name: 'Legacy', price: 4900, duration: '365 Days' },
+  };
+
+  const selectedPlan = PLANS_INFO[planId as keyof typeof PLANS_INFO] || PLANS_INFO.PRIME;
+
+  const handleCopyUPI = () => {
+    navigator.clipboard.writeText('bhartiyarishtey@upi');
+    alert('UPI ID copied to clipboard');
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!utr && !screenshotUrl) {
+      setError('Please provide either a UTR number or a screenshot');
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const res = await fetch('/api/payment/request', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          planId,
+          utr,
+          screenshotUrl
+        })
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to submit request');
+
+      setSuccess(true);
+      setRequestId(data.requestId);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (success) {
+    return (
+      <div className="max-w-md mx-auto px-4 py-12 text-center animate-fade-in">
+        <div className="w-20 h-20 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl shadow-emerald-500/10">
+          <span className="material-symbols-outlined text-4xl font-bold">check_circle</span>
+        </div>
+        <h1 className="text-3xl font-black text-stone-900 mb-2">Payment Submitted</h1>
+        <p className="text-stone-500 font-medium mb-8">Your request is under review. Please wait 2–4 hours for activation.</p>
+        
+        <div className="bg-white rounded-3xl border border-stone-100 p-6 shadow-lg shadow-stone-200/50 mb-10 text-left space-y-4">
+          <div className="flex justify-between items-center">
+            <span className="text-[10px] font-black text-stone-300 uppercase tracking-widest">Request ID</span>
+            <span className="text-xs font-bold text-stone-600">{requestId}</span>
           </div>
-          <div className="flex items-center gap-2">
-            <Link href="/payment" className="p-2 rounded-xl hover:bg-gold/10 transition-colors"><span className="material-symbols-outlined text-gold">diamond</span></Link>
-            <button onClick={handleLogout} className="p-2 rounded-xl text-stone-400 hover:text-error hover:bg-error/5 transition-all"><span className="material-symbols-outlined text-lg">logout</span></button>
+          <div className="flex justify-between items-center">
+            <span className="text-[10px] font-black text-stone-300 uppercase tracking-widest">Selected Plan</span>
+            <span className="text-xs font-black text-primary uppercase tracking-widest">{selectedPlan.name}</span>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="text-[10px] font-black text-stone-300 uppercase tracking-widest">Status</span>
+            <span className="px-2 py-1 bg-amber-50 text-amber-600 text-[9px] font-black uppercase tracking-widest rounded-lg">Pending Review</span>
           </div>
         </div>
-      </nav>
-      {/* Mobile bottom nav */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 nav-glass border-t border-stone-200/50 z-50 px-1 py-1 flex justify-around">
-        {links.map(link => (
-          <Link key={link.h} href={link.h} className={`flex flex-col items-center gap-0 px-1 py-1.5 rounded-xl text-[8px] min-[360px]:text-[10px] font-medium transition-all ${link.h === '/payment' ? 'text-primary' : 'text-stone-400'}`}>
-            <span className="material-symbols-outlined text-lg min-[360px]:text-xl">{link.i}</span>
-            <span className="whitespace-nowrap">{link.l}</span>
-          </Link>
-        ))}
+
+        <button 
+          onClick={() => router.push('/dashboard')}
+          className="btn-primary w-full py-4 shadow-xl shadow-primary/20"
+        >
+          Go to Dashboard
+        </button>
       </div>
-    </>
+    );
+  }
+
+  return (
+    <div className="max-w-2xl mx-auto px-4 py-8 pb-32">
+      {/* Plan Header */}
+      <div className="bg-stone-900 rounded-[2.5rem] p-8 text-white mb-8 shadow-2xl shadow-stone-900/20 overflow-hidden relative group">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16 blur-2xl group-hover:scale-150 transition-all duration-700" />
+        <div className="relative z-10">
+          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/50 mb-2">Selected Membership</p>
+          <div className="flex items-end justify-between gap-4">
+            <div>
+              <h1 className="text-4xl font-black tracking-tight">{selectedPlan.name}</h1>
+              <p className="text-sm font-bold text-primary mt-1">{selectedPlan.duration}</p>
+            </div>
+            <div className="text-right">
+              <p className="text-4xl font-black tracking-tighter">₹{selectedPlan.price.toLocaleString()}</p>
+              <p className="text-[9px] font-black text-white/30 uppercase tracking-widest mt-1">Inclusive of GST</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid md:grid-cols-2 gap-8">
+        {/* Left: Payment Info */}
+        <div className="space-y-6">
+          <div className="bg-white rounded-[2rem] p-8 border border-stone-100 shadow-xl shadow-stone-200/50 text-center">
+            <h3 className="text-xs font-black text-stone-400 uppercase tracking-[0.2em] mb-6">Scan to Pay</h3>
+            <div className="relative w-48 h-48 mx-auto mb-6 bg-stone-50 rounded-2xl p-2 border border-stone-100">
+              <img src="/images/upi-qr.png" alt="UPI QR Code" className="w-full h-full object-contain" />
+            </div>
+            <div className="bg-stone-50 rounded-2xl p-4 border border-stone-100 flex items-center justify-between gap-3">
+              <div className="text-left">
+                <p className="text-[9px] font-black text-stone-300 uppercase tracking-widest leading-none mb-1">UPI ID</p>
+                <p className="text-sm font-black text-stone-900 tracking-tight">bhartiyarishtey@upi</p>
+              </div>
+              <button 
+                onClick={handleCopyUPI}
+                className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-stone-400 hover:text-primary hover:bg-primary/5 transition-all shadow-sm active:scale-90"
+              >
+                <span className="material-symbols-outlined text-lg">content_copy</span>
+              </button>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-[2rem] p-8 border border-stone-100 shadow-xl shadow-stone-200/50">
+            <h3 className="text-xs font-black text-stone-900 uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
+              <span className="material-symbols-outlined text-sm text-primary">info</span>
+              Instructions
+            </h3>
+            <ul className="space-y-4">
+              {[
+                'Open any UPI app (GPay, PhonePe, Paytm)',
+                'Scan the QR or enter the UPI ID manually',
+                `Pay the exact amount of ₹${selectedPlan.price.toLocaleString()}`,
+                'Note down the UTR / Transaction ID after payment'
+              ].map((step, i) => (
+                <li key={i} className="flex gap-4">
+                  <span className="flex-shrink-0 w-6 h-6 rounded-full bg-stone-50 text-[10px] font-black text-stone-400 flex items-center justify-center border border-stone-100">
+                    {i + 1}
+                  </span>
+                  <p className="text-xs text-stone-600 font-medium leading-relaxed">{step}</p>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+
+        {/* Right: Submission Form */}
+        <div className="bg-white rounded-[2rem] p-8 border border-stone-100 shadow-xl shadow-stone-200/50">
+          <h3 className="text-xs font-black text-stone-900 uppercase tracking-[0.2em] mb-8">Submit Details</h3>
+          
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest ml-1">UTR / Transaction ID</label>
+              <input 
+                type="text"
+                value={utr}
+                onChange={(e) => setUtr(e.target.value.toUpperCase())}
+                placeholder="12-digit number (e.g. 3056...)"
+                className="w-full bg-stone-50 border-none rounded-2xl px-5 py-4 text-sm font-bold text-stone-900 placeholder:text-stone-300 focus:ring-2 focus:ring-primary/20 transition-all outline-none"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest ml-1">Payment Screenshot (Optional)</label>
+              <div className="relative group/upload">
+                <input 
+                  type="text"
+                  value={screenshotUrl}
+                  onChange={(e) => setScreenshotUrl(e.target.value)}
+                  placeholder="Enter image URL"
+                  className="w-full bg-stone-50 border-none rounded-2xl px-5 py-4 text-sm font-bold text-stone-900 placeholder:text-stone-300 focus:ring-2 focus:ring-primary/20 transition-all outline-none"
+                />
+                <p className="text-[9px] text-stone-400 mt-2 ml-1 font-medium italic">Upload logic can be integrated with Cloudinary/S3</p>
+              </div>
+            </div>
+
+            {error && (
+              <div className="p-4 bg-red-50 text-red-600 rounded-2xl text-[11px] font-bold flex items-start gap-3 animate-shake">
+                <span className="material-symbols-outlined text-lg mt-0.5">error</span>
+                <p>{error}</p>
+              </div>
+            )}
+
+            <button 
+              type="submit"
+              disabled={loading}
+              className="btn-primary w-full py-5 shadow-2xl shadow-primary/20 flex items-center justify-center gap-3 active:scale-95 disabled:opacity-50 disabled:scale-100"
+            >
+              {loading ? (
+                <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+              ) : (
+                <>
+                  <span className="material-symbols-outlined text-lg font-bold">verified</span>
+                  I Have Paid
+                </>
+              )}
+            </button>
+
+            <p className="text-[9px] text-stone-400 text-center font-medium leading-relaxed">
+              By clicking "I Have Paid", you confirm that you have made the transaction. False claims may result in account suspension.
+            </p>
+          </form>
+        </div>
+      </div>
+    </div>
   );
 }
 
 export default function PaymentPage() {
-  const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
-  const [paymentStatus, setPaymentStatus] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetch('/api/payment/status')
-      .then(r => r.json())
-      .then(data => {
-        setPaymentStatus(data);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, []);
-
-  const selectedPlan = selectedPlanId ? getPlanById(selectedPlanId) : null;
-
   return (
-    <>
+    <div className="min-h-screen bg-[#FDFCFB]">
       <DashNav />
-      <div className="max-w-5xl mx-auto px-4 md:px-6 py-8 pb-24 animate-fade-in-up">
-        <div className="text-center mb-12">
-          <span className="text-xs font-bold tracking-[0.3em] uppercase text-gold mb-3 block">Upgrade Your Plan</span>
-          <h1 className="font-headline text-4xl font-bold text-stone-900 mb-3">
-            Unlock Premium <span className="text-gradient-gold">Features</span>
-          </h1>
-          <p className="text-stone-500 max-w-lg mx-auto">
-            Upgrade your membership to enjoy exclusive benefits and find your perfect match faster with Bhartiya Rishtey.
-          </p>
-        </div>
-
-        {/* Current Status */}
-        {paymentStatus?.status && (
-          <div className={`glass-card p-5 mb-8 flex items-center gap-4 ${
-            paymentStatus.status === 'PENDING' ? 'border-warning/30' :
-            paymentStatus.status === 'APPROVED' ? 'border-success/30' :
-            'border-error/30'
-          }`}>
-            <span className={`material-symbols-outlined text-2xl ${
-              paymentStatus.status === 'PENDING' ? 'text-warning' :
-              paymentStatus.status === 'APPROVED' ? 'text-success' :
-              'text-error'
-            }`}>
-              {paymentStatus.status === 'PENDING' ? 'hourglass_top' :
-               paymentStatus.status === 'APPROVED' ? 'verified' : 'cancel'}
-            </span>
-            <div>
-              <p className="font-semibold text-stone-900">
-                {paymentStatus.status === 'PENDING' ? 'Payment verification in progress' :
-                 paymentStatus.status === 'APPROVED' ? `Your ${paymentStatus.tier} plan is active!` :
-                 'Payment was rejected'}
-              </p>
-              <p className="text-sm text-stone-500">
-                {paymentStatus.status === 'PENDING' ? 'Our team will verify your payment within 10–30 minutes.' :
-                 paymentStatus.status === 'REJECTED' ? paymentStatus.rejectionReason : ''}
-              </p>
-            </div>
+      <Suspense fallback={
+        <div className="max-w-2xl mx-auto px-4 py-8 flex flex-col gap-6">
+          <div className="shimmer h-48 rounded-[2.5rem]" />
+          <div className="grid md:grid-cols-2 gap-8">
+            <div className="shimmer h-80 rounded-[2rem]" />
+            <div className="shimmer h-80 rounded-[2rem]" />
           </div>
-        )}
-
-        {/* Plans */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 md:gap-8">
-          {PLANS.map((plan, i) => (
-            <div
-              key={plan.id}
-              className={`glass-card p-8 relative cursor-pointer transition-all ${
-                selectedPlanId === plan.id ? 'ring-2 ring-primary scale-[1.02] shadow-xl' : 'hover:shadow-lg'
-              }`}
-              onClick={() => setSelectedPlanId(plan.id)}
-            >
-              {plan.badge && (
-                <div className={`absolute -top-3 left-1/2 -translate-x-1/2 ${
-                  plan.id === 'ROYAL' ? 'badge-premium' : 'badge-royal'
-                }`}>{plan.badge}</div>
-              )}
-
-              <div className="text-center mb-6 pt-2">
-                <span className={`material-symbols-outlined text-5xl mb-3 block ${
-                  plan.id === 'PRIME' ? 'text-stone-400' :
-                  plan.id === 'ROYAL' ? 'text-primary' : 'text-gold'
-                }`}>
-                   {plan.id === 'PRIME' ? 'person' : plan.id === 'ROYAL' ? 'workspace_premium' : 'diamond'}
-                </span>
-                <h3 className="font-headline text-2xl font-bold text-stone-900 mb-1">{plan.name}</h3>
-                <p className="font-headline text-4xl font-bold text-stone-900">{plan.price}</p>
-                <p className="text-sm text-stone-400">{plan.period}</p>
-              </div>
-
-              <ul className="space-y-3 mb-6">
-                {plan.features.map((f, j) => (
-                  <li key={j} className="flex items-start gap-3 text-sm text-stone-600">
-                    <span className="material-symbols-outlined text-sm text-success mt-0.5">check_circle</span>
-                    {f}
-                  </li>
-                ))}
-              </ul>
-
-              <div className={`w-full text-center py-3 rounded-full font-bold text-sm uppercase tracking-wider transition-all ${
-                selectedPlanId === plan.id
-                  ? 'bg-primary text-white shadow-lg'
-                  : 'bg-stone-100 text-stone-500'
-              }`}>
-                {selectedPlanId === plan.id ? '✓ Selected' : 'Select Plan'}
-              </div>
-            </div>
-          ))}
         </div>
-
-        {/* Payment Instructions */}
-        {selectedPlan && (
-          <div className="glass-card p-8 mt-8 animate-fade-in-up">
-            <h2 className="font-headline text-xl font-bold text-stone-900 mb-4 flex items-center gap-2">
-              <span className="material-symbols-outlined text-primary">payments</span>
-              Payment Instructions for {selectedPlan.name}
-            </h2>
-            <div className="bg-stone-50 rounded-xl p-5 mb-6">
-              <p className="text-sm text-stone-700 leading-relaxed">
-                <strong>Step 1:</strong> Make payment of <strong>{selectedPlan.price}</strong> via UPI, Bank Transfer, or any preferred method.<br /><br />
-                <strong>Step 2:</strong> Take a screenshot of the payment confirmation.<br /><br />
-                <strong>Step 3:</strong> Upload the screenshot below. Our team will verify and activate your <strong>{selectedPlan.months} month</strong> membership within 10–30 minutes.
-              </p>
-            </div>
-
-            <div className="bg-gold/5 border border-gold/20 rounded-xl p-5 mb-6">
-              <p className="text-sm font-semibold text-stone-700 mb-2">UPI Payment Details (Bhartiya Rishtey):</p>
-              <p className="text-sm text-stone-600 font-mono">bhartiyarishtey@upi</p>
-              <p className="text-xs text-stone-400 mt-2">Or scan the QR code in our mobile app</p>
-            </div>
-
-            <p className="text-xs text-stone-400 text-center">
-              Payment screenshot upload requires Cloudinary configuration. Contact @DineshKurre for assistance.
-            </p>
-          </div>
-        )}
-      </div>
-    </>
+      }>
+        <PaymentContent />
+      </Suspense>
+    </div>
   );
 }
-

@@ -1,126 +1,168 @@
 import { NextResponse } from 'next/server';
-import { v2 as cloudinary } from 'cloudinary';
-import { paymentLimiter, getIp } from '@/lib/ratelimit';
-import { logAction } from '@/lib/logger';
 import { getUserIdFromRequest, unauthorizedResponse } from '@/lib/auth';
-import { PaymentPlanSchema } from '@/lib/validations';
 import { prisma } from '@/lib/prisma';
-import { getPlanById } from '@/lib/constants/plans';
+import { PLANS } from '@/lib/plans';
 
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-  secure: true,
-});
-
-const isCloudinaryConfigured =
-  !!process.env.CLOUDINARY_CLOUD_NAME &&
-  !!process.env.CLOUDINARY_API_KEY &&
-  !!process.env.CLOUDINARY_API_SECRET;
-
+/**
+ * POST: Create a manual UPI payment request
+ * Phase UPI.1 - Step 3
+ */
 export async function POST(request: Request) {
   const userId = getUserIdFromRequest(request);
   if (!userId) return unauthorizedResponse();
 
-  const ip = getIp(request);
+  try {
+    const { planId, utr, screenshotUrl } = await request.json();
+
+    // 1. Validate Plan
+    const plan = PLANS[planId as keyof typeof PLANS];
+    if (!plan || planId === 'FREE') {
+      return NextResponse.json({ error: 'Invalid plan selected' }, { status: 400 });
+    }
+
+    // 2. Require evidence (UTR or Screenshot)
+    if (!utr && !screenshotUrl) {
+      return NextResponse.json({ error: 'UTR number or screenshot is required' }, { status: 400 });
+    }
+
+    // 3. Check Cooldown (1 request per hour)
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { lastPaymentRequestAt: true }
+    });
+
+    if (user?.lastPaymentRequestAt) {
+      const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+      if (user.lastPaymentRequestAt > oneHourAgo) {
+        const nextAllowed = new Date(user.lastPaymentRequestAt.getTime() + 60 * 60 * 1000);
+        return NextResponse.json({ 
+          error: `Cooldown active. Please wait until ${nextAllowed.toLocaleTimeString()} to send another request.` 
+        }, { status: 429 });
+      }
+    }
+
+    // 4. Check for existing PENDING request for same plan
+    const pendingRequest = await prisma.paymentRequest.findFirst({
+      where: { 
+        userId, 
+        plan: planId, 
+        status: 'PENDING' 
+      }
+    });
+
+    if (pendingRequest) {
+      return NextResponse.json({ error: `You already have a pending request for ${planId}` }, { status: 400 });
+    }
+
+    // 5. Validate UTR (8-20 alphanumeric)
+    if (utr) {
+      const utrRegex = /^[A-Za-z0-9]{8,20}$/;
+      if (!utrRegex.test(utr)) {
+        return NextResponse.json({ error: 'Invalid UTR format. Should be 8-20 alphanumeric characters.' }, { status: 400 });
+      }
+
+      // Check UTR uniqueness (excluding REJECTED)
+      const existingUtr = await prisma.paymentRequest.findFirst({
+        where: { 
+          utr, 
+          status: { in: ['PENDING', 'APPROVED'] } 
+        }
+      });
+
+      if (existingUtr) {
+        return NextResponse.json({ error: 'This UTR has already been submitted.' }, { status: 400 });
+      }
+    }
+
+    // 6. Create PaymentRequest
+    const paymentRequest = await prisma.$transaction(async (tx) => {
+      // Update cooldown
+      await tx.user.update({
+        where: { id: userId },
+        data: { lastPaymentRequestAt: new Date() }
+      });
+
+      // Create request
+      return await tx.paymentRequest.create({
+        data: {
+          userId,
+          plan: planId,
+          amount: plan.price,
+          utr: utr || null,
+          screenshotUrl: screenshotUrl || null,
+          status: 'PENDING'
+        }
+      });
+    });
+
+    // 7. Notifications (Mocking for now, will use existing system if available)
+    try {
+      await prisma.notification.create({
+        data: {
+          userId,
+          type: 'SYSTEM_ALERT',
+          message: `Your payment request for ${planId} has been submitted and is under review.`,
+          link: '/dashboard'
+        }
+      });
+      
+      // Admin notification (Find an admin)
+      const admin = await prisma.user.findFirst({ where: { role: 'ADMIN' } });
+      if (admin) {
+        await prisma.notification.create({
+          data: {
+            userId: admin.id,
+            fromUserId: userId,
+            type: 'SYSTEM_ALERT',
+            message: `New UPI payment request from user for ${planId}.`,
+            link: '/admin/payments'
+          }
+        });
+      }
+    } catch (notifErr) {
+      console.error('Notification error (ignoring):', notifErr);
+    }
+
+    return NextResponse.json({ 
+      success: true, 
+      message: 'Payment request submitted successfully.',
+      requestId: paymentRequest.id
+    });
+
+  } catch (error: any) {
+    console.error('UPI PAYMENT REQUEST ERROR:', error);
+    return NextResponse.json({ error: 'Failed to submit request. Please try again.' }, { status: 500 });
+  }
+}
+
+/**
+ * GET: Fetch user's payment requests
+ * Phase UPI.1 - Step 4
+ */
+export async function GET(request: Request) {
+  const userId = getUserIdFromRequest(request);
+  if (!userId) return unauthorizedResponse();
 
   try {
-    const rateLimit = await paymentLimiter.limit(userId);
-    if (!rateLimit.success) {
-      return NextResponse.json({ error: 'Too many receipt uploads. Please wait.' }, { status: 429 });
-    }
-
-    const body = await request.json();
-    const { screenshotDataUrl } = body;
-
-    const planResult = PaymentPlanSchema.safeParse({ plan: body.plan });
-    if (!planResult.success) {
-      return NextResponse.json({ error: 'Invalid plan selected.' }, { status: 400 });
-    }
-
-    const { plan: planId } = planResult.data;
-    const planDetails = getPlanById(planId);
-
-    if (!planDetails) {
-      return NextResponse.json({ error: 'Plan details not found.' }, { status: 404 });
-    }
-
-    if (!screenshotDataUrl || typeof screenshotDataUrl !== 'string') {
-      return NextResponse.json({ error: 'Payment screenshot is required.' }, { status: 400 });
-    }
-
-    // Validate it's actually an image data URL
-    if (!/^data:image\/(jpeg|jpg|png|webp);base64,/.test(screenshotDataUrl)) {
-      return NextResponse.json(
-        { error: 'Only image files (JPG, PNG, WebP) are accepted.' },
-        { status: 400 }
-      );
-    }
-
-    // Correct size check
-    const MAX_SIZE_BYTES = 5 * 1024 * 1024; // 5MB raw
-    const estimatedBytes = screenshotDataUrl.length * 0.73; // base64 → raw estimate
-    if (estimatedBytes > MAX_SIZE_BYTES) {
-      return NextResponse.json(
-        { error: 'Image is too large. Maximum size is 5MB.' },
-        { status: 400 }
-      );
-    }
-
-    // Check for existing pending request
-    const existing = await prisma.paymentRequest.findFirst({
-      where: { userId, status: 'PENDING' },
-    });
-    if (existing) {
-      return NextResponse.json(
-        { error: 'You already have a pending verification request. Please wait for it to be reviewed.' },
-        { status: 409 }
-      );
-    }
-
-    if (!isCloudinaryConfigured) {
-      return NextResponse.json(
-        { error: 'Payment processing is temporarily unavailable. Please contact support.' },
-        { status: 503 }
-      );
-    }
-
-    const uploadResponse = await cloudinary.uploader.upload(screenshotDataUrl, {
-      folder: 'bhartiya-rishtey/receipts',
-      resource_type: 'image',
-      quality: 'auto',
-      fetch_format: 'auto',
-      allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
+    const requests = await prisma.paymentRequest.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'desc' }
     });
 
-    const amount = planDetails.priceNumeric;
-
-    const paymentReq = await prisma.paymentRequest.create({
-      data: {
-        userId,
-        amount,
-        tier: planId,
-        screenshotUrl: uploadResponse.secure_url,
-        status: 'PENDING',
-      },
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { plan: true, planExpiresAt: true }
     });
 
-    await logAction({
-      userId,
-      ip,
-      action: 'PAYMENT_SUBMITTED',
-      status: 'SUCCESS',
-      details: `Plan: ${planId}, Amount: ₹${amount}`,
+    return NextResponse.json({ 
+      requests,
+      activePlan: {
+        plan: user?.plan,
+        expiresAt: user?.planExpiresAt
+      }
     });
-
-    return NextResponse.json(
-      { message: 'Payment receipt submitted. Verification typically takes 10–30 minutes.', id: paymentReq.id },
-      { status: 201 }
-    );
   } catch (error) {
-    console.error('POST Payment Request Error:', error);
-    await logAction({ userId, ip, action: 'PAYMENT_SUBMITTED', status: 'FAILURE', details: String(error) });
-    return NextResponse.json({ error: 'Submission failed. Please try again.' }, { status: 500 });
+    console.error('GET PAYMENT REQUESTS ERROR:', error);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

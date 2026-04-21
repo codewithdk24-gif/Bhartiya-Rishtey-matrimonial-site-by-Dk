@@ -8,37 +8,96 @@ datasource db {
 }
 
 // ─────────────────────────────────────────────────────────────────
+// ENUMS
+// ─────────────────────────────────────────────────────────────────
+
+enum InterestStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  WITHDRAWN
+  BLOCKED
+}
+
+enum MessageType {
+  TEXT
+  SYSTEM
+  CONTACT_SHARE
+}
+
+enum NotificationType {
+  INTEREST_RECEIVED
+  INTEREST_ACCEPTED
+  INTEREST_REJECTED
+  NEW_MESSAGE
+  PROFILE_VIEWED
+  SYSTEM_ALERT
+}
+
+enum ReportStatus {
+  PENDING
+  REVIEWED
+  DISMISSED
+  ACTION_TAKEN
+}
+
+// ─────────────────────────────────────────────────────────────────
 // AUTH & USERS
 // ─────────────────────────────────────────────────────────────────
 
 model User {
   id            String   @id @default(cuid())
+  name          String?
   email         String   @unique
   passwordHash  String
   phone         String?  @unique
   shortId       String?  @unique
   role          String   @default("USER")
+  plan          String   @default("FREE")
+  planExpiresAt DateTime?
   isVerified    Boolean  @default(false)
   verifyToken   String?  @unique
   verifyExpires DateTime?
   resetToken    String?  @unique
   resetExpires  DateTime?
+  lastPaymentRequestAt DateTime?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+  lastActive    DateTime @default(now())
 
   profile         Profile?
+  preferences     Preferences?
+  
+  interestsSent   Interest[]     @relation("InterestsSent")
+  interestsRecv   Interest[]     @relation("InterestsReceived")
+  
+  conversations1  Conversation[] @relation("User1Conversations")
+  conversations2  Conversation[] @relation("User2Conversations")
+  
   messagesSent    Message[]      @relation("MessagesSent")
   messagesRecv    Message[]      @relation("MessagesReceived")
+  
+  notifications   Notification[] @relation("UserNotifications")
+  
   subscriptions   Subscription[]
-  matchesInit     Match[]        @relation("User1Matches")
-  matchesRecv     Match[]        @relation("User2Matches")
+  paymentRequests PaymentRequest[] @relation("UserPayments")
+  
   reportsFiled    Report[]       @relation("ReportsFiled")
   reportsRecv     Report[]       @relation("ReportsReceived")
+  
+  blockedUsers    Block[]        @relation("BlockerRelation")
+  blockedBy       Block[]        @relation("BlockedRelation")
+  
+  matchesInit     Match[]        @relation("User1Matches")
+  matchesRecv     Match[]        @relation("User2Matches")
+  
   shortlists      Shortlist[]    @relation("UserShortlists")
-  blockedUsers    BlockList[]    @relation("BlockerRelation")
-  blockedBy       BlockList[]    @relation("BlockedRelation")
-  notifications   Notification[] @relation("UserNotifications")
-  paymentRequests PaymentRequest[] @relation("UserPayments")
+  notificationsSent Notification[] @relation("NotificationsFrom")
+  
+  viewsSent       ProfileView[]  @relation("ProfileViewsSent")
+  viewsReceived   ProfileView[]  @relation("ProfileViewsReceived")
+  
+  paymentOrders   PaymentOrder[]
 
   @@index([email])
 }
@@ -65,6 +124,10 @@ model Profile {
   location    String?
   bio         String?
   photos      String?  @default("[]")
+  profilePhoto String?
+  city        String?
+  state       String?
+  occupation  String?
   smoking     Boolean?  @default(false)
   drinking    Boolean?  @default(false)
   diet        String?
@@ -83,7 +146,97 @@ model Profile {
 }
 
 // ─────────────────────────────────────────────────────────────────
-// MATCHMAKING
+// PREFERENCES
+// ─────────────────────────────────────────────────────────────────
+
+model Preferences {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  minAge      Int?     @default(18)
+  maxAge      Int?     @default(50)
+  minHeightCm Int?
+  maxHeightCm Int?
+  religions   String?  @default("[]") // JSON string array
+  castes      String?  @default("[]") // JSON string array
+  maritalStatus String? @default("[]") // JSON string array
+  locations   String?  @default("[]") // JSON string array (cities/states)
+  education   String?  @default("[]") // JSON string array
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId])
+}
+
+// ─────────────────────────────────────────────────────────────────
+// INTERACTIONS (INTERESTS & CONNECTIONS)
+// ─────────────────────────────────────────────────────────────────
+
+model Interest {
+  id           String         @id @default(cuid())
+  fromUserId   String
+  toUserId     String
+  status       InterestStatus @default(PENDING)
+  message      String?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  fromUser     User           @relation("InterestsSent", fields: [fromUserId], references: [id])
+  toUser       User           @relation("InterestsReceived", fields: [toUserId], references: [id])
+  
+  conversation Conversation?
+
+  @@unique([fromUserId, toUserId])
+  @@index([fromUserId])
+  @@index([toUserId])
+  @@index([status])
+}
+
+// ─────────────────────────────────────────────────────────────────
+// MESSAGING & CHAT
+// ─────────────────────────────────────────────────────────────────
+
+model Conversation {
+  id         String   @id @default(cuid())
+  user1Id    String
+  user2Id    String
+  interestId String   @unique
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  lastMessageAt DateTime @default(now())
+
+  user1      User     @relation("User1Conversations", fields: [user1Id], references: [id])
+  user2      User     @relation("User2Conversations", fields: [user2Id], references: [id])
+  interest   Interest @relation(fields: [interestId], references: [id])
+  messages   Message[]
+
+  @@unique([user1Id, user2Id])
+  @@index([user1Id])
+  @@index([user2Id])
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  senderId       String
+  receiverId     String
+  content        String
+  type           MessageType  @default(TEXT)
+  isRead         Boolean      @default(false)
+  createdAt      DateTime     @default(now())
+
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+  sender         User         @relation("MessagesSent", fields: [senderId], references: [id])
+  receiver       User         @relation("MessagesReceived", fields: [receiverId], references: [id])
+
+  @@index([conversationId])
+  @@index([senderId, receiverId])
+}
+
+// ─────────────────────────────────────────────────────────────────
+// MATCHMAKING & SEARCH
 // ─────────────────────────────────────────────────────────────────
 
 model Match {
@@ -103,10 +256,6 @@ model Match {
   @@index([user2Id])
 }
 
-// ─────────────────────────────────────────────────────────────────
-// SHORTLISTS
-// ─────────────────────────────────────────────────────────────────
-
 model Shortlist {
   id        String   @id @default(cuid())
   userId    String
@@ -121,22 +270,24 @@ model Shortlist {
 }
 
 // ─────────────────────────────────────────────────────────────────
-// MESSAGING & CHAT
+// NOTIFICATIONS
 // ─────────────────────────────────────────────────────────────────
 
-model Message {
-  id         String   @id @default(cuid())
-  senderId   String
-  receiverId String
-  content    String
-  isRead     Boolean  @default(false)
-  createdAt  DateTime @default(now())
+model Notification {
+  id         String           @id @default(cuid())
+  userId     String
+  fromUserId String?
+  type       NotificationType
+  message    String
+  link       String?
+  isRead     Boolean          @default(false)
+  createdAt  DateTime         @default(now())
 
-  sender   User @relation("MessagesSent", fields: [senderId], references: [id])
-  receiver User @relation("MessagesReceived", fields: [receiverId], references: [id])
+  user       User             @relation("UserNotifications", fields: [userId], references: [id], onDelete: Cascade)
+  fromUser   User?            @relation("NotificationsFrom", fields: [fromUserId], references: [id], onDelete: SetNull)
 
-  @@index([senderId, receiverId])
-  @@index([receiverId, isRead])
+  @@index([userId, isRead])
+  @@index([userId, createdAt])
 }
 
 // ─────────────────────────────────────────────────────────────────
@@ -156,29 +307,34 @@ model Subscription {
   @@index([userId])
 }
 
+model PaymentRequest {
+  id              String   @id @default(cuid())
+  userId          String
+  plan            String   // PRIME, ROYAL, LEGACY
+  amount          Int
+  utr             String?  // UPI Transaction ID
+  screenshotUrl   String?
+  status          String   @default("PENDING") // PENDING, APPROVED, REJECTED
+  rejectionReason String?
+  adminId         String?
+  adminNote       String?
+  createdAt       DateTime @default(now())
+  verifiedAt      DateTime?
+  activatedAt     DateTime?
+  updatedAt       DateTime @updatedAt
+
+  user User @relation("UserPayments", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([utr])
+  @@index([status])
+}
+
 // ─────────────────────────────────────────────────────────────────
 // TRUST & SAFETY
 // ─────────────────────────────────────────────────────────────────
 
-model Report {
-  id         String   @id @default(cuid())
-  reporterId String
-  reportedId String
-  reason     String
-  details    String?
-  status     String   @default("PENDING")
-  reviewedBy String?
-  reviewNote String?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  reporter User @relation("ReportsFiled", fields: [reporterId], references: [id])
-  reported User @relation("ReportsReceived", fields: [reportedId], references: [id])
-
-  @@index([status])
-}
-
-model BlockList {
+model Block {
   id        String   @id @default(cuid())
   blockerId String
   blockedId String
@@ -189,37 +345,27 @@ model BlockList {
 
   @@unique([blockerId, blockedId])
   @@index([blockerId])
+  @@index([blockedId])
 }
 
-model Notification {
-  id        String   @id @default(cuid())
-  userId    String
-  type      String
-  message   String
-  actionUrl String?
-  isRead    Boolean  @default(false)
-  createdAt DateTime @default(now())
+model Report {
+  id          String       @id @default(cuid())
+  reporterId  String
+  reportedId  String
+  reason      String
+  description String?
+  status      ReportStatus @default(PENDING)
+  reviewedBy  String?
+  reviewNote  String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
 
-  user User @relation("UserNotifications", fields: [userId], references: [id], onDelete: Cascade)
+  reporter    User         @relation("ReportsFiled", fields: [reporterId], references: [id])
+  reported    User         @relation("ReportsReceived", fields: [reportedId], references: [id])
 
-  @@index([userId, isRead])
-}
-
-model PaymentRequest {
-  id              String   @id @default(cuid())
-  userId          String
-  amount          Int
-  tier            String
-  screenshotUrl   String
-  status          String   @default("PENDING")
-  rejectionReason String?
-  reviewedBy      String?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-
-  user User @relation("UserPayments", fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId, status])
+  @@index([status])
+  @@index([reporterId])
+  @@index([reportedId])
 }
 
 model AuditLog {
@@ -233,4 +379,44 @@ model AuditLog {
 
   @@index([userId])
   @@index([createdAt])
+}
+
+model ProfileView {
+  id        String   @id @default(cuid())
+  viewerId  String
+  viewedId  String
+  createdAt DateTime @default(now())
+
+  viewer    User     @relation("ProfileViewsSent", fields: [viewerId], references: [id], onDelete: Cascade)
+  viewed    User     @relation("ProfileViewsReceived", fields: [viewedId], references: [id], onDelete: Cascade)
+
+  @@index([viewerId])
+  @@index([viewedId])
+  @@index([createdAt])
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
+model PaymentOrder {
+  id              String        @id @default(cuid())
+  userId          String
+  plan            String
+  amount          Int
+  currency        String        @default("INR")
+  razorpayOrderId String        @unique
+  razorpayPaymentId String?
+  status          PaymentStatus @default(PENDING)
+  verifiedAt      DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([razorpayOrderId])
+  @@index([status])
 }

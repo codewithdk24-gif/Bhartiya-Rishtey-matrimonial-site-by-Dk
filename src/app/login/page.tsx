@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { signIn } from 'next-auth/react';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -16,22 +17,17 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+      const result = await signIn('credentials', {
+        redirect: false,
+        email: form.email,
+        password: form.password,
       });
 
-      const data = await res.json();
-      if (!res.ok) {
-        setError(data.error || 'Login failed');
-        return;
-      }
-
-      if (data.user?.role === 'ADMIN') {
-        router.push('/admin');
+      if (result?.error) {
+        setError('Invalid email or password');
       } else {
-        router.push('/discover');
+        router.push('/dashboard');
+        router.refresh();
       }
     } catch {
       setError('Network error. Please try again.');
@@ -85,7 +81,12 @@ export default function LoginPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-stone-700 mb-2">Password</label>
+              <div className="flex justify-between items-center mb-2">
+                <label className="block text-sm font-semibold text-stone-700">Password</label>
+                <Link href="/forgot-password" title="Coming Soon" className="text-xs text-primary hover:underline font-medium">
+                  Forgot Password?
+                </Link>
+              </div>
               <input
                 id="login-password"
                 type="password"
@@ -104,7 +105,7 @@ export default function LoginPage() {
               className="btn-primary w-full py-3.5"
             >
               {loading ? (
-                <span className="flex items-center gap-2">
+                <span className="flex items-center gap-2 justify-center">
                   <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                   Signing in...
                 </span>
@@ -122,10 +123,6 @@ export default function LoginPage() {
             Create Your Profile
           </Link>
         </div>
-
-        <p className="text-center mt-6 text-xs text-stone-400">
-          By signing in, you agree to our Terms of Service and Privacy Policy
-        </p>
       </div>
     </div>
   );

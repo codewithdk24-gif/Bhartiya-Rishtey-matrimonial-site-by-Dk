@@ -8,6 +8,8 @@ export const metadata: Metadata = {
   keywords: 'matrimony, Indian wedding, matrimonial, matchmaking, marriage',
 };
 
+import { Providers } from '@/components/Providers';
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
@@ -24,7 +26,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body className="antialiased">
-        {children}
+        <Providers>
+          {children}
+        </Providers>
       </body>
     </html>
   );

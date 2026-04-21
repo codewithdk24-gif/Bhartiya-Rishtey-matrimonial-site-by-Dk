@@ -1,78 +1,44 @@
-/**
- * FIX: CRITICAL SECURITY VULNERABILITY
- *
- * Original middleware was doing:
- *   const payload = JSON.parse(Buffer.from(cookie.split('.')[1], 'base64').toString())
- *
- * This is BASE64 DECODE WITHOUT SIGNATURE VERIFICATION.
- * Any attacker could craft a JWT with role: "ADMIN" and bypass admin routes.
- *
- * Fix: Use `jose` (Edge-compatible) for proper cryptographic JWT verification.
- */
+import { withAuth } from "next-auth/middleware";
+import { NextResponse } from "next/server";
 
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
-import * as jose from 'jose';
+export default withAuth(
+  function middleware(req) {
+    const token = req.nextauth.token;
+    const isAuthPage = req.nextUrl.pathname.startsWith('/login') || req.nextUrl.pathname.startsWith('/signup');
+    const isAdminPage = req.nextUrl.pathname.startsWith('/admin');
 
-const JWT_SECRET_RAW = process.env.JWT_SECRET;
-
-export async function middleware(request: NextRequest) {
-  const protectedRoutes = ['/dashboard', '/discover', '/likes', '/chat', '/onboarding', '/payment'];
-  const adminRoutes = ['/admin'];
-
-  const path = request.nextUrl.pathname;
-
-  const isProtected = protectedRoutes.some(route => path.startsWith(route));
-  const isAdmin = adminRoutes.some(route => path.startsWith(route));
-
-  if (!isProtected && !isAdmin) {
-    return NextResponse.next();
-  }
-
-  // FIX: Guard against missing JWT_SECRET at runtime
-  if (!JWT_SECRET_RAW) {
-    console.error('FATAL: JWT_SECRET is not configured. Blocking all protected routes.');
-    return NextResponse.redirect(new URL('/login', request.url));
-  }
-
-  const cookie = request.cookies.get('vows_session')?.value;
-
-  if (!cookie) {
-    return NextResponse.redirect(new URL('/login?reason=session_expired', request.url));
-  }
-
-  try {
-    // FIX: Proper cryptographic verification using jose (Edge runtime compatible)
-    const secret = new TextEncoder().encode(JWT_SECRET_RAW);
-    const { payload } = await jose.jwtVerify(cookie, secret);
-
-    if (isAdmin && payload.role !== 'ADMIN') {
-      // Non-admin tried to access admin panel
-      return NextResponse.redirect(new URL('/dashboard?error=forbidden', request.url));
+    if (isAuthPage && token) {
+      return NextResponse.redirect(new URL('/dashboard', req.url));
     }
 
-    // FIX: Inject verified userId into request headers for downstream use
-    const requestHeaders = new Headers(request.headers);
-    requestHeaders.set('x-user-id', payload.userId as string);
-    requestHeaders.set('x-user-role', payload.role as string);
+    if (isAdminPage && token?.role !== 'ADMIN') {
+      return NextResponse.redirect(new URL('/dashboard', req.url));
+    }
 
-    return NextResponse.next({ request: { headers: requestHeaders } });
-  } catch (error) {
-    // Token expired or invalid - clear the bad cookie and redirect
-    const response = NextResponse.redirect(new URL('/login?reason=session_expired', request.url));
-    response.cookies.delete('vows_session');
-    return response;
+    return NextResponse.next();
+  },
+  {
+    callbacks: {
+      authorized: ({ token, req }) => {
+        const publicRoutes = ['/', '/login', '/signup'];
+        const isPublicRoute = publicRoutes.includes(req.nextUrl.pathname);
+
+        if (isPublicRoute) return true;
+        return !!token;
+      },
+    },
   }
-}
+);
 
 export const config = {
   matcher: [
-    '/dashboard/:path*',
-    '/discover/:path*',
-    '/likes/:path*',
-    '/chat/:path*',
-    '/onboarding/:path*',
-    '/payment/:path*',
-    '/admin/:path*',
+    "/dashboard/:path*",
+    "/profile/:path*",
+    "/search/:path*",
+    "/chat/:path*",
+    "/payment/:path*",
+    "/admin/:path*",
+    "/login",
+    "/signup"
   ],
 };

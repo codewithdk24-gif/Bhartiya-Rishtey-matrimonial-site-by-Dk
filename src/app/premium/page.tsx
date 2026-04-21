@@ -1,114 +1,146 @@
 'use client';
 
+import React from 'react';
 import Link from 'next/link';
-import { PLANS } from '@/lib/constants/plans';
+import DashNav from '@/components/DashNav';
+
+const PREMIUM_PLANS = [
+  {
+    id: 'PRIME',
+    name: 'Prime Membership',
+    price: '₹1,100',
+    originalPrice: '₹1,500',
+    duration: '3 Months',
+    recommended: true,
+    tagline: 'Best for serious seekers',
+    features: [
+      { text: 'Send Unlimited Interests', included: true },
+      { text: 'Unlimited Direct Messaging', included: true },
+      { text: 'See Who Viewed Your Profile', included: true },
+      { text: 'Advanced Search Filters', included: true },
+      { text: 'Share Contact Details', included: false },
+      { text: 'Invisible Mode', included: false },
+    ]
+  },
+  {
+    id: 'ROYAL',
+    name: 'Royal Membership',
+    price: '₹2,500',
+    originalPrice: '₹3,500',
+    duration: '6 Months',
+    recommended: false,
+    tagline: 'Maximum privacy & access',
+    features: [
+      { text: 'Send Unlimited Interests', included: true },
+      { text: 'Unlimited Direct Messaging', included: true },
+      { text: 'See Who Viewed Your Profile', included: true },
+      { text: 'Advanced Search Filters', included: true },
+      { text: 'Share Contact Details', included: true },
+      { text: 'Invisible Mode', included: true },
+    ]
+  },
+  {
+    id: 'LEGACY',
+    name: 'Legacy Membership',
+    price: '₹4,900',
+    originalPrice: '₹7,500',
+    duration: '12 Months',
+    recommended: false,
+    tagline: 'One year of premium matching',
+    features: [
+      { text: 'Everything in Royal', included: true },
+      { text: 'Personalized Matchmaker', included: true },
+      { text: 'Profile Highlighting', included: true },
+      { text: 'Priority Customer Support', included: true },
+      { text: 'Share Contact Details', included: true },
+      { text: 'Invisible Mode', included: true },
+    ]
+  }
+];
 
 export default function PremiumPage() {
   return (
-    <div className="min-h-screen">
-      {/* Nav */}
-      <nav className="nav-glass sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-gold flex items-center justify-center text-white font-headline font-bold text-lg shadow-md">B</div>
-            <div>
-              <h1 className="font-headline text-xl font-bold text-stone-900">Bhartiya Rishtey</h1>
-              <p className="text-[10px] tracking-[0.25em] uppercase text-stone-400">Premium Matrimony</p>
-            </div>
-          </Link>
-          <div className="flex items-center gap-4">
-            <Link href="/login" className="btn-secondary text-xs px-5 py-2.5">Log In</Link>
-            <Link href="/signup" className="btn-primary text-xs px-5 py-2.5">Get Started</Link>
+    <div className="min-h-screen bg-[#F8F7F4]">
+      <DashNav />
+      
+      <main className="max-w-7xl mx-auto px-4 py-16 md:py-24">
+        <div className="text-center max-w-2xl mx-auto mb-16 md:mb-24">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest mb-6 animate-fade-in">
+            <span className="material-symbols-outlined text-sm">stars</span>
+            Premium Experience
           </div>
-        </div>
-      </nav>
-
-      {/* Hero */}
-      <section className="py-20 text-center relative overflow-hidden">
-        <div className="absolute top-10 right-10 w-72 h-72 bg-gold/5 rounded-full blur-3xl float-animation" />
-        <div className="absolute bottom-10 left-10 w-96 h-96 bg-primary/5 rounded-full blur-3xl float-animation-delay" />
-        <div className="max-w-4xl mx-auto px-6 relative z-10 animate-fade-in-up">
-          <span className="text-xs font-bold tracking-[0.3em] uppercase text-gold mb-4 block">Premium Membership</span>
-          <h1 className="font-headline text-5xl md:text-6xl font-bold text-stone-900 mb-6">
-            Find Love <span className="text-gradient">Without Limits</span>
+          <h1 className="text-4xl md:text-6xl font-black text-stone-900 tracking-tight mb-6">
+            Find Your Forever <span className="text-primary italic">Faster.</span>
           </h1>
-          <p className="text-lg text-stone-500 max-w-2xl mx-auto">
-            Unlock the full potential of Bhartiya Rishtey with our premium plans. Access unlimited matches, priority search visibility, and dedicated support.
+          <p className="text-stone-500 font-medium text-lg leading-relaxed">
+            Upgrade to a premium membership to unlock unlimited interactions and exclusive privacy features designed for serious matches.
           </p>
         </div>
-      </section>
 
-      {/* Plans */}
-      <section className="pb-24 px-6">
-        <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-8">
-          {PLANS.map((plan, i) => (
-            <div
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
+          {PREMIUM_PLANS.map((plan) => (
+            <div 
               key={plan.id}
-              className={`glass-card p-8 relative ${i === 1 ? 'ring-2 ring-primary/30 scale-[1.03]' : ''} ${
-                plan.id === 'LEGACY' ? 'ring-2 ring-gold/20' : ''
+              className={`relative group bg-white rounded-[2.5rem] p-8 md:p-10 border transition-all duration-500 ${
+                plan.recommended 
+                  ? 'border-primary shadow-2xl shadow-primary/10 scale-105 z-10' 
+                  : 'border-stone-100 hover:border-stone-200 hover:shadow-xl shadow-stone-200/50'
               }`}
             >
-              {plan.badge && (
-                <div className={`absolute -top-3 left-1/2 -translate-x-1/2 ${
-                  plan.id === 'ROYAL' ? 'badge-premium' : 'badge-royal'
-                }`}>
-                  {plan.badge}
+              {plan.recommended && (
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-6 py-2 bg-primary text-white text-[11px] font-black uppercase tracking-[0.2em] rounded-full shadow-xl shadow-primary/20">
+                  Most Popular
                 </div>
               )}
 
-              <div className="text-center mb-6 pt-2">
-                <span className={`material-symbols-outlined text-5xl mb-3 block ${
-                  plan.id === 'PRIME' ? 'text-stone-400' :
-                  plan.id === 'ROYAL' ? 'text-primary' : 'text-gold'
-                }`}>
-                  {plan.id === 'PRIME' ? 'person' : plan.id === 'ROYAL' ? 'workspace_premium' : 'diamond'}
-                </span>
-                <h3 className="font-headline text-2xl font-bold text-stone-900 mb-1">{plan.name}</h3>
-                <p className="font-headline text-4xl font-bold text-stone-900">{plan.price}</p>
-                <p className="text-sm text-stone-400">{plan.period}</p>
+              <div className="mb-10 text-center">
+                <h3 className="text-sm font-black text-stone-400 uppercase tracking-[0.2em] mb-4">{plan.name}</h3>
+                <div className="flex items-end justify-center gap-2 mb-2">
+                  <span className="text-stone-300 text-lg font-bold line-through mb-1">{plan.originalPrice}</span>
+                  <span className="text-4xl font-black text-stone-900">{plan.price}</span>
+                </div>
+                <p className="text-xs text-stone-500 font-bold uppercase tracking-widest bg-stone-50 inline-block px-4 py-1.5 rounded-full">
+                  Valid for {plan.duration}
+                </p>
               </div>
 
-              <ul className="space-y-3 mb-8">
-                {plan.features.map((f, j) => (
-                  <li key={j} className="flex items-start gap-3 text-sm text-stone-600">
-                    <span className="material-symbols-outlined text-sm text-success mt-0.5">check_circle</span>
-                    {f}
-                  </li>
+              <div className="space-y-4 mb-10">
+                {plan.features.map((feature, idx) => (
+                  <div key={idx} className="flex items-start gap-3">
+                    <span className={`material-symbols-outlined text-lg ${feature.included ? 'text-primary' : 'text-stone-200'}`}>
+                      {feature.included ? 'check_circle' : 'do_not_disturb_on'}
+                    </span>
+                    <span className={`text-sm font-medium ${feature.included ? 'text-stone-700' : 'text-stone-300 line-through'}`}>
+                      {feature.text}
+                    </span>
+                  </div>
                 ))}
-              </ul>
+              </div>
 
-              <Link href="/payment" className={`${plan.style} w-full text-center block py-3`}>
-                {plan.cta}
+              <Link 
+                href={`/payment?plan=${plan.id}`}
+                className={`block w-full py-5 rounded-2xl text-xs font-black text-center transition-all uppercase tracking-[0.2em] shadow-lg ${
+                  plan.recommended 
+                    ? 'bg-stone-900 text-white shadow-stone-900/20 hover:bg-stone-800' 
+                    : 'bg-white border-2 border-stone-100 text-stone-900 hover:border-stone-900'
+                }`}
+              >
+                Choose {plan.id}
               </Link>
             </div>
           ))}
         </div>
-      </section>
 
-      {/* FAQ */}
-      <section className="py-20 bg-white/50">
-        <div className="max-w-3xl mx-auto px-6">
-          <h2 className="font-headline text-3xl font-bold text-stone-900 text-center mb-12">Frequently Asked Questions</h2>
-          <div className="space-y-4">
-            {[
-              { q: 'Can I upgrade or downgrade my plan?', a: 'Yes, you can upgrade at any time. Your remaining balance will be adjusted.' },
-              { q: 'Is my payment secure?', a: 'Absolutely. All payments are processed through secure channels with manual verification.' },
-              { q: 'What happens when my plan expires?', a: 'You\'ll revert to the Free plan. Your data and matches are preserved.' },
-              { q: 'Can I get a refund?', a: 'We offer a 7-day money-back guarantee if you\'re not satisfied.' },
-            ].map((faq, i) => (
-              <div key={i} className="glass-card p-5">
-                <h3 className="font-semibold text-stone-900 mb-2">{faq.q}</h3>
-                <p className="text-sm text-stone-500">{faq.a}</p>
-              </div>
-            ))}
+        <div className="mt-24 text-center">
+          <p className="text-xs text-stone-400 font-bold uppercase tracking-widest mb-4">Trusted by thousands of successful couples</p>
+          <div className="flex flex-wrap justify-center gap-10 grayscale opacity-40">
+            {/* Minimalist Trust Badges */}
+            <div className="text-xl font-black tracking-tighter">SECURE PAYMENT</div>
+            <div className="text-xl font-black tracking-tighter">VERIFIED PROFILES</div>
+            <div className="text-xl font-black tracking-tighter">24/7 SUPPORT</div>
           </div>
         </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="bg-stone-900 text-stone-400 py-8 text-center">
-        <p className="text-sm">© 2026 Bhartiya Rishtey. All rights reserved. Made with <span className="text-primary">❤</span> in India</p>
-      </footer>
+      </main>
     </div>
   );
 }

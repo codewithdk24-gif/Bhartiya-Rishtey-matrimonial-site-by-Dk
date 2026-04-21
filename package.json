@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --webpack",
+    "clean": "rmdir /s /q .next",
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
@@ -21,6 +22,7 @@
     "jose": "^5.9.6",
     "jsonwebtoken": "^9.0.2",
     "next": "16.2.3",
+    "next-auth": "^4.24.14",
     "razorpay": "^2.9.6",
     "react": "19.2.4",
     "react-dom": "19.2.4",
