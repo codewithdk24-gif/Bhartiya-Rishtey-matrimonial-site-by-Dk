@@ -238,6 +238,12 @@ export default function DiscoverPage() {
         {/* Card Stack Container */}
         <div className="relative flex-1 min-h-0 perspective-1000 mb-6">
           {!currentProfile ? (
+            <div className="absolute inset-0 flex flex-col items-center justify-center glass-card rounded-[3rem] p-10 text-center bg-white border-none shadow-xl">
+              <div className="w-20 h-20 rounded-full bg-stone-100 flex items-center justify-center mb-6 text-stone-300">
+                <span className="material-symbols-outlined text-4xl">person_search</span>
+              </div>
+              <h2 className="text-xl font-bold text-stone-800 mb-2">No more profiles</h2>
+              <p className="text-sm text-stone-500 max-w-[200px] mx-auto">Check back later or try adjusting your filters to find more matches.</p>
             </div>
           ) : isCapped && currentIdx >= 10 ? (
             <div className="absolute inset-0 flex flex-col items-center justify-center glass-card rounded-[3rem] p-10 text-center animate-fade-in bg-white border-none shadow-2xl overflow-hidden">
