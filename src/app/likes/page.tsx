@@ -3,10 +3,11 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { handleLogout } from '@/lib/logout';
+import ProfileGate from '@/components/ProfileGate';
 
 function DashNav() {
   const router = useRouter();
-  const handleLogout = async () => { await fetch('/api/auth/logout', { method: 'POST' }); router.push('/'); };
   const links = [
     { h: '/dashboard', i: 'dashboard', l: 'Dashboard' },
     { h: '/discover', i: 'local_fire_department', l: 'For You' },
@@ -79,117 +80,119 @@ export default function LikesPage() {
   }
 
   return (
-    <>
+    <div className="min-h-screen bg-[#FAF1ED] selection:bg-primary/10 overflow-hidden">
       <DashNav />
       <div className="max-w-4xl mx-auto px-4 py-6 pb-24 animate-fade-in-up">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="font-headline text-3xl font-bold text-stone-900 flex items-center gap-2">
-              <span className="material-symbols-outlined text-primary text-3xl">favorite</span>
-              Who Liked You
-            </h1>
-            <p className="text-sm text-stone-400 mt-1">
-              {likes.length} {likes.length === 1 ? 'person' : 'people'} liked your profile
-            </p>
-          </div>
-          {!isPremium && likes.length > 0 && (
-            <Link href="/payment" className="btn-gold text-xs px-4 py-2">
-              <span className="material-symbols-outlined text-sm">lock_open</span>
-              Unlock All
-            </Link>
-          )}
-        </div>
-
-        {/* Premium Banner */}
-        {!isPremium && likes.length > 0 && (
-          <div className="glass-card p-6 mb-6 bg-gradient-to-r from-gold/5 to-primary/5 border border-gold/20">
-            <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-2xl bg-gold/20 flex items-center justify-center flex-shrink-0">
-                <span className="material-symbols-outlined text-2xl text-gold">diamond</span>
-              </div>
-              <div>
-                <h3 className="font-headline text-lg font-bold text-stone-900">Upgrade to see who likes you</h3>
-                <p className="text-sm text-stone-500">Get Premium to see full profiles and connect with people who are already interested in you.</p>
-              </div>
-              <Link href="/payment" className="btn-gold text-xs px-5 py-2.5 flex-shrink-0 hidden sm:block">
-                Upgrade Now
+        <ProfileGate>
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h1 className="font-headline text-3xl font-bold text-stone-900 flex items-center gap-2">
+                <span className="material-symbols-outlined text-primary text-3xl">favorite</span>
+                Who Liked You
+              </h1>
+              <p className="text-sm text-stone-400 mt-1">
+                {likes.length} {likes.length === 1 ? 'person' : 'people'} liked your profile
+              </p>
+            </div>
+            {!isPremium && likes.length > 0 && (
+              <Link href="/payment" className="btn-gold text-xs px-4 py-2">
+                <span className="material-symbols-outlined text-sm">lock_open</span>
+                Unlock All
               </Link>
-            </div>
+            )}
           </div>
-        )}
 
-        {likes.length === 0 ? (
-          <div className="text-center py-20">
-            <span className="material-symbols-outlined text-7xl text-stone-300 mb-4 block">favorite_border</span>
-            <h2 className="font-headline text-2xl font-bold text-stone-700 mb-2">No likes yet</h2>
-            <p className="text-stone-500 max-w-md mx-auto mb-6">
-              Complete your profile and add photos to start getting likes from interested people.
-            </p>
-            <div className="flex gap-3 justify-center">
-              <Link href="/profile" className="btn-secondary text-sm px-5 py-2.5">Update Profile</Link>
-              <Link href="/discover" className="btn-primary text-sm px-5 py-2.5">Explore Matches</Link>
+          {/* Premium Banner */}
+          {!isPremium && likes.length > 0 && (
+            <div className="glass-card p-6 mb-6 bg-gradient-to-r from-gold/5 to-primary/5 border border-gold/20">
+              <div className="flex items-center gap-4">
+                <div className="w-14 h-14 rounded-2xl bg-gold/20 flex items-center justify-center flex-shrink-0">
+                  <span className="material-symbols-outlined text-2xl text-gold">diamond</span>
+                </div>
+                <div>
+                  <h3 className="font-headline text-lg font-bold text-stone-900">Upgrade to see who likes you</h3>
+                  <p className="text-sm text-stone-500">Get Premium to see full profiles and connect with people who are already interested in you.</p>
+                </div>
+                <Link href="/payment" className="btn-gold text-xs px-5 py-2.5 flex-shrink-0 hidden sm:block">
+                  Upgrade Now
+                </Link>
+              </div>
             </div>
-          </div>
-        ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            {likes.map((match: any, idx: number) => {
-              const profile = match.user1?.profile;
-              const name = profile?.fullName ?? 'Someone';
-              let photos: string[] = [];
-              try { photos = JSON.parse(profile?.photos ?? '[]'); } catch { photos = []; }
+          )}
 
-              return (
-                <div key={match.id} className="relative group rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all">
-                  {/* Photo / Placeholder */}
-                  <div className="aspect-[3/4] bg-gradient-to-br from-primary/10 to-gold/10 relative">
-                    {photos.length > 0 ? (
-                      <img
-                        src={photos[0]}
-                        alt={isPremium ? name : 'Hidden'}
-                        className={`w-full h-full object-cover ${!isPremium ? 'blur-xl scale-110' : ''}`}
-                      />
-                    ) : (
-                      <div className={`w-full h-full flex items-center justify-center ${!isPremium ? 'blur-lg' : ''}`}>
-                        <span className="material-symbols-outlined text-6xl text-primary/20">person</span>
-                      </div>
-                    )}
+          {likes.length === 0 ? (
+            <div className="text-center py-20">
+              <span className="material-symbols-outlined text-7xl text-stone-300 mb-4 block">favorite_border</span>
+              <h2 className="font-headline text-2xl font-bold text-stone-700 mb-2">No likes yet</h2>
+              <p className="text-stone-500 max-w-md mx-auto mb-6">
+                Complete your profile and add photos to start getting likes from interested people.
+              </p>
+              <div className="flex gap-3 justify-center">
+                <Link href="/profile" className="btn-secondary text-sm px-5 py-2.5">Update Profile</Link>
+                <Link href="/discover" className="btn-primary text-sm px-5 py-2.5">Explore Matches</Link>
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              {likes.map((match: any, idx: number) => {
+                const profile = match.user1?.profile;
+                const name = profile?.fullName ?? 'Someone';
+                let photos: string[] = [];
+                try { photos = JSON.parse(profile?.photos ?? '[]'); } catch { photos = []; }
 
-                    {/* Blur overlay for free users */}
-                    {!isPremium && (
-                      <div className="absolute inset-0 backdrop-blur-md bg-white/30 flex flex-col items-center justify-center">
-                        <span className="material-symbols-outlined text-4xl text-primary mb-2">lock</span>
-                        <p className="text-sm font-bold text-stone-700">Upgrade to reveal</p>
-                      </div>
-                    )}
-
-                    {/* Gradient bottom */}
-                    <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-black/60 to-transparent" />
-
-                    {/* Name */}
-                    <div className="absolute bottom-3 left-3 right-3">
-                      {isPremium ? (
-                        <>
-                          <p className="text-white font-bold text-lg drop-shadow">{name}</p>
-                          <p className="text-white/70 text-xs">{profile?.profession ?? ''} • {profile?.location ?? ''}</p>
-                        </>
+                return (
+                  <div key={match.id} className="relative group rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all">
+                    {/* Photo / Placeholder */}
+                    <div className="aspect-[3/4] bg-gradient-to-br from-primary/10 to-gold/10 relative">
+                      {photos.length > 0 ? (
+                        <img
+                          src={photos[0]}
+                          alt={isPremium ? name : 'Hidden'}
+                          className={`w-full h-full object-cover ${!isPremium ? 'blur-xl scale-110' : ''}`}
+                        />
                       ) : (
-                        <p className="text-white font-bold text-lg drop-shadow blur-sm select-none">Hidden Profile</p>
+                        <div className={`w-full h-full flex items-center justify-center ${!isPremium ? 'blur-lg' : ''}`}>
+                          <span className="material-symbols-outlined text-6xl text-primary/20">person</span>
+                        </div>
                       )}
-                    </div>
 
-                    {/* Heart badge */}
-                    <div className="absolute top-3 right-3">
-                      <div className="w-10 h-10 rounded-full bg-primary/90 flex items-center justify-center shadow-lg">
-                        <span className="material-symbols-outlined text-white text-lg">favorite</span>
+                      {/* Blur overlay for free users */}
+                      {!isPremium && (
+                        <div className="absolute inset-0 backdrop-blur-md bg-white/30 flex flex-col items-center justify-center">
+                          <span className="material-symbols-outlined text-4xl text-primary mb-2">lock</span>
+                          <p className="text-sm font-bold text-stone-700">Upgrade to reveal</p>
+                        </div>
+                      )}
+
+                      {/* Gradient bottom */}
+                      <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-black/60 to-transparent" />
+
+                      {/* Name */}
+                      <div className="absolute bottom-3 left-3 right-3">
+                        {isPremium ? (
+                          <>
+                            <p className="text-white font-bold text-lg drop-shadow">{name}</p>
+                            <p className="text-white/70 text-xs">{profile?.profession ?? ''} • {profile?.location ?? ''}</p>
+                          </>
+                        ) : (
+                          <p className="text-white font-bold text-lg drop-shadow blur-sm select-none">Hidden Profile</p>
+                        )}
+                      </div>
+
+                      {/* Heart badge */}
+                      <div className="absolute top-3 right-3">
+                        <div className="w-10 h-10 rounded-full bg-primary/90 flex items-center justify-center shadow-lg">
+                          <span className="material-symbols-outlined text-white text-lg">favorite</span>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
+                );
+              })}
+            </div>
+          )}
+        </ProfileGate>
       </div>
-    </>
+    </div>
   );
 }

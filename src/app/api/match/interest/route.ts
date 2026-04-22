@@ -12,10 +12,16 @@ import { NextResponse } from 'next/server';
 import { MatchInterestSchema } from '@/lib/validations';
 import { getUserIdFromRequest, unauthorizedResponse } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { isRateLimited } from '@/lib/rateLimit';
 
 export async function POST(request: Request) {
   const userId = getUserIdFromRequest(request);
   if (!userId) return unauthorizedResponse();
+
+  // 0. Rate Limiting (1 interest per second)
+  if (await isRateLimited(`interest:${userId}`, 1000)) {
+    return NextResponse.json({ error: 'TOO_MANY_REQUESTS', message: 'Slow down! Please wait a moment.' }, { status: 429 });
+  }
 
   try {
     const rawData = await request.json();

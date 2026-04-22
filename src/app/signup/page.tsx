@@ -3,11 +3,14 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { signIn, useSession, signOut } from 'next-auth/react';
+import { useEffect } from 'react';
 import { ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 
 export default function SignupPage() {
   const router = useRouter();
+  const { data: session, status } = useSession();
   const [form, setForm] = useState({
     name: '',
     email: '',
@@ -17,6 +20,13 @@ export default function SignupPage() {
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  // Bonus: Prevent signup if already logged in
+  useEffect(() => {
+    if (status === 'authenticated') {
+      router.push('/dashboard');
+    }
+  }, [status, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,6 +49,11 @@ export default function SignupPage() {
     setLoading(true);
 
     try {
+      // Ensure any existing session is cleared before new signup
+      if (status === 'authenticated') {
+        await signOut({ redirect: false });
+      }
+
       const res = await fetch('/api/auth/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -56,8 +71,21 @@ export default function SignupPage() {
         return;
       }
 
-      // Success -> Redirect to /login
-      router.push('/login?registered=true');
+      // Automatically log in user
+      const loginRes = await signIn("credentials", {
+        email: form.email,
+        password: form.password,
+        redirect: false,
+      });
+
+      if (loginRes?.error) {
+        // Fallback if auto-login fails for some reason
+        router.push('/login?registered=true');
+        return;
+      }
+
+      // Success -> Redirect to profile setup
+      router.push('/profile/setup');
     } catch {
       setError('Network error. Please try again.');
     } finally {

@@ -32,13 +32,20 @@ export async function POST(request: Request) {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Save user in DB
+    // Save user and profile in DB atomically
     const user = await prisma.user.create({
       data: {
         name,
         email: emailLower,
         phone,
         passwordHash: hashedPassword,
+        profile: {
+          create: {
+            fullName: name || "New User",
+            gender: "Male", // Default, will be updated during onboarding
+            dateOfBirth: new Date("1995-01-01"), // Placeholder
+          }
+        }
       },
     });
 

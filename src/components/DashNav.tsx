@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
+import { handleLogout } from '@/lib/logout';
 import { useNotifications } from '@/context/NotificationContext';
 import NotifDropdown from './NotifDropdown';
 
@@ -23,10 +24,6 @@ export default function DashNav() {
     setPrevCount(unreadCount);
   }, [unreadCount, prevCount]);
 
-  const handleLogout = async () => {
-    await fetch('/api/auth/logout', { method: 'POST' });
-    router.push('/');
-  };
 
   const formatCount = (count: number) => {
     if (count <= 0) return null;

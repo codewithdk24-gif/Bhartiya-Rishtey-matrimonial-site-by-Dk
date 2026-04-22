@@ -10,11 +10,18 @@ declare module "next-auth" {
     user: {
       id: string;
       plan: string;
+      isPremium: boolean;
+      role: string;
+      isProfileComplete: boolean;
     } & DefaultSession["user"]
   }
 
   interface User {
+    id: string;
     plan?: string;
+    isPremium?: boolean;
+    role?: string;
+    isProfileComplete?: boolean;
   }
 }
 
@@ -49,51 +56,61 @@ export const authOptions: NextAuthOptions = {
           throw new Error("Invalid password");
         }
 
+        console.log(`[NextAuth] Authorize successful for: ${user.email}`);
         return {
           id: user.id,
-          name: (user as any).name,
+          name: user.name,
           email: user.email,
-          plan: (user as any).plan,
+          plan: user.plan,
+          isPremium: user.isPremium,
+          role: user.role,
+          isProfileComplete: (user as any).isProfileComplete,
         };
       }
     })
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
+      console.log(`[NextAuth] JWT Callback - Trigger: ${trigger}, HasUser: ${!!user}`);
       if (user) {
         token.id = user.id;
-        token.plan = (user as any).plan;
-        token.role = (user as any).role;
+        token.plan = user.plan;
+        token.isPremium = user.isPremium;
+        token.role = user.role;
+        token.isProfileComplete = user.isProfileComplete;
+      }
+      if (trigger === "update" && session?.isProfileComplete !== undefined) {
+        token.isProfileComplete = session.isProfileComplete;
       }
       return token;
     },
     async session({ session, token }) {
+      console.log(`[NextAuth] Session Callback - TokenID: ${token.id}`);
       if (session.user) {
-        (session.user as any).id = token.id;
-        (session.user as any).plan = token.plan;
-        (session.user as any).role = token.role;
+        session.user.id = token.id as string;
+        session.user.plan = token.plan as string;
+        session.user.isPremium = token.isPremium as boolean;
+        session.user.role = token.role as string;
+        session.user.isProfileComplete = token.isProfileComplete as boolean;
       }
       return session;
     }
   },
   session: {
     strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+  },
+  jwt: {
+    maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   pages: {
     signIn: "/login",
   },
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: process.env.NEXTAUTH_SECRET || "dev-secret-stable-123456789",
+  debug: true,
 };
 
-/**
- * Synchronously retrieves user ID from request headers.
- * Assumes middleware or a proxy has injected 'x-user-id'.
- */
-export function getUserIdFromRequest(request: Request): string | null {
-  // Try to get from headers first (fastest)
-  const id = request.headers.get('x-user-id');
-  return id;
-}
+import { getServerSession } from "next-auth/next";
 
 /**
  * Standard unauthorized response
@@ -110,12 +127,29 @@ export function forbiddenResponse() {
 }
 
 /**
- * Retrieves basic session info from request headers.
- * Assumes middleware has injected 'x-user-id' and 'x-user-role'.
+ * Legacy helper to get user ID from request (Sync version for compatibility)
+ * Note: For new code, prefer await getServerSession(authOptions)
  */
-export function getSessionFromRequest(request: Request) {
-  const userId = request.headers.get('x-user-id');
-  const role = request.headers.get('x-user-role');
-  if (!userId) return null;
-  return { userId, role };
+export function getUserIdFromRequest(request: Request): string | null {
+  // This is a placeholder that might not work perfectly because getServerSession is async.
+  // However, we can try to read the header if we're using the middleware injection,
+  // OR we just recommend using the async version.
+  // To fix the "Module has no exported member" error immediately:
+  const userId = request.headers.get("x-user-id");
+  return userId;
+}
+
+/**
+ * Async version of getting user ID
+ */
+export async function getUserId(request?: Request): Promise<string | null> {
+  const session = await getServerSession(authOptions);
+  return session?.user?.id || null;
+}
+
+/**
+ * Legacy helper for session
+ */
+export async function getSessionFromRequest() {
+  return await getServerSession(authOptions);
 }

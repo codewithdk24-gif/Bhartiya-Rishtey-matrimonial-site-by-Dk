@@ -15,18 +15,22 @@
     "@prisma/client": "^6.5.0",
     "@upstash/ratelimit": "^2.0.8",
     "@upstash/redis": "^1.37.0",
+    "axios": "^1.15.2",
     "bcryptjs": "^2.4.3",
     "cloudinary": "^2.9.0",
     "cors": "^2.8.6",
     "express": "^4.21.0",
+    "fs": "^0.0.1-security",
     "jose": "^5.9.6",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^1.8.0",
     "next": "16.2.3",
     "next-auth": "^4.24.14",
+    "playwright": "^1.59.1",
     "razorpay": "^2.9.6",
     "react": "19.2.4",
     "react-dom": "19.2.4",
+    "sanitize-html": "^2.17.3",
     "socket.io": "^4.8.3",
     "socket.io-client": "^4.8.3",
     "zod": "^3.24.1"
@@ -40,10 +44,25 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/sanitize-html": "^2.16.1",
     "eslint": "^9",
     "eslint-config-next": "16.2.3",
     "prisma": "^6.5.0",
     "tailwindcss": "^4",
     "typescript": "^5"
-  }
+  },
+  "description": "**Professional Matrimonial Platform** • Next.js 16 • TypeScript • Prisma • PostgreSQL",
+  "main": "tailwind.config.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/codewithdk24-gif/Bhartiya-Rishtey-matrimonial-site-by-Dk.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/codewithdk24-gif/Bhartiya-Rishtey-matrimonial-site-by-Dk/issues"
+  },
+  "homepage": "https://github.com/codewithdk24-gif/Bhartiya-Rishtey-matrimonial-site-by-Dk#readme"
 }

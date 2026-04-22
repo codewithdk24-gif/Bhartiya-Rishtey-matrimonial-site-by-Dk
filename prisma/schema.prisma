@@ -11,6 +11,12 @@ datasource db {
 // ENUMS
 // ─────────────────────────────────────────────────────────────────
 
+enum MatchStatus {
+  ACTIVE
+  UNMATCHED
+  BLOCKED
+}
+
 enum InterestStatus {
   PENDING
   ACCEPTED
@@ -54,8 +60,10 @@ model User {
   shortId       String?  @unique
   role          String   @default("USER")
   plan          String   @default("FREE")
+  isPremium     Boolean  @default(false)
   planExpiresAt DateTime?
   isVerified    Boolean  @default(false)
+  isProfileComplete Boolean @default(false)
   verifyToken   String?  @unique
   verifyExpires DateTime?
   resetToken    String?  @unique
@@ -88,8 +96,8 @@ model User {
   blockedUsers    Block[]        @relation("BlockerRelation")
   blockedBy       Block[]        @relation("BlockedRelation")
   
-  matchesInit     Match[]        @relation("User1Matches")
-  matchesRecv     Match[]        @relation("User2Matches")
+  matchesAsUser1  Match[]   @relation("MatchUser1")
+  matchesAsUser2  Match[]   @relation("MatchUser2")
   
   shortlists      Shortlist[]    @relation("UserShortlists")
   notificationsSent Notification[] @relation("NotificationsFrom")
@@ -98,6 +106,11 @@ model User {
   viewsReceived   ProfileView[]  @relation("ProfileViewsReceived")
   
   paymentOrders   PaymentOrder[]
+
+  likesSent       Like[]    @relation("LikeSender")
+  likesReceived   Like[]    @relation("LikeReceiver")
+  
+  messages        Message[] @relation("MessageUser")
 
   @@index([email])
 }
@@ -219,20 +232,26 @@ model Conversation {
 
 model Message {
   id             String       @id @default(cuid())
-  conversationId String
+  conversationId String?
+  matchId        String?
   senderId       String
-  receiverId     String
+  receiverId     String?
   content        String
   type           MessageType  @default(TEXT)
   isRead         Boolean      @default(false)
+  read           Boolean      @default(false)
   createdAt      DateTime     @default(now())
 
-  conversation   Conversation @relation(fields: [conversationId], references: [id])
-  sender         User         @relation("MessagesSent", fields: [senderId], references: [id])
-  receiver       User         @relation("MessagesReceived", fields: [receiverId], references: [id])
+  conversation   Conversation? @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  match          Match?        @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  sender         User         @relation("MessagesSent", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver       User?        @relation("MessagesReceived", fields: [receiverId], references: [id], onDelete: Cascade)
+  userRef        User?        @relation("MessageUser", fields: [userId], references: [id], onDelete: Cascade)
+  userId         String?
 
   @@index([conversationId])
-  @@index([senderId, receiverId])
+  @@index([matchId])
+  @@index([senderId])
 }
 
 // ─────────────────────────────────────────────────────────────────
@@ -244,16 +263,33 @@ model Match {
   user1Id     String
   user2Id     String
   status      String   @default("PENDING")
+  matchStatus MatchStatus @default(ACTIVE)
   matchScore  Int?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  user1 User @relation("User1Matches", fields: [user1Id], references: [id])
-  user2 User @relation("User2Matches", fields: [user2Id], references: [id])
+  user1 User @relation("MatchUser1", fields: [user1Id], references: [id], onDelete: Cascade, map: "MatchUser1_fkey")
+  user2 User @relation("MatchUser2", fields: [user2Id], references: [id], onDelete: Cascade, map: "MatchUser2_fkey")
+  
+  messages Message[]
 
   @@unique([user1Id, user2Id])
   @@index([user1Id])
   @@index([user2Id])
+}
+
+model Like {
+  id         String   @id @default(cuid())
+  senderId   String
+  receiverId String
+  createdAt  DateTime @default(now())
+
+  sender     User     @relation("LikeSender", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver   User     @relation("LikeReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  @@unique([senderId, receiverId])
+  @@index([senderId])
+  @@index([receiverId])
 }
 
 model Shortlist {

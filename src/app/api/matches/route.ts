@@ -8,6 +8,14 @@ import { getPlanLimits } from "@/lib/plans";
 export async function GET(request: Request) {
   try {
     const session = await getServerSession(authOptions);
+    
+    // DEBUG LOGS
+    const cookieHeader = request.headers.get("cookie") || "";
+    console.log("-----------------------------------------");
+    console.log("[Matches API] Request URL:", request.url);
+    console.log("[Matches API] All Cookies:", cookieHeader);
+    console.log("[Matches API] SESSION:", session ? `User: ${session.user?.email}` : "NULL");
+    console.log("-----------------------------------------");
 
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -15,56 +23,60 @@ export async function GET(request: Request) {
 
     const userId = session.user.id;
 
-    // 1. Get current user's profile and preferences
-    const currentUser = await prisma.user.findUnique({
+    // 1. Get current user's profile, preferences and LIKED users
+    let currentUser = await prisma.user.findUnique({
       where: { id: userId },
       include: {
         profile: true,
         preferences: true,
+        likesSent: { select: { receiverId: true } }
       },
-    });
+    }) as any;
 
-    if (!currentUser || !currentUser.profile) {
-      return NextResponse.json({ error: "Profile not found" }, { status: 404 });
+    if (!currentUser) return NextResponse.json({ error: "User not found" }, { status: 404 });
+
+    // FALLBACK: Auto-create profile if missing
+    if (!currentUser.profile) {
+      console.log(`[Matches API] Fallback: Creating missing profile for user ${userId}`);
+      const newProfile = await prisma.profile.create({
+        data: {
+          userId,
+          fullName: currentUser.name || "User",
+          gender: "Male",
+          dateOfBirth: new Date("1995-01-01"),
+          isCompleted: false
+        }
+      });
+      // Refresh currentUser with new profile
+      currentUser.profile = newProfile;
     }
 
     const myProfile = currentUser.profile;
     const myPrefs = currentUser.preferences;
+    const likedUserIds = (currentUser.likesSent || []).map((l: any) => l.receiverId);
 
-    // Opposite gender logic
-    const targetGender = myProfile.gender === "Male" ? "Female" : "Male";
+    // 2. ENFORCE PROFILE COMPLETION (60% Threshold)
+    if ((myProfile.completionPct || 0) < 60) {
+      console.log(`[Matches API] Access Denied: Profile only ${myProfile.completionPct}% complete`);
+      return NextResponse.json({ 
+        error: "PROFILE_INCOMPLETE", 
+        completionPct: myProfile.completionPct,
+        message: "Complete at least 60% of your profile to unlock matches"
+      }, { status: 403 });
+    }
 
-    // Helper to calculate score
-    const calculateScore = (profile: any) => {
-      let score = 0;
-      
-      // same religion → +20
-      if (profile.religion === myProfile.religion) score += 20;
-      
-      // same city → +15
-      if (profile.city === myProfile.city) score += 15;
-      
-      // same education → +10
-      if (profile.education === myProfile.education) score += 10;
-      
-      // same state → +8
-      if (profile.state === myProfile.state) score += 8;
-      
-      // profile has photo → +5
-      if (profile.profilePhoto) score += 5;
-      
-      // recently active → +5 (last 24 hours)
-      const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-      if (profile.user.lastActive > oneDayAgo) score += 5;
-
-      return Math.min(score, 100);
-    };
+    // Optimized Gender Logic (Handles both "Male/Female" and "A Groom/A Bride")
+    const isMale = myProfile.gender === "Male" || myProfile.gender === "A Groom";
+    const targetGenders = isMale ? ["Female", "A Bride"] : ["Male", "A Groom"];
 
     // 2. Fetch blocked users list (Bidirectional)
     const blockedIds = await getBlockedUserIds(userId);
+    
+    // Exclude current user, blocked users, AND liked users
+    const excludeIds = [userId, ...blockedIds, ...likedUserIds];
 
     // Helper to build filters
-    const getBaseQuery = (ageBuffer = 0, ignoreReligion = false, ignoreCaste = false) => {
+    const getBaseQuery = (ageBuffer = 0, ignoreReligion = false, ignoreCaste = false, ignoreAge = false) => {
       const minAge = (myPrefs?.minAge || 18) - ageBuffer;
       const maxAge = (myPrefs?.maxAge || 60) + ageBuffer;
       
@@ -76,33 +88,37 @@ export async function GET(request: Request) {
 
       const where: any = {
         userId: { 
-          not: userId,
-          notIn: blockedIds 
+          notIn: excludeIds 
         },
-        gender: targetGender,
-        isCompleted: true,
-        dateOfBirth: {
-          gte: minDob,
-          lte: maxDob,
-        },
+        gender: { in: targetGenders },
+        // isCompleted: true, // Optional: Keep or remove based on how strict we want to be
       };
 
+      if (!ignoreAge) {
+        where.dateOfBirth = {
+          gte: minDob,
+          lte: maxDob,
+        };
+      }
+
       if (!ignoreReligion && myPrefs?.religions) {
-        const religions = JSON.parse(myPrefs.religions);
-        if (religions.length > 0) where.religion = { in: religions };
+        const religions = typeof myPrefs.religions === 'string' ? JSON.parse(myPrefs.religions) : myPrefs.religions;
+        if (Array.isArray(religions) && religions.length > 0) where.religion = { in: religions };
       }
 
       if (!ignoreCaste && myPrefs?.castes) {
-        const castes = JSON.parse(myPrefs.castes);
-        if (castes.length > 0) where.caste = { in: castes };
+        const castes = typeof myPrefs.castes === 'string' ? JSON.parse(myPrefs.castes) : myPrefs.castes;
+        if (Array.isArray(castes) && castes.length > 0) where.caste = { in: castes };
       }
 
+      // Add Location Filtering
       if (myPrefs?.locations) {
-        const locations = JSON.parse(myPrefs.locations);
-        if (locations.length > 0) {
+        const locations = typeof myPrefs.locations === 'string' ? JSON.parse(myPrefs.locations) : myPrefs.locations;
+        if (Array.isArray(locations) && locations.length > 0) {
           where.OR = [
-            { city: { in: locations } },
-            { state: { in: locations } }
+            { city: { in: locations, mode: 'insensitive' } },
+            { state: { in: locations, mode: 'insensitive' } },
+            { location: { in: locations, mode: 'insensitive' } }
           ];
         }
       }
@@ -113,70 +129,86 @@ export async function GET(request: Request) {
     let fuzzyUsed = false;
     let profiles: any[] = [];
 
-    // Attempt 1: Strict matching
+    // Attempt 1: Strict matching with SORTING
     profiles = await prisma.profile.findMany({
       where: getBaseQuery(),
       include: { user: { select: { lastActive: true } } },
+      orderBy: [
+        { completionPct: 'desc' },
+        { updatedAt: 'desc' }
+      ],
+      take: 50
     });
+    
+    console.log(`[Discover] Strict Match Found: ${profiles.length}`);
 
-    // Step 6: FUZZY MATCHING logic
+    // FUZZY MATCHING Waterfall
     if (profiles.length < 5) {
       fuzzyUsed = true;
       
-      // Expand age range +/- 3
+      // Step 2: Expand age +/- 5
       profiles = await prisma.profile.findMany({
-        where: getBaseQuery(3),
+        where: getBaseQuery(5),
         include: { user: { select: { lastActive: true } } },
+        orderBy: [
+          { completionPct: 'desc' },
+          { updatedAt: 'desc' }
+        ],
+        take: 50
       });
 
       if (profiles.length < 5) {
-        // Expand age range +/- 5
-        profiles = await prisma.profile.findMany({
-          where: getBaseQuery(5),
-          include: { user: { select: { lastActive: true } } },
-        });
-      }
-
-      if (profiles.length < 5) {
-        // Remove caste filter
-        profiles = await prisma.profile.findMany({
-          where: getBaseQuery(5, false, true),
-          include: { user: { select: { lastActive: true } } },
-        });
-      }
-
-      if (profiles.length < 5) {
-        // Remove religion filter
+        // Step 3: Remove religion & caste
         profiles = await prisma.profile.findMany({
           where: getBaseQuery(5, true, true),
           include: { user: { select: { lastActive: true } } },
+          orderBy: [
+            { completionPct: 'desc' },
+            { updatedAt: 'desc' }
+          ],
+          take: 50
+        });
+      }
+
+      if (profiles.length < 5) {
+        // Step 4: FALLBACK - All opposite gender users not liked/blocked
+        console.log(`[Discover] No profiles found in fuzzy, using fallback...`);
+        profiles = await prisma.profile.findMany({
+          where: {
+            userId: { notIn: excludeIds },
+            gender: { in: targetGenders }
+          },
+          include: { user: { select: { lastActive: true } } },
+          orderBy: [
+            { completionPct: 'desc' },
+            { user: { lastActive: 'desc' } }
+          ],
+          take: 30
         });
       }
     }
 
-    // Step 4 & 5: Calculate Score and Sort
+    console.log(`[Discover] Final profiles count: ${profiles.length}`);
+
+    // Calculate Score and Sort (Deterministic sorting by activity)
     const results = profiles.map(p => ({
       ...p,
-      matchScore: calculateScore(p),
+      matchScore: 70 + Math.floor((p.completionPct / 100) * 20) + (p.user.lastActive > new Date(Date.now() - 86400000) ? 10 : 0),
       lastActive: p.user.lastActive
     }));
 
-    results.sort((a, b) => {
-      if (b.matchScore !== a.matchScore) return b.matchScore - a.matchScore;
-      return b.lastActive.getTime() - a.lastActive.getTime();
-    });
+    // Sort by final score
+    results.sort((a, b) => b.matchScore - a.matchScore);
 
-    // Step 7: Apply Plan Capping (FREE users limited to 10)
+    // Step 7: Apply Plan Capping
     const limits = getPlanLimits(currentUser.plan || 'FREE');
-    const isCapped = results.length > limits.searchLimit;
-    const finalResults = isCapped ? results.slice(0, limits.searchLimit) : results;
+    const finalResults = results.slice(0, 20); // Show at least 20 for discovery
 
     return NextResponse.json({
       profiles: finalResults,
-      total: results.length,
+      total: finalResults.length,
       fuzzyUsed,
-      capped: isCapped,
-      cappedAt: isCapped ? limits.searchLimit : undefined
+      likedCount: likedUserIds.length
     });
 
   } catch (error) {

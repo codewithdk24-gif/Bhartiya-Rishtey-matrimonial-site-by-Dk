@@ -3,9 +3,11 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import DashNav from '@/components/DashNav';
+import { useSession } from 'next-auth/react';
 
 export default function ProfilePage() {
   const [profile, setProfile] = useState<any>(null);
+  const { data: session, update } = useSession();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -103,6 +105,12 @@ export default function ProfilePage() {
       if (res.ok) {
         setProfile(data.profile);
         setSaved(true);
+        
+        // Sync session if profile is now complete
+        if (data.isProfileComplete) {
+          await update({ isProfileComplete: true });
+        }
+
         setTimeout(() => setSaved(false), 3000);
       }
     } catch (err) {
@@ -122,6 +130,24 @@ export default function ProfilePage() {
     <>
       <DashNav />
       <div className="max-w-4xl mx-auto px-4 py-8 pb-24 animate-fade-in-up">
+        
+        {/* Onboarding Guidance Banner */}
+        {session?.user?.isProfileComplete === false && (
+          <div className="bg-stone-900 text-white rounded-2xl p-6 mb-8 flex flex-col md:flex-row items-center justify-between gap-4 shadow-xl shadow-stone-200">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
+                <span className="material-symbols-outlined text-primary-light">rocket_launch</span>
+              </div>
+              <div>
+                <h3 className="font-headline text-lg font-bold">Complete your profile to unlock matches</h3>
+                <p className="text-stone-400 text-sm">Add your details and photos to find your perfect partner.</p>
+              </div>
+            </div>
+            <div className="text-xs font-black uppercase tracking-widest text-primary-light">
+              Required for visibility
+            </div>
+          </div>
+        )}
         {/* Profile Header */}
         <div className="glass-card p-6 md:p-8 mb-8 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-48 h-48 bg-primary/5 rounded-full blur-3xl" />

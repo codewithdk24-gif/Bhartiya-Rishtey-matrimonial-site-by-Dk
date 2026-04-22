@@ -5,9 +5,11 @@ import Link from 'next/link';
 import DashNav from '@/components/DashNav';
 import { useRouter } from 'next/navigation';
 import { useModals } from '@/context/ModalContext';
+import { useSession } from 'next-auth/react';
 
 export default function DashboardPage() {
   const router = useRouter();
+  const { data: session, status } = useSession();
   const { openUpgradeModal } = useModals();
   const [profile, setProfile] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<'incoming' | 'sent' | 'accepted'>('incoming');
@@ -52,6 +54,7 @@ export default function DashboardPage() {
       setLoading(false);
     }
   };
+
 
   useEffect(() => {
     fetchDashboardData();
@@ -124,7 +127,30 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Interest Hub Section */}
+        {/* Welcome Card for Incomplete Profiles */}
+        {status === 'authenticated' && session?.user?.isProfileComplete === false && (
+          <div className="mb-10 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border border-primary/20 rounded-[2.5rem] p-8 md:p-10 relative overflow-hidden group">
+            <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+              <div className="text-center md:text-left">
+                <h2 className="font-headline text-2xl md:text-3xl font-black text-stone-900 mb-2">
+                  Welcome to Bhartiya Rishtey ❤️
+                </h2>
+                <p className="text-stone-600 font-medium max-w-lg">
+                  Please complete your profile to find your perfect match and unlock all features of the platform.
+                </p>
+              </div>
+              <Link 
+                href="/profile" 
+                className="bg-primary text-white px-8 py-4 rounded-2xl text-sm font-black shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-2 shrink-0"
+              >
+                Complete Profile
+                <span className="material-symbols-outlined text-lg">arrow_forward</span>
+              </Link>
+            </div>
+            {/* Decorative background icon */}
+            <span className="absolute -right-4 -bottom-4 material-symbols-outlined text-9xl text-primary/5 rotate-12 pointer-events-none group-hover:scale-110 transition-transform">favorite</span>
+          </div>
+        )}
         <div className="bg-white rounded-[2.5rem] border border-stone-100 shadow-xl shadow-stone-200/50 overflow-hidden">
           
           {/* Tabs */}

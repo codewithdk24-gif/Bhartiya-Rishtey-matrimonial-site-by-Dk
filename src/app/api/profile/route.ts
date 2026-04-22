@@ -12,7 +12,9 @@
 
 import { NextResponse } from 'next/server';
 import { ProfileSchema } from '@/lib/validations';
-import { getUserIdFromRequest, unauthorizedResponse } from '@/lib/auth';
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
+import { unauthorizedResponse } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
 function parseJsonField(val: any): any {
@@ -56,12 +58,35 @@ function calculateCompletion(profile: {
 }
 
 export async function GET(request: Request) {
-  const userId = getUserIdFromRequest(request);
-  if (!userId) return unauthorizedResponse();
+  const session = await getServerSession(authOptions);
+  
+  // DEBUG LOGS
+  const cookieHeader = request.headers.get("cookie") || "";
+  console.log("-----------------------------------------");
+  console.log("[Profile API] GET Request URL:", request.url);
+  console.log("[Profile API] All Cookies:", cookieHeader);
+  console.log("[Profile API] SESSION:", session ? `User: ${session.user?.email}` : "NULL");
+  console.log("-----------------------------------------");
+  
+  if (!session?.user?.id) return unauthorizedResponse();
+  const userId = session.user.id;
 
   try {
-    const profile = await prisma.profile.findUnique({ where: { userId } });
-    if (!profile) return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
+    let profile = await prisma.profile.findUnique({ where: { userId } });
+    
+    // FALLBACK: Auto-create profile if missing
+    if (!profile) {
+      console.log(`[Profile API] Fallback: Creating missing profile for user ${userId}`);
+      const user = await prisma.user.findUnique({ where: { id: userId } });
+      profile = await prisma.profile.create({
+        data: {
+          userId,
+          fullName: user?.name || "User",
+          gender: "Male",
+          dateOfBirth: new Date("1995-01-01"),
+        }
+      });
+    }
 
     const currentPct = calculateCompletion(profile);
 
@@ -82,8 +107,18 @@ export async function GET(request: Request) {
 }
 
 export async function PUT(request: Request) {
-  const userId = getUserIdFromRequest(request);
-  if (!userId) return unauthorizedResponse();
+  const session = await getServerSession(authOptions);
+  
+  // DEBUG LOGS
+  const cookieHeader = request.headers.get("cookie") || "";
+  console.log("-----------------------------------------");
+  console.log("[Profile API] PUT Request URL:", request.url);
+  console.log("[Profile API] All Cookies:", cookieHeader);
+  console.log("[Profile API] SESSION:", session ? `User: ${session.user?.email}` : "NULL");
+  console.log("-----------------------------------------");
+
+  if (!session?.user?.id) return unauthorizedResponse();
+  const userId = session.user.id;
 
   try {
     const rawData = await request.json();
@@ -159,7 +194,19 @@ export async function PUT(request: Request) {
       data: { completionPct: newPct, isCompleted: newPct >= 50 },
     });
 
-    return NextResponse.json({ message: 'Profile updated', profile: finalProfile }, { status: 200 });
+    // Update User table to reflect completion status for onboarding
+    if (newPct >= 50) {
+      await prisma.user.update({
+        where: { id: userId },
+        data: { isProfileComplete: true }
+      });
+    }
+
+    return NextResponse.json({ 
+      message: 'Profile updated', 
+      profile: finalProfile,
+      isProfileComplete: newPct >= 50 
+    }, { status: 200 });
   } catch (error) {
     console.error('PUT Profile Error:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });

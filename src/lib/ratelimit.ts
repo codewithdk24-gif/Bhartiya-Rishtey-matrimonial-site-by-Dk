@@ -1,38 +1,37 @@
-import { Ratelimit } from '@upstash/ratelimit';
-import { Redis } from '@upstash/redis';
+import { ratelimit } from "./redis";
 
-const isRedisConfigured =
-  !!process.env.UPSTASH_REDIS_REST_URL && !!process.env.UPSTASH_REDIS_REST_TOKEN;
+// Fallback Map for local development if Redis is not configured
+const localRateLimits = new Map<string, number>();
 
-const redis = isRedisConfigured
-  ? new Redis({
-      url: process.env.UPSTASH_REDIS_REST_URL!,
-      token: process.env.UPSTASH_REDIS_REST_TOKEN!,
-    })
-  : null;
+/**
+ * Checks if a user has exceeded the rate limit.
+ * Uses Upstash Redis for persistent tracking if configured.
+ * 
+ * @param key Unique key (e.g., userId + action)
+ * @param limitMs Minimum time between actions in milliseconds (Used for local fallback)
+ * @returns Promise<boolean> True if limited, False if allowed
+ */
+export async function isRateLimited(key: string, limitMs: number = 1000): Promise<boolean> {
+  // 1. Try Redis Rate Limiting (Production)
+  if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
+    try {
+      const { success } = await ratelimit.limit(key);
+      return !success;
+    } catch (error) {
+      console.error("[RateLimit] Redis connection failed! Fail-safe: blocking and returning error.");
+      // Throw error to be caught by API route for 503 response
+      throw new Error("RATE_LIMIT_SERVICE_DOWN");
+    }
+  }
 
-const mockLimiter = {
-  limit: async (_identifier: string) => ({ success: true, remaining: 100, reset: 0 }),
-};
+  // 2. Fallback to In-Memory (Development/Local)
+  const now = Date.now();
+  const lastAction = localRateLimits.get(key) || 0;
 
-export const loginLimiter = redis
-  ? new Ratelimit({ redis, limiter: Ratelimit.slidingWindow(5, '1 m'), analytics: true })
-  : mockLimiter;
+  if (now - lastAction < limitMs) {
+    return true;
+  }
 
-export const signupLimiter = redis
-  ? new Ratelimit({ redis, limiter: Ratelimit.slidingWindow(3, '1 m'), analytics: true })
-  : mockLimiter;
-
-export const messageLimiter = redis
-  ? new Ratelimit({ redis, limiter: Ratelimit.slidingWindow(30, '1 m'), analytics: true })
-  : mockLimiter;
-
-export const paymentLimiter = redis
-  ? new Ratelimit({ redis, limiter: Ratelimit.slidingWindow(2, '5 m'), analytics: true })
-  : mockLimiter;
-
-export function getIp(req: Request): string {
-  const forwarded = req.headers.get('x-forwarded-for');
-  if (forwarded) return forwarded.split(',')[0].trim();
-  return '127.0.0.1';
+  localRateLimits.set(key, now);
+  return false;
 }

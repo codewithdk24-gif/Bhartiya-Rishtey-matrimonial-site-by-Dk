@@ -4,12 +4,18 @@ import { NextResponse } from "next/server";
 export default withAuth(
   function middleware(req) {
     const token = req.nextauth.token;
-    const isAuthPage = req.nextUrl.pathname.startsWith('/login') || req.nextUrl.pathname.startsWith('/signup');
-    const isAdminPage = req.nextUrl.pathname.startsWith('/admin');
+    const { pathname } = req.nextUrl;
+    
+    // DEBUG LOGS
+    const cookieHeader = req.headers.get("cookie") || "NONE";
+    console.log(`[Middleware] Path: ${pathname} | Token: ${token ? "YES" : "NO"} | Cookies: ${cookieHeader.substring(0, 50)}...`);
 
-    if (isAuthPage && token) {
+    // Only redirect to dashboard if authenticated user visits the landing page
+    if (pathname === '/' && token) {
       return NextResponse.redirect(new URL('/dashboard', req.url));
     }
+
+    const isAdminPage = pathname.startsWith('/admin');
 
     if (isAdminPage && token?.role !== 'ADMIN') {
       return NextResponse.redirect(new URL('/dashboard', req.url));

@@ -464,3 +464,43 @@ body {
 .animate-bell-shake {
   animation: bell-shake 0.5s ease-in-out;
 }
+
+/* ── Premium UI Extensions ────────────── */
+
+.bg-premium-gradient {
+  background: linear-gradient(135deg, #E11D48 0%, #FB7185 100%);
+}
+
+.bg-premium-gradient-reverse {
+  background: linear-gradient(135deg, #FB7185 0%, #E11D48 100%);
+}
+
+.shadow-premium-glow {
+  box-shadow: 0 10px 25px -5px rgba(225, 29, 72, 0.4), 0 8px 10px -6px rgba(225, 29, 72, 0.4);
+}
+
+.shadow-premium-glow-hover:hover {
+  box-shadow: 0 20px 35px -5px rgba(225, 29, 72, 0.5), 0 10px 15px -6px rgba(225, 29, 72, 0.5);
+}
+
+@keyframes pop-in {
+  0% { transform: scale(0.9); opacity: 0; }
+  70% { transform: scale(1.05); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.animate-pop-in {
+  animation: pop-in 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes rotate-spinner {
+  to { transform: rotate(360deg); }
+}
+
+.animate-spinner {
+  animation: rotate-spinner 0.8s linear infinite;
+}
+
+.bg-soft-tint {
+  background-color: #FFF7F7;
+}

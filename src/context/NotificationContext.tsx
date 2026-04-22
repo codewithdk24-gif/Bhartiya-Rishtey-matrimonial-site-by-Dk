@@ -21,7 +21,9 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
 
     try {
       // Step 3: Minimal fetch (limit=1, unreadOnly=true)
-      const res = await fetch('/api/notifications?limit=1&unreadOnly=true');
+      const res = await fetch('/api/notifications?limit=1&unreadOnly=true', {
+        credentials: 'include'
+      });
       if (res.ok) {
         const data = await res.json();
         // Step 7: Error handling - keep last count if API fails or returns unexpected data
