@@ -109,15 +109,13 @@ export default function DiscoverPage() {
     }
   }, [filters]);
 
-  // Re-fetch on filter/page change
   useEffect(() => {
     fetchProfiles(page, page > 1);
   }, [page, fetchProfiles]);
 
-  // Reset page when filters change (Debounced slightly if needed, but here instant for UX)
   useEffect(() => {
     setPage(1);
-    setProfiles([]); // Clear current results for fresh filter
+    setProfiles([]);
   }, [filters]);
 
   // ────── Interactions ──────
@@ -189,7 +187,6 @@ export default function DiscoverPage() {
                </div>
 
                <div className="space-y-8">
-                  {/* Age Filter */}
                   <div className="space-y-4">
                      <div className="flex justify-between items-center">
                         <label className="text-[9px] font-black text-stone-400 uppercase tracking-widest">Age Range</label>
@@ -202,7 +199,6 @@ export default function DiscoverPage() {
                      />
                   </div>
 
-                  {/* Religion Filter */}
                   <div className="space-y-4">
                      <label className="text-[9px] font-black text-stone-400 uppercase tracking-widest">Religion</label>
                      <select 
@@ -218,7 +214,6 @@ export default function DiscoverPage() {
                      </select>
                   </div>
 
-                  {/* Toggles */}
                   <div className="space-y-4">
                      <div className="flex items-center justify-between">
                         <span className="text-xs font-bold text-stone-600">Verified Only</span>
@@ -260,7 +255,6 @@ export default function DiscoverPage() {
                     </select>
                   </div>
 
-                  {/* ACTIVE FILTER CHIPS */}
                   <div className="flex flex-wrap gap-2 items-center">
                      <span className="text-[9px] font-black text-stone-300 uppercase tracking-widest mr-2">Filters:</span>
                      {(filters.ageMin !== 18 || filters.ageMax !== 60) && (
@@ -296,39 +290,26 @@ export default function DiscoverPage() {
                ) : (
                  <div className="space-y-12">
                    
-                   {/* EMPTY STATE */}
                    {!loading && profiles.length === 0 && (
                      <div className="bg-white/40 backdrop-blur-md rounded-[3rem] p-20 text-center border border-dashed border-rose-200 animate-fade-in">
                         <div className="w-20 h-20 bg-rose-50 rounded-full flex items-center justify-center mx-auto mb-6 text-rose-200"><span className="material-symbols-outlined text-4xl">search_off</span></div>
                         <h3 className="text-xl font-black text-stone-800 mb-2 tracking-tight">No matches found</h3>
-                        <p className="text-sm text-stone-400 max-w-xs mx-auto mb-8 font-medium leading-relaxed">We couldn&apos;t find anyone matching these specific criteria. Try broadening your preferences.</p>
-                        <div className="flex justify-center gap-3">
-                           <button onClick={resetFilters} className="px-8 py-3 bg-rose-600 text-white rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg shadow-rose-100">Relax Filters</button>
-                           <button onClick={resetFilters} className="px-8 py-3 bg-white text-stone-400 border border-stone-100 rounded-full text-[10px] font-black uppercase tracking-widest">Reset All</button>
-                        </div>
+                        <p className="text-sm text-stone-400 max-w-xs mx-auto mb-8 font-medium leading-relaxed">Try broadening your search preferences.</p>
+                        <button onClick={resetFilters} className="px-8 py-3 bg-rose-600 text-white rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg shadow-rose-100">Relax Filters</button>
                      </div>
                    )}
 
                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                     
-                     {/* INITIAL SKELETONS */}
                      {loading && page === 1 && [1,2,3,4,5,6].map(i => (
-                        <div key={i} className="bg-white rounded-[2rem] p-4 border border-white h-[400px] animate-pulse">
-                           <div className="h-4 bg-stone-50 rounded-full w-1/2 mb-4" />
-                           <div className="aspect-[4/5] bg-stone-50 rounded-2xl mb-4" />
-                           <div className="h-4 bg-stone-50 rounded-full w-3/4 mb-2" />
-                           <div className="h-3 bg-stone-50 rounded-full w-1/2" />
-                        </div>
+                        <div key={i} className="bg-white rounded-[2rem] p-4 border border-white h-[400px] animate-pulse" />
                      ))}
 
-                     {/* PROFILE CARDS */}
                      {profiles.map((p, idx) => (
                        <div 
                          key={p.id} 
                          ref={idx === profiles.length - 1 ? lastProfileRef : null}
                          className="bg-white rounded-[2rem] p-4 border border-white shadow-sm hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-500 group overflow-hidden"
                        >
-                         {/* Header */}
                          <div className="flex items-center justify-between mb-3 relative z-10">
                             <div className="bg-rose-50 text-rose-600 px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest flex items-center gap-1">
                               {p.matchScore}% Match {p.isVerified && <span className="material-symbols-outlined text-[10px] fill-1">verified</span>}
@@ -341,7 +322,6 @@ export default function DiscoverPage() {
                             </button>
                          </div>
 
-                         {/* Image */}
                          <div className="relative w-full aspect-[4/5] rounded-2xl overflow-hidden mb-4 bg-stone-50 group-hover:shadow-lg transition-all">
                            <img 
                              src={parsePhotos(p.photos)[0] || `https://api.dicebear.com/7.x/avataaars/svg?seed=${p.id}`} 
@@ -368,13 +348,28 @@ export default function DiscoverPage() {
                        </div>
                      ))}
                      
-                     {/* LOADING MORE INDICATORS */}
-                     {loadingMore && [1,2,3].map(i => (
+                     {/* END CTA CARD (Explore More Matches) */}
+                     {!loading && profiles.length > 0 && (
+                        <div className="bg-gradient-to-br from-rose-50 via-white to-rose-50 rounded-[2rem] p-8 border border-white shadow-sm flex flex-col items-center justify-center text-center group hover:shadow-xl hover:-translate-y-1.5 transition-all duration-500 border-dashed border-rose-200 min-h-[400px]">
+                           <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mb-6 shadow-xl text-rose-300 group-hover:scale-110 group-hover:rotate-6 transition-all">
+                              <span className="material-symbols-outlined text-3xl">auto_awesome</span>
+                           </div>
+                           <h3 className="text-lg font-black text-stone-800 mb-2">Explore More Matches</h3>
+                           <p className="text-[11px] text-stone-500 mb-8 leading-relaxed max-w-[200px]">Find profiles similar to your preferences and widen your horizon.</p>
+                           <button 
+                             onClick={() => hasMore ? setPage(prev => prev + 1) : resetFilters()}
+                             className="px-8 py-3 bg-white text-rose-600 border-2 border-rose-600 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-rose-600 hover:text-white transition-all shadow-lg shadow-rose-100"
+                           >
+                             {hasMore ? 'View More →' : 'Expand Search'}
+                           </button>
+                        </div>
+                     )}
+
+                     {loadingMore && [1,2].map(i => (
                         <div key={i} className="bg-white/50 rounded-[2rem] p-4 border border-white h-[400px] animate-pulse" />
                      ))}
                    </div>
 
-                   {/* LOAD MORE BUTTON */}
                    {hasMore && !loading && !loadingMore && (
                      <div className="text-center py-20">
                         <button 
@@ -383,14 +378,6 @@ export default function DiscoverPage() {
                         >
                           Load More Matches →
                         </button>
-                     </div>
-                   )}
-                   
-                   {!hasMore && profiles.length > 0 && (
-                     <div className="flex items-center justify-center gap-4 py-20 opacity-30">
-                        <div className="h-[1px] w-12 bg-stone-300" />
-                        <p className="text-[9px] font-black text-stone-400 uppercase tracking-[0.4em]">No more profiles</p>
-                        <div className="h-[1px] w-12 bg-stone-300" />
                      </div>
                    )}
                  </div>
