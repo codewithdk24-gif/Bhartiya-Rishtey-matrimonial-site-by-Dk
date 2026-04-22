@@ -4,13 +4,16 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { InterestStatus } from "@prisma/client";
 import { getPlanLimits } from "@/lib/plans";
+import { ErrorResponses } from "@/lib/errors";
+import { logger, generateRequestId } from "@/lib/logger";
 
 export async function GET(request: Request) {
+  const requestId = generateRequestId();
   try {
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return ErrorResponses.unauthorized(requestId);
     }
 
     const userId = session.user.id;
@@ -108,7 +111,7 @@ export async function GET(request: Request) {
     return NextResponse.json(formatted);
 
   } catch (error) {
-    console.error("Get Interests Error:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    logger.error("API_GET_INTERESTS_ERROR", error, { requestId });
+    return ErrorResponses.internalError(requestId);
   }
 }

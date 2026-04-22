@@ -13,7 +13,7 @@ import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
 import { LoginSchema } from '@/lib/validations';
-import { loginLimiter, getIp } from '@/lib/ratelimit';
+import { loginLimiter, getIp } from '@/lib/rateLimit';
 import { logAction } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 

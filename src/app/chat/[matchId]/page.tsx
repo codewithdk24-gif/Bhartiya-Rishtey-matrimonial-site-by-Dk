@@ -11,6 +11,7 @@ export default function ChatPage() {
   const { data: session } = useSession();
   const router = useRouter();
   const [messages, setMessages] = useState<any[]>([]);
+  const [otherUser, setOtherUser] = useState<any>(null);
   const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
@@ -20,31 +21,40 @@ export default function ChatPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  const fetchChatData = async () => {
+    try {
+      // 1. Fetch Messages
+      const msgRes = await fetch(`/api/messages?matchId=${matchId}`);
+      if (msgRes.status === 403) {
+        router.push('/dashboard');
+        return;
+      }
+      const msgData = await msgRes.json();
+      setMessages(msgData.messages || []);
+
+      // 2. Fetch Other User Details (Using conversation/match endpoint if exists)
+      // For now, let's derive it or fetch from a dedicated endpoint
+      const userRes = await fetch(`/api/conversations/${matchId}`);
+      if (userRes.ok) {
+        const userData = await userRes.json();
+        setOtherUser(userData.otherUser);
+      }
+    } catch (err) {
+      console.error('Fetch chat data error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (matchId) {
-      fetchMessages();
-      const interval = setInterval(fetchMessages, 3000); // Poll every 3 seconds for simplicity
+      fetchChatData();
+      const interval = setInterval(fetchChatData, 4000); 
       return () => clearInterval(interval);
     }
   }, [matchId]);
 
   useEffect(scrollToBottom, [messages]);
-
-  const fetchMessages = async () => {
-    try {
-      const res = await fetch(`/api/messages?matchId=${matchId}`);
-      if (res.status === 403) {
-        router.push('/dashboard');
-        return;
-      }
-      const data = await res.json();
-      setMessages(data.messages || []);
-    } catch (err) {
-      console.error('Fetch messages error:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -62,7 +72,7 @@ export default function ChatPage() {
       });
 
       if (res.ok) {
-        fetchMessages();
+        fetchChatData();
       }
     } catch (err) {
       console.error('Send message error:', err);
@@ -73,89 +83,136 @@ export default function ChatPage() {
 
   if (loading && messages.length === 0) {
     return (
-      <div className="min-h-screen bg-stone-50">
+      <div className="min-h-screen bg-[#fdf8f8]">
         <DashNav />
-        <div className="max-w-2xl mx-auto p-4 flex flex-col items-center justify-center h-[calc(100vh-80px)]">
-          <div className="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
+        <div className="flex items-center justify-center h-[calc(100vh-80px)]">
+           <div className="w-10 h-10 border-4 border-rose-100 border-t-rose-600 rounded-full animate-spin" />
         </div>
       </div>
     );
   }
 
+  const otherName = otherUser?.fullName || otherUser?.name || 'Partner';
+  const otherPhoto = otherUser?.photos ? JSON.parse(otherUser.photos)[0] : (otherUser?.image || `https://api.dicebear.com/7.x/avataaars/svg?seed=${otherName}`);
+
   return (
-    <div className="min-h-screen bg-stone-50 flex flex-col">
+    <div className="min-h-screen bg-gradient-to-b from-rose-50 via-white to-rose-100 flex flex-col selection:bg-rose-100">
       <DashNav />
-      
-      <div className="flex-1 max-w-2xl w-full mx-auto flex flex-col bg-white shadow-sm overflow-hidden md:my-4 md:rounded-[2rem] border border-stone-100">
-        {/* Chat Header */}
-        <div className="p-4 border-b border-stone-50 flex items-center gap-4 bg-white/80 backdrop-blur-md sticky top-0 z-10">
-          <Link href="/likes" className="p-2 hover:bg-stone-50 rounded-full transition-colors">
-            <span className="material-symbols-outlined text-stone-400">arrow_back</span>
-          </Link>
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
-              {/* User Avatar Placeholder */}
-              <span className="material-symbols-outlined">person</span>
-            </div>
-            <div>
-              <h1 className="font-bold text-stone-800 text-sm">Conversation</h1>
-              <div className="flex items-center gap-1.5">
-                <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                <span className="text-[10px] text-stone-400 font-bold uppercase tracking-wider">Online</span>
+
+      <div className="flex-1 max-w-4xl w-full mx-auto flex flex-col md:my-6 md:mb-10 overflow-hidden md:rounded-[2.5rem] bg-white/40 backdrop-blur-xl border border-white shadow-2xl relative">
+        
+        {/* PREMIUM CHAT HEADER */}
+        <div className="px-6 py-4 bg-white/80 backdrop-blur-md border-b border-rose-50 flex items-center justify-between sticky top-0 z-20">
+          <div className="flex items-center gap-4">
+            <Link href="/messages" className="w-10 h-10 flex items-center justify-center hover:bg-rose-50 rounded-full transition-all text-stone-400 hover:text-rose-600">
+              <span className="material-symbols-outlined">arrow_back</span>
+            </Link>
+            
+            <div className="flex items-center gap-4">
+              <div className="relative">
+                <div className="w-12 h-12 rounded-2xl overflow-hidden shadow-lg border-2 border-white ring-2 ring-rose-50">
+                  <img src={otherPhoto} alt={otherName} className="w-full h-full object-cover" />
+                </div>
+                <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full" />
+              </div>
+              
+              <div>
+                <h1 className="text-base font-black text-stone-900 leading-none mb-1 flex items-center gap-1.5">
+                  {otherName}
+                  <span className="material-symbols-outlined text-rose-500 text-lg fill-1">verified</span>
+                </h1>
+                <div className="flex items-center gap-1.5">
+                   <p className="text-[10px] font-bold text-stone-400 uppercase tracking-widest">Active Now</p>
+                </div>
               </div>
             </div>
           </div>
+
+          <div className="flex items-center gap-2">
+             <button className="w-10 h-10 flex items-center justify-center text-stone-400 hover:text-rose-600 hover:bg-rose-50 rounded-full transition-all">
+                <span className="material-symbols-outlined">call</span>
+             </button>
+             <button className="w-10 h-10 flex items-center justify-center text-stone-400 hover:text-rose-600 hover:bg-rose-50 rounded-full transition-all">
+                <span className="material-symbols-outlined">more_vert</span>
+             </button>
+          </div>
         </div>
 
-        {/* Message Area */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-stone-50/30">
+        {/* MESSAGES AREA */}
+        <div className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-hide bg-[#fffafa]/30">
           {messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center p-10">
-              <div className="w-16 h-16 bg-rose-50 rounded-full flex items-center justify-center mb-4 text-rose-300">
-                <span className="material-symbols-outlined text-3xl">chat_bubble</span>
+              <div className="w-24 h-24 bg-rose-50 rounded-[2rem] flex items-center justify-center mb-6 text-rose-300 animate-pulse">
+                <span className="material-symbols-outlined text-5xl">favorite</span>
               </div>
-              <h2 className="text-stone-800 font-bold mb-1">Start a conversation</h2>
-              <p className="text-xs text-stone-400">Be the first to say hi! Good luck ❤️</p>
+              <h2 className="text-xl font-black text-stone-800 mb-2 tracking-tight">Express your interest!</h2>
+              <p className="text-sm text-stone-400 max-w-xs mx-auto leading-relaxed font-medium">
+                The best way to start is with a warm &apos;Hello&apos;. Good luck on your journey! ❤️
+              </p>
             </div>
           ) : (
-            messages.map((msg) => {
-              const isMine = msg.senderId === session?.user?.id;
-              return (
-                <div key={msg.id} className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}>
-                  <div className={`max-w-[80%] p-4 rounded-2xl text-sm ${
-                    isMine 
-                      ? 'bg-primary text-white rounded-tr-none shadow-md shadow-primary/10' 
-                      : 'bg-white text-stone-700 rounded-tl-none border border-stone-100 shadow-sm'
-                  }`}>
-                    {msg.content}
-                    <div className={`text-[10px] mt-1.5 ${isMine ? 'text-white/60' : 'text-stone-300'}`}>
-                      {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </div>
-                  </div>
-                </div>
-              );
-            })
+            <div className="space-y-6">
+               <div className="flex justify-center my-8">
+                  <span className="px-4 py-1.5 bg-stone-100 text-stone-400 rounded-full text-[9px] font-black uppercase tracking-[0.2em] shadow-sm">Today</span>
+               </div>
+               
+               {messages.map((msg) => {
+                 const isMine = msg.senderId === session?.user?.id;
+                 return (
+                   <div key={msg.id} className={`flex ${isMine ? 'justify-end' : 'justify-start'} animate-fade-in-up`}>
+                     <div className={`max-w-[75%] group relative`}>
+                       <div className={`px-5 py-3.5 rounded-[1.75rem] text-sm leading-relaxed shadow-sm transition-all hover:shadow-md ${isMine
+                           ? 'bg-rose-600 text-white rounded-tr-none shadow-rose-200'
+                           : 'bg-white text-stone-700 rounded-tl-none border border-rose-50'
+                         }`}>
+                         {msg.content}
+                       </div>
+                       <div className={`text-[9px] font-bold uppercase tracking-widest mt-2 flex items-center gap-1 ${isMine ? 'justify-end text-rose-300' : 'text-stone-300'}`}>
+                         {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                         {isMine && <span className="material-symbols-outlined text-[10px] text-rose-400">done_all</span>}
+                       </div>
+                     </div>
+                   </div>
+                 );
+               })}
+            </div>
           )}
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Input Area */}
-        <form onSubmit={handleSendMessage} className="p-4 bg-white border-t border-stone-50 flex items-center gap-3">
-          <input
-            type="text"
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            placeholder="Type your message..."
-            className="flex-1 bg-stone-50 border-none rounded-2xl px-5 py-3.5 text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none"
-          />
-          <button
-            type="submit"
-            disabled={!newMessage.trim() || sending}
-            className="w-12 h-12 bg-primary text-white rounded-2xl flex items-center justify-center shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:scale-100"
-          >
-            <span className="material-symbols-outlined text-xl">send</span>
-          </button>
-        </form>
+        {/* INPUT AREA */}
+        <div className="p-6 bg-white/80 backdrop-blur-md border-t border-rose-50 relative z-20">
+          <form onSubmit={handleSendMessage} className="flex items-center gap-4 max-w-4xl mx-auto">
+            <button type="button" className="w-12 h-12 flex items-center justify-center text-stone-400 hover:text-rose-600 hover:bg-rose-50 rounded-2xl transition-all">
+               <span className="material-symbols-outlined text-2xl">add_circle</span>
+            </button>
+            
+            <div className="flex-1 relative">
+              <input
+                type="text"
+                value={newMessage}
+                onChange={(e) => setNewMessage(e.target.value)}
+                placeholder="Type a heartwarming message..."
+                className="w-full bg-stone-50/50 border border-stone-100 rounded-[1.5rem] px-6 py-4 text-sm focus:ring-4 focus:ring-rose-500/5 focus:bg-white transition-all outline-none font-medium placeholder:text-stone-300"
+              />
+              <button type="button" className="absolute right-4 top-1/2 -translate-y-1/2 text-stone-300 hover:text-amber-500 transition-all">
+                 <span className="material-symbols-outlined">mood</span>
+              </button>
+            </div>
+
+            <button
+              type="submit"
+              disabled={!newMessage.trim() || sending}
+              className="w-14 h-14 bg-rose-600 text-white rounded-[1.5rem] flex items-center justify-center shadow-xl shadow-rose-200 hover:bg-rose-700 hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:scale-100 shrink-0"
+            >
+              <span className="material-symbols-outlined text-2xl">send</span>
+            </button>
+          </form>
+          <p className="text-[9px] text-center text-stone-300 font-bold uppercase tracking-[0.2em] mt-4">
+             Always be respectful & kind in your conversations.
+          </p>
+        </div>
+
       </div>
     </div>
   );

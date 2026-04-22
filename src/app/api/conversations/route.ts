@@ -13,7 +13,6 @@ export async function GET() {
 
     const userId = session.user.id;
 
-    // @ts-ignore
     const conversations = await prisma.conversation.findMany({
       where: {
         OR: [
@@ -33,7 +32,7 @@ export async function GET() {
             messages: {
               where: {
                 receiverId: userId,
-                isRead: false
+                read: false
               }
             }
           }

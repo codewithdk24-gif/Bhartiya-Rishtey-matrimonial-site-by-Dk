@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { isRateLimited } from '@/lib/rateLimit';
+import { MessageType } from '@prisma/client';
 import { ErrorResponses, createErrorResponse, ErrorCode } from '@/lib/errors';
 import { logger, generateRequestId } from '@/lib/logger';
 import sanitizeHtml from 'sanitize-html';
@@ -70,10 +71,11 @@ export async function POST(request: Request) {
     // 2. Save message
     const message = await prisma.message.create({
       data: {
-        matchId,
-        senderId,
-        receiverId,
-        content,
+        matchId: matchId as string,
+        senderId: senderId as string,
+        receiverId: receiverId as string,
+        content: content as string,
+        type: MessageType.TEXT
       }
     });
 

@@ -178,7 +178,12 @@ export async function PUT(request: Request) {
     if (career.profession) updateData.profession = String(career.profession);
     if (career.incomeTier) updateData.incomeTier = String(career.incomeTier);
 
-    if (photos) updateData.photos = JSON.stringify(photos);
+    if (photos) {
+      updateData.photos = JSON.stringify(photos);
+      if (photos.length > 0) {
+        updateData.profilePhoto = photos[0];
+      }
+    }
     if (familyDetails && Object.keys(familyDetails).length > 0) updateData.familyDetails = JSON.stringify(familyDetails);
     if (preferences   && Object.keys(preferences).length   > 0) updateData.preferences   = JSON.stringify(preferences);
 

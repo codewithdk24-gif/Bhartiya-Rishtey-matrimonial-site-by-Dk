@@ -12,7 +12,7 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { RegisterSchema } from '@/lib/validations';
-import { signupLimiter, getIp } from '@/lib/ratelimit';
+import { signupLimiter, getIp } from '@/lib/rateLimit';
 import { logAction } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 

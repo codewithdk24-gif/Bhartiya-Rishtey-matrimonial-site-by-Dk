@@ -3,13 +3,19 @@ import { NextResponse } from "next/server";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { createNotification } from "@/lib/notifications";
+import { MessageType } from "@prisma/client";
+import { ErrorResponses } from "@/lib/errors";
+import { logger, generateRequestId, logAction } from "@/lib/logger";
+import { getIp } from "@/lib/rateLimit";
 
 export async function POST(request: Request) {
+  const requestId = generateRequestId();
+  const ip = getIp(request);
   try {
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return ErrorResponses.unauthorized(requestId);
     }
 
     const userId = session.user.id;
@@ -59,9 +65,9 @@ export async function POST(request: Request) {
           data: {
             conversationId: conversation.id,
             senderId: interest.toUserId, // Could be system, but here receiver is sender of "Accept"
-            receiverId: interest.fromUserId,
+            receiverId: interest.fromUserId as string,
             content: "Interest Accepted! You can now chat with each other.",
-            type: "SYSTEM",
+            type: MessageType.SYSTEM,
           },
         });
 
@@ -95,10 +101,18 @@ export async function POST(request: Request) {
       }
     });
 
+    logAction({
+      userId: userId,
+      ip,
+      action: `INTEREST_${action}`,
+      status: "SUCCESS",
+      details: `Responded to interest ${interestId} for user ${interest.fromUserId}`
+    });
+
     return NextResponse.json(result);
 
   } catch (error) {
-    console.error("Respond Interest Error:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    logger.error("API_RESPOND_INTEREST_ERROR", error, { requestId });
+    return ErrorResponses.internalError(requestId);
   }
 }

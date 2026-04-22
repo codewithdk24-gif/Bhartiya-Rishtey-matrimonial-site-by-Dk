@@ -1,14 +1,15 @@
 import { NextResponse } from 'next/server';
-import { getSessionFromRequest, unauthorizedResponse, forbiddenResponse } from '@/lib/auth';
+import { getServerSession } from "next-auth/next";
+import { authOptions, unauthorizedResponse, forbiddenResponse } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { logAction } from '@/lib/logger';
-import { getIp } from '@/lib/ratelimit';
+import { getIp } from '@/lib/rateLimit';
 import { getPlanById } from '@/lib/constants/plans';
 
 export async function GET(request: Request) {
-  const session = getSessionFromRequest(request);
-  if (!session) return unauthorizedResponse();
-  if (session.role !== 'ADMIN') return forbiddenResponse();
+  const session = await getServerSession(authOptions);
+  if (!session?.user) return unauthorizedResponse();
+  if (session.user.role !== 'ADMIN') return forbiddenResponse();
 
   try {
     const url = new URL(request.url);
@@ -18,7 +19,7 @@ export async function GET(request: Request) {
     const skip = (page - 1) * limit;
 
     const requests = await prisma.paymentRequest.findMany({
-      where: { status },
+      where: { status: status as any },
       include: {
         user: {
           select: {
@@ -32,7 +33,7 @@ export async function GET(request: Request) {
       take: limit,
     });
 
-    const total = await prisma.paymentRequest.count({ where: { status } });
+    const total = await prisma.paymentRequest.count({ where: { status: status as any } });
 
     return NextResponse.json({ requests, total, page, limit }, { status: 200 });
   } catch (error) {
@@ -42,9 +43,9 @@ export async function GET(request: Request) {
 }
 
 export async function PATCH(request: Request) {
-  const session = getSessionFromRequest(request);
-  if (!session) return unauthorizedResponse();
-  if (session.role !== 'ADMIN') return forbiddenResponse();
+  const session = await getServerSession(authOptions);
+  if (!session?.user) return unauthorizedResponse();
+  if (session.user.role !== 'ADMIN') return forbiddenResponse();
 
   const ip = getIp(request);
 
@@ -66,14 +67,12 @@ export async function PATCH(request: Request) {
     }
 
     if (action === 'approve') {
-      // Approve: update payment + create subscription
       const plan = getPlanById(paymentReq.plan);
       const durationMonths = plan ? plan.months : 1;
       
       const expiresAt = new Date();
       expiresAt.setMonth(expiresAt.getMonth() + durationMonths);
 
-      // Expire old active subscriptions
       await prisma.subscription.updateMany({
         where: { userId: paymentReq.userId, status: 'active' },
         data: { status: 'superseded' },
@@ -82,7 +81,7 @@ export async function PATCH(request: Request) {
       await prisma.$transaction([
         prisma.paymentRequest.update({
           where: { id },
-          data: { status: 'APPROVED', adminId: session.userId },
+          data: { status: 'APPROVED', adminId: session.user.id },
         }),
         prisma.subscription.create({
           data: {
@@ -102,23 +101,21 @@ export async function PATCH(request: Request) {
         }),
       ]);
 
-      await logAction({
-        userId: session.userId,
+      logAction({
+        action: 'ADMIN_PAYMENT_APPROVE',
+        userId: session.user.id,
         ip,
-        action: 'ADMIN_ACTION',
-        status: 'SUCCESS',
-        details: `Approved payment request ${id} for user ${paymentReq.userId} (${paymentReq.plan}) for ${durationMonths} months`,
+        details: `Approved ${paymentReq.plan} for user ${paymentReq.userId} (Request: ${id})`
       });
 
       return NextResponse.json({ message: 'Payment approved and subscription activated.' }, { status: 200 });
     } else {
-      // Reject
       await prisma.paymentRequest.update({
         where: { id },
         data: {
           status: 'REJECTED',
           rejectionReason: rejectionReason || 'Payment could not be verified.',
-          adminId: session.userId,
+          adminId: session.user.id,
         },
       });
 
@@ -131,12 +128,11 @@ export async function PATCH(request: Request) {
         },
       });
 
-      await logAction({
-        userId: session.userId,
+      logAction({
+        action: 'ADMIN_PAYMENT_REJECT',
+        userId: session.user.id,
         ip,
-        action: 'ADMIN_ACTION',
-        status: 'SUCCESS',
-        details: `Rejected payment request ${id} for user ${paymentReq.userId}. Reason: ${rejectionReason}`,
+        details: `Rejected payment for user ${paymentReq.userId} (Request: ${id}). Reason: ${rejectionReason}`
       });
 
       return NextResponse.json({ message: 'Payment rejected.' }, { status: 200 });

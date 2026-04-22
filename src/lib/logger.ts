@@ -38,6 +38,33 @@ export const logger = {
 };
 
 /**
+ * Standard logAction for audit trails
+ */
+export function logAction(data: {
+  userId?: string;
+  ip?: string;
+  action: string;
+  status?: string;
+  details?: string;
+}) {
+  logger.info(`ACTION: ${data.action}`, data);
+}
+
+/**
+ * Standard logError for production monitoring
+ */
+export function logError(data: {
+  message: string;
+  error: any;
+  userId?: string;
+  requestId?: string;
+  context?: Record<string, any>;
+}) {
+  const { message, error, ...rest } = data;
+  logger.error(message, error, rest);
+}
+
+/**
  * Generates a unique Request ID for traceability
  */
 export function generateRequestId(): string {

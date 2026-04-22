@@ -9,13 +9,24 @@ import { useSession } from 'next-auth/react';
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
   const { openUpgradeModal } = useModals();
+  
   const [profile, setProfile] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<'incoming' | 'sent' | 'accepted'>('incoming');
   const [interests, setInterests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState<string | null>(null);
+
+  const stats = { interests: 12, views: 48, matches: 3 };
+  const suggestions = [
+    { id: '1', name: 'Ananya S.', age: 26, location: 'Mumbai', profession: 'Interior Designer', photo: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Ananya' },
+    { id: '2', name: 'Rohan K.', age: 29, location: 'Pune', profession: 'Software Engineer', photo: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Rohan' },
+  ];
+  const activities = [
+    { id: '1', text: 'Someone from New Delhi viewed your profile', time: '2h ago' },
+    { id: '2', text: 'New match suggestion based on your career preference', time: '5h ago' },
+  ];
 
   const fetchDashboardData = async () => {
     try {
@@ -33,17 +44,17 @@ export default function DashboardPage() {
     setLoading(true);
     try {
       let type = 'received';
-      let status = 'PENDING';
+      let statusParam = 'PENDING';
       
       if (activeTab === 'sent') {
         type = 'sent';
-        status = 'PENDING';
+        statusParam = 'PENDING';
       } else if (activeTab === 'accepted') {
-        type = 'received'; // Combined for matches in real app, but following prompt
-        status = 'ACCEPTED';
+        type = 'received'; 
+        statusParam = 'ACCEPTED';
       }
 
-      const res = await fetch(`/api/interests?type=${type}&status=${status}`);
+      const res = await fetch(`/api/interests?type=${type}&status=${statusParam}`);
       if (res.ok) {
         const data = await res.json();
         setInterests(data);
@@ -54,7 +65,6 @@ export default function DashboardPage() {
       setLoading(false);
     }
   };
-
 
   useEffect(() => {
     fetchDashboardData();
@@ -74,11 +84,7 @@ export default function DashboardPage() {
       });
       
       if (res.ok) {
-        // Remove from list or update
         setInterests(prev => prev.filter(i => i.id !== interestId));
-        if (action === 'ACCEPT') {
-          const data = await res.json();
-        }
       }
     } catch (err) {
       console.error("Interest response error:", err);
@@ -87,282 +93,209 @@ export default function DashboardPage() {
     }
   };
 
-  const timeAgo = (date: string) => {
-    const seconds = Math.floor((new Date().getTime() - new Date(date).getTime()) / 1000);
-    let interval = seconds / 31536000;
-    if (interval > 1) return Math.floor(interval) + " years ago";
-    interval = seconds / 2592000;
-    if (interval > 1) return Math.floor(interval) + " months ago";
-    interval = seconds / 86400;
-    if (interval > 1) return Math.floor(interval) + " days ago";
-    interval = seconds / 3600;
-    if (interval > 1) return Math.floor(interval) + " hours ago";
-    interval = seconds / 60;
-    if (interval > 1) return Math.floor(interval) + " minutes ago";
-    return Math.floor(seconds) + " seconds ago";
-  };
-
-  const userPlan = (profile?.plan || 'FREE').toUpperCase();
-  const isPremium = userPlan !== 'FREE';
+  const userImage = profile?.profilePhoto || profile?.image || session?.user?.image;
+  const rawName = profile?.fullName || profile?.name || session?.user?.name || 'User';
+  const userName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
+  const userProfession = profile?.profession;
+  const userLocation = profile?.location || 'India';
+  const identityLine = userProfession ? `${userProfession} • ${userLocation}` : `Based in ${userLocation}`;
 
   return (
-    <div className="min-h-screen bg-[#FAF9F6]">
+    <div className="min-h-screen bg-[#fdf8f8] selection:bg-rose-100 transition-all duration-500">
       <DashNav />
       
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 pb-32">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 pb-32">
         
-        {/* Welcome Header */}
-        <div className="flex items-center justify-between mb-10">
-          <div>
-            <h1 className="font-headline text-3xl font-black text-stone-900 leading-tight">
-              Namaste, <span className="text-primary">{profile?.name?.split(' ')[0] || 'User'}</span>
-            </h1>
-            <p className="text-stone-500 font-medium text-sm mt-1">Welcome back to your matrimonial dashboard.</p>
-          </div>
-          <div className="hidden sm:block">
-            <Link href="/profile" className="flex items-center gap-2 bg-white border border-stone-200 px-4 py-2 rounded-2xl hover:bg-stone-50 transition-all shadow-sm">
-              <span className="material-symbols-outlined text-stone-400">edit_square</span>
-              <span className="text-sm font-bold text-stone-600">Edit Profile</span>
-            </Link>
-          </div>
-        </div>
-
-        {/* Welcome Card for Incomplete Profiles */}
-        {status === 'authenticated' && session?.user?.isProfileComplete === false && (
-          <div className="mb-10 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border border-primary/20 rounded-[2.5rem] p-8 md:p-10 relative overflow-hidden group">
-            <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
-              <div className="text-center md:text-left">
-                <h2 className="font-headline text-2xl md:text-3xl font-black text-stone-900 mb-2">
-                  Welcome to Bhartiya Rishtey ❤️
-                </h2>
-                <p className="text-stone-600 font-medium max-w-lg">
-                  Please complete your profile to find your perfect match and unlock all features of the platform.
-                </p>
+        {/* REFINED GREETING SECTION */}
+        <section className="mb-10 bg-white border border-rose-50 p-6 rounded-[2rem] shadow-sm flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="flex items-center gap-5 text-center md:text-left flex-col md:flex-row w-full md:w-auto">
+            {/* Identity Badge */}
+            <div className="relative shrink-0">
+              <div className="w-20 h-20 md:w-24 md:h-24 rounded-[1.5rem] border-2 border-white shadow-xl overflow-hidden bg-rose-50 flex items-center justify-center ring-2 ring-rose-100/50">
+                {userImage ? (
+                  <img src={userImage} alt={userName} className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-3xl font-black text-rose-400">{userName[0]}</span>
+                )}
               </div>
-              <Link 
-                href="/profile" 
-                className="bg-primary text-white px-8 py-4 rounded-2xl text-sm font-black shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-2 shrink-0"
-              >
-                Complete Profile
-                <span className="material-symbols-outlined text-lg">arrow_forward</span>
-              </Link>
+              <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 border-4 border-white rounded-full flex items-center justify-center shadow-sm">
+                 <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
+              </div>
             </div>
-            {/* Decorative background icon */}
-            <span className="absolute -right-4 -bottom-4 material-symbols-outlined text-9xl text-primary/5 rotate-12 pointer-events-none group-hover:scale-110 transition-transform">favorite</span>
-          </div>
-        )}
-        <div className="bg-white rounded-[2.5rem] border border-stone-100 shadow-xl shadow-stone-200/50 overflow-hidden">
-          
-          {/* Tabs */}
-          <div className="flex border-b border-stone-100 bg-stone-50/50">
-            {[
-              { id: 'incoming', label: 'Incoming', icon: 'inbox_customize' },
-              { id: 'sent', label: 'Sent Interests', icon: 'outbox' },
-              { id: 'accepted', label: 'Matches', icon: 'handshake' },
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id as any)}
-                className={`flex-1 flex items-center justify-center gap-2 py-5 text-xs font-bold uppercase tracking-widest transition-all border-b-2 ${
-                  activeTab === tab.id 
-                    ? 'border-primary text-primary bg-white' 
-                    : 'border-transparent text-stone-400 hover:text-stone-600 hover:bg-stone-100/50'
-                }`}
-              >
-                <span className="material-symbols-outlined text-lg">{tab.icon}</span>
-                {tab.label}
-              </button>
-            ))}
+            
+            <div>
+              <h1 className="text-2xl font-bold text-stone-900 leading-tight mb-1">
+                Hello, {userName.split(' ')[0]} 👋
+              </h1>
+              <p className="text-sm font-medium text-stone-500">{identityLine}</p>
+              <p className="text-[11px] text-rose-500 mt-2 font-bold uppercase tracking-[0.2em] opacity-80 flex items-center justify-center md:justify-start gap-1.5">
+                <span className="material-symbols-outlined text-xs">favorite</span>
+                Let’s find your perfect match
+              </p>
+            </div>
           </div>
 
-          <div className="p-6 md:p-8">
-            {loading ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {[1, 2, 3].map(i => (
-                  <div key={i} className="bg-stone-50 rounded-3xl h-48 animate-pulse border border-stone-100" />
-                ))}
+          <Link href="/profile" className="px-10 py-3.5 bg-rose-600 text-white rounded-full text-xs font-black uppercase tracking-widest shadow-lg shadow-rose-200 hover:bg-rose-700 hover:-translate-y-0.5 transition-all">
+            Edit Profile
+          </Link>
+        </section>
+
+        {/* STATS GRID */}
+        <section className="mb-10 grid grid-cols-1 sm:grid-cols-3 gap-6">
+          {[
+            { label: 'New Interests', value: stats.interests, icon: 'favorite', color: 'text-rose-600', bg: 'bg-rose-50' },
+            { label: 'Profile Views', value: stats.views, icon: 'visibility', color: 'text-amber-500', bg: 'bg-amber-50' },
+            { label: 'Today Matches', value: stats.matches, icon: 'celebration', color: 'text-stone-500', bg: 'bg-stone-50' },
+          ].map((stat, i) => (
+            <div key={i} className="bg-white border border-stone-50 p-5 rounded-[1.5rem] flex items-center gap-5 shadow-sm hover:shadow-md transition-all">
+              <div className={`w-12 h-12 rounded-2xl ${stat.bg} ${stat.color} flex items-center justify-center shrink-0`}>
+                <span className="material-symbols-outlined text-2xl">{stat.icon}</span>
               </div>
-            ) : interests.length === 0 ? (
-              <div className="text-center py-20 bg-stone-50/50 rounded-[2rem] border border-dashed border-stone-200">
-                <span className="material-symbols-outlined text-6xl text-stone-200 mb-4">
-                  {activeTab === 'incoming' ? 'favorite_border' : activeTab === 'sent' ? 'near_me' : 'group'}
-                </span>
-                <h3 className="text-lg font-bold text-stone-700">No {activeTab} interests yet</h3>
-                <p className="text-sm text-stone-400 mt-2 max-w-xs mx-auto">
-                  {activeTab === 'incoming' ? "Interests from other members will appear here." : "Start exploring to find someone special!"}
-                </p>
-                <Link href="/search" className="mt-6 inline-block bg-primary text-white px-8 py-3 rounded-2xl text-sm font-bold shadow-lg shadow-primary/20">
-                  Explore Profiles
+              <div>
+                <p className="text-2xl font-black text-stone-900 leading-none">{stat.value}</p>
+                <p className="text-[10px] font-bold text-stone-400 uppercase tracking-widest mt-2">{stat.label}</p>
+              </div>
+            </div>
+          ))}
+        </section>
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+          
+          <div className="lg:col-span-8 space-y-12">
+            
+            {/* RECOMMENDATIONS */}
+            <section>
+              <div className="flex items-center justify-between mb-8">
+                <h3 className="text-lg font-black text-stone-900 flex items-center gap-2">
+                   <div className="w-1.5 h-6 bg-rose-600 rounded-full" />
+                   Recommended for You
+                </h3>
+                <Link href="/matches/suggested" className="flex items-center gap-2 group">
+                  <span className="text-[10px] font-black text-stone-400 group-hover:text-rose-600 transition-colors uppercase tracking-widest">See All</span>
+                  <div className="bg-rose-100 text-rose-600 text-[10px] font-black px-2 py-0.5 rounded-full shadow-sm">25+</div>
                 </Link>
               </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {interests.map((item) => (
-                  <div key={item.id} className="group bg-white rounded-3xl border border-stone-100 shadow-sm hover:shadow-md transition-all overflow-hidden">
-                    <div className="p-5">
-                      <div className="flex items-center gap-4 mb-5">
-                        <div className="relative w-16 h-16 rounded-2xl overflow-hidden bg-stone-100">
-                          <img 
-                            src={item.otherUser.photo || `https://api.dicebear.com/7.x/avataaars/svg?seed=${item.otherUser.id}`} 
-                            alt={item.otherUser.name}
-                            className={`w-full h-full object-cover transition-all ${!isPremium && activeTab === 'incoming' ? 'blur-md grayscale' : ''}`}
-                          />
-                          {!isPremium && activeTab === 'incoming' && (
-                            <div className="absolute inset-0 bg-black/10 flex items-center justify-center">
-                              <span className="material-symbols-outlined text-white text-lg">lock</span>
-                            </div>
-                          )}
-                        </div>
-                        <div className="flex-1">
-                          <h4 className={`font-headline text-lg font-bold text-stone-900 ${!isPremium && activeTab === 'incoming' ? 'blur-[3px]' : ''}`}>
-                            {item.otherUser.name}{item.otherUser.age && `, ${item.otherUser.age}`}
-                          </h4>
-                          <p className="text-xs text-stone-500 flex items-center gap-1 mt-0.5">
-                            <span className="material-symbols-outlined text-sm">location_on</span>
-                            {item.otherUser.city}
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <span className="text-[10px] font-bold text-stone-300 uppercase block">{timeAgo(item.createdAt)}</span>
-                        </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {suggestions.map((s) => (
+                  <div key={s.id} className="bg-white rounded-[2.5rem] p-6 border border-rose-50 shadow-sm hover:shadow-xl hover:shadow-rose-100/10 transition-all group overflow-hidden relative">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-rose-50 rounded-full blur-[60px] -mr-16 -mt-16 opacity-30" />
+                    <div className="flex items-center gap-6 mb-8 relative z-10">
+                      <div className="w-20 h-20 rounded-[1.5rem] overflow-hidden shadow-lg bg-stone-50 shrink-0 group-hover:scale-105 transition-transform duration-500">
+                        <img src={s.photo} alt={s.name} className="w-full h-full object-cover" />
                       </div>
-
-                      {/* Status & Actions */}
-                      <div className="flex flex-col gap-3">
-                        {activeTab === 'incoming' ? (
-                          <div className="flex gap-2">
-                            <button 
-                              onClick={() => handleInterestResponse(item.id, 'ACCEPT')}
-                              disabled={processingId === item.id}
-                              className="flex-1 bg-primary text-white py-2.5 rounded-xl text-[11px] font-bold shadow-md shadow-primary/10 hover:bg-primary-dark transition-all disabled:opacity-50"
-                            >
-                              Accept Interest
-                            </button>
-                            <button 
-                              onClick={() => handleInterestResponse(item.id, 'REJECT')}
-                              disabled={processingId === item.id}
-                              className="flex-1 bg-stone-100 text-stone-600 py-2.5 rounded-xl text-[11px] font-bold hover:bg-stone-200 transition-all disabled:opacity-50"
-                            >
-                              Decline
-                            </button>
-                          </div>
-                        ) : activeTab === 'sent' ? (
-                          <div className="flex items-center justify-between px-1">
-                            <span className={`text-[10px] font-black uppercase tracking-widest ${
-                              item.status === 'ACCEPTED' ? 'text-green-500' : item.status === 'REJECTED' ? 'text-stone-400' : 'text-gold'
-                            }`}>
-                              Status: {item.status}
-                            </span>
-                            <Link href={`/profile/${item.otherUser.id}`} className="text-[10px] font-bold text-primary hover:underline">
-                              View Profile
-                            </Link>
-                          </div>
-                        ) : (
-                          <div className="flex gap-2">
-                            <Link 
-                              href={`/chat`} 
-                              className="flex-1 bg-stone-900 text-white py-2.5 rounded-xl text-[11px] font-bold text-center hover:bg-black transition-all"
-                            >
-                              Start Messaging
-                            </Link>
-                            <Link 
-                              href={`/profile/${item.otherUser.id}`}
-                              className="flex-1 border border-stone-200 text-stone-600 py-2.5 rounded-xl text-[11px] font-bold text-center hover:bg-stone-50 transition-all"
-                            >
-                              View Profile
-                            </Link>
-                          </div>
-                        )}
+                      <div className="truncate">
+                        <h4 className="text-xl font-bold text-stone-900 truncate">{s.name}, {s.age}</h4>
+                        <p className="text-sm text-stone-500 truncate">{s.profession}</p>
+                        <p className="text-[10px] font-black text-rose-400 mt-1 uppercase tracking-widest truncate">{s.location}</p>
                       </div>
+                    </div>
+                    <div className="flex gap-3 relative z-10">
+                      <Link href={`/profile/${s.id}`} className="flex-1 py-3.5 bg-stone-50 text-stone-600 rounded-2xl text-[10px] font-black uppercase tracking-widest text-center hover:bg-stone-100 transition-all">Profile</Link>
+                      <button className="flex-[1.5] py-3.5 bg-rose-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-rose-700 transition-all shadow-md shadow-rose-100">Send Interest</button>
                     </div>
                   </div>
                 ))}
               </div>
-            )}
-          </div>
+            </section>
 
-          {/* Premium Upsell for Free Users in Incoming Tab */}
-          {!isPremium && activeTab === 'incoming' && interests.length > 0 && (
-            <div className="px-8 py-6 bg-primary/5 border-t border-primary/10 flex flex-col md:flex-row items-center justify-between gap-4">
-              <div className="flex items-center gap-3 text-left">
-                <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center shadow-sm text-primary shrink-0">
-                  <span className="material-symbols-outlined text-2xl">visibility_off</span>
-                </div>
-                <div>
-                  <p className="text-sm text-stone-900 font-black tracking-tight">{interests.length} people are interested in you</p>
-                  <p className="text-xs text-stone-500 font-medium">Upgrade to Prime to reveal their profiles and start chatting.</p>
-                </div>
+            {/* TABBED INTERACTION */}
+            <section>
+              <div className="bg-white p-2 rounded-full border border-stone-100 shadow-sm mb-10 flex gap-1">
+                {[
+                  { id: 'incoming', label: 'Interests', icon: 'favorite' },
+                  { id: 'sent', label: 'Sent', icon: 'send' },
+                  { id: 'accepted', label: 'Matches', icon: 'handshake' },
+                ].map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id as any)}
+                    className={`flex-1 flex items-center justify-center gap-2 py-4 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all ${
+                      activeTab === tab.id 
+                        ? 'bg-rose-600 text-white shadow-lg shadow-rose-100' 
+                        : 'text-stone-400 hover:text-stone-600 hover:bg-stone-50'
+                    }`}
+                  >
+                    <span className="material-symbols-outlined text-lg">{tab.icon}</span>
+                    <span className="hidden sm:inline">{tab.label}</span>
+                  </button>
+                ))}
               </div>
-              <button 
-                onClick={() => openUpgradeModal('unlimited_interests', 'PRIME')}
-                className="bg-stone-900 text-white px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-stone-900/20 hover:scale-105 transition-all active:scale-95 shrink-0"
-              >
-                Reveal Who
-              </button>
-            </div>
-          )}
-        </div>
 
-        {/* Other Sections (Simplified placeholders for remaining dashboard) */}
-        <div className="grid md:grid-cols-2 gap-8 mt-12">
-          <div className="glass-card p-8 bg-white/60">
-            <h3 className="font-headline text-xl font-bold text-stone-900 mb-4 flex items-center gap-2">
-              <span className="material-symbols-outlined text-primary">analytics</span>
-              Profile Performance
-            </h3>
-            <div className="space-y-4">
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-stone-500">Profile Completion</span>
-                <span className="font-bold text-stone-900">85%</span>
-              </div>
-              <div className="h-2 bg-stone-100 rounded-full overflow-hidden">
-                <div className="h-full bg-primary w-[85%]" />
-              </div>
-              <p className="text-xs text-stone-400">Complete your bio and add more photos to appear in 5x more searches.</p>
-            </div>
-          </div>
-          
-          <div className="glass-card p-8 bg-white/60 relative overflow-hidden group">
-            {!isPremium && (
-              <div 
-                onClick={() => openUpgradeModal('profile_views', 'ROYAL')}
-                className="absolute inset-0 bg-stone-50/40 backdrop-blur-[2px] z-20 flex flex-col items-center justify-center cursor-pointer group-hover:backdrop-blur-[1px] transition-all"
-              >
-                <div className="w-12 h-12 rounded-2xl bg-white shadow-xl flex items-center justify-center text-primary mb-4 group-hover:scale-110 transition-all">
-                  <span className="material-symbols-outlined">visibility_off</span>
-                </div>
-                <p className="text-[10px] font-black text-stone-900 uppercase tracking-widest">See Who Viewed You</p>
-                <p className="text-[9px] text-stone-500 font-bold mt-1 uppercase tracking-tighter">Available in Royal</p>
-              </div>
-            )}
-            <h3 className="font-headline text-xl font-bold text-stone-900 mb-6 flex items-center gap-2">
-              <span className="material-symbols-outlined text-primary">visibility</span>
-              Recent Profile Visitors
-            </h3>
-            <div className="space-y-4 opacity-40">
-              {[1, 2, 3].map(i => (
-                <div key={i} className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-full bg-stone-100" />
-                  <div className="flex-1 space-y-2">
-                    <div className="h-2 bg-stone-100 rounded w-1/3" />
-                    <div className="h-2 bg-stone-100 rounded w-1/4" />
+              <div className="min-h-[300px]">
+                {loading ? (
+                  <div className="bg-white/40 h-40 rounded-[2rem] animate-pulse" />
+                ) : interests.length === 0 ? (
+                  <div className="text-center py-20 bg-white/40 rounded-[3rem] border-2 border-dashed border-rose-50">
+                    <span className="material-symbols-outlined text-4xl text-rose-200 mb-4">favorite_border</span>
+                    <p className="text-[10px] font-black text-stone-400 uppercase tracking-widest">No recent updates</p>
                   </div>
-                </div>
-              ))}
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    {interests.map((item) => (
+                      <div key={item.id} className="bg-white rounded-[2rem] p-6 border border-stone-50 shadow-sm flex items-center gap-5 hover:shadow-lg transition-all group">
+                        <div className="w-14 h-14 rounded-2xl overflow-hidden shrink-0 bg-stone-50 shadow-inner group-hover:scale-105 transition-transform">
+                          <img src={item.otherUser.photo || `https://api.dicebear.com/7.x/avataaars/svg?seed=${item.otherUser.id}`} alt={item.otherUser.name} className="w-full h-full object-cover" />
+                        </div>
+                        <div className="flex-1 truncate">
+                          <h4 className="text-sm font-bold text-stone-900 truncate">{item.otherUser.name}</h4>
+                          <p className="text-[10px] text-stone-500 uppercase tracking-widest">{item.otherUser.city || 'India'}</p>
+                        </div>
+                        <button className="text-[10px] font-black text-rose-600 uppercase tracking-widest hover:underline shrink-0">View Profile</button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </section>
+
+          </div>
+
+          <div className="lg:col-span-4 space-y-10">
+            <div className="bg-amber-50/50 border border-amber-100 p-8 rounded-[3rem] shadow-sm relative overflow-hidden group">
+              <h3 className="text-[10px] font-black text-amber-700 mb-4 flex items-center gap-2 uppercase tracking-widest">
+                <span className="material-symbols-outlined text-xl text-amber-500">auto_awesome</span>
+                Pro Tip
+              </h3>
+              <p className="text-xs text-stone-600 leading-relaxed mb-8 font-medium">
+                Profiles with **at least 3 photos** get **40% more visibility** and faster interest responses.
+              </p>
+              <Link href="/profile" className="block w-full py-4 bg-amber-500 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest text-center hover:bg-amber-600 transition-all shadow-xl shadow-amber-100">Upload Now</Link>
+            </div>
+
+            <div className="bg-white border border-stone-100 p-8 rounded-[3rem] shadow-sm">
+              <h3 className="text-[10px] font-black text-stone-900 mb-8 flex items-center gap-2 uppercase tracking-widest">
+                <div className="w-1 h-4 bg-rose-400 rounded-full" />
+                Live Pulse
+              </h3>
+              <div className="space-y-8">
+                {activities.map((a) => (
+                  <div key={a.id} className="flex gap-5 items-start group">
+                    <div className="w-1.5 h-1.5 rounded-full bg-rose-300 mt-2 shrink-0 group-hover:scale-150 transition-transform" />
+                    <div>
+                      <p className="text-xs text-stone-600 leading-relaxed font-medium group-hover:text-stone-900 transition-colors">{a.text}</p>
+                      <p className="text-[9px] text-stone-300 font-bold uppercase mt-2 tracking-widest">{a.time}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="bg-stone-900 text-white p-10 rounded-[3rem] shadow-2xl relative overflow-hidden group">
+              <div className="relative z-10">
+                <h3 className="text-lg font-black mb-4 flex items-center gap-3 text-rose-500">
+                  <span className="material-symbols-outlined text-2xl">verified</span>
+                  Verified
+                </h3>
+                <p className="text-stone-400 text-xs font-medium leading-relaxed mb-10">
+                  Join the elite group of verified members and build instant trust with matches.
+                </p>
+                <button className="w-full py-5 bg-rose-600 text-white rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest shadow-xl shadow-rose-900/40 hover:bg-rose-500 transition-all">Get Verified</button>
+              </div>
             </div>
           </div>
-          
-          <div className="glass-card p-8 bg-white/60">
-            <h3 className="font-headline text-xl font-bold text-stone-900 mb-4 flex items-center gap-2">
-              <span className="material-symbols-outlined text-primary">verified_user</span>
-              Trust & Safety
-            </h3>
-            <p className="text-sm text-stone-500 mb-4 font-medium leading-relaxed">Verify your account with a valid ID to get a verified badge and increase trust with other members.</p>
-            <button className="text-xs font-black text-primary hover:underline uppercase tracking-[0.2em]">Get Verified Now →</button>
-          </div>
         </div>
-
-      </div>
+      </main>
     </div>
   );
 }

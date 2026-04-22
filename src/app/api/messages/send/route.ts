@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getUserIdFromRequest, unauthorizedResponse } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { MessageType } from '@prisma/client';
 import { validateConversation } from '@/lib/chatValidation';
 import { createNotification } from '@/lib/notifications';
 import { getReportStatus } from '@/lib/report';
@@ -16,9 +17,9 @@ export async function POST(request: Request) {
     // 0. Check if current user is restricted
     const { isRestricted } = await getReportStatus(userId);
     if (isRestricted) {
-      return NextResponse.json({ 
+      return NextResponse.json({
         error: "Your account is temporarily restricted from sending messages due to multiple community reports.",
-        isRestricted: true 
+        isRestricted: true
       }, { status: 403 });
     }
 
@@ -37,12 +38,12 @@ export async function POST(request: Request) {
     // 3. Plan Checks
     const userPlan = (currentUser.plan || 'FREE').toUpperCase();
     const limits = getPlanLimits(userPlan);
-    
+
     // Message limit check
     const sentCount = await prisma.message.count({
       where: { conversationId, senderId: userId }
     });
-    
+
     if (sentCount >= limits.messageLimit) {
       return NextResponse.json(
         getUpgradeError("unlimited_messages", "PRIME"),
@@ -64,15 +65,15 @@ export async function POST(request: Request) {
     const [newMessage] = await prisma.$transaction([
       prisma.message.create({
         data: {
-          conversationId,
+          conversationId: conversationId as string,
           senderId: userId,
-          receiverId: otherUserId,
-          content,
-          type
+          receiverId: otherUserId as string,
+          content: content as string,
+          type: type as any
         }
       }),
       prisma.conversation.update({
-        where: { id: conversationId },
+        where: { id: conversationId as string },
         data: { lastMessageAt: new Date() }
       })
     ]);
