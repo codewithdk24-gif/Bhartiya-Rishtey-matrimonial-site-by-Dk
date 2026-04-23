@@ -23,12 +23,13 @@ export async function GET() {
       return NextResponse.json({ error: "Profile incomplete" }, { status: 400 });
     }
 
-    const targetGender = currentUser.profile.gender === "Male" ? "Female" : "Male";
+    const isMale = currentUser.profile.gender === "Male" || currentUser.profile.gender === "A Groom";
+    const targetGenders = isMale ? ["Female", "A Bride"] : ["Male", "A Groom"];
 
     // 2. Fetch 6 recommended profiles
     const profiles = await prisma.profile.findMany({
       where: {
-        gender: targetGender,
+        gender: { in: targetGenders },
         userId: { not: userId },
         // Simple logic: Recently active or new
       },
