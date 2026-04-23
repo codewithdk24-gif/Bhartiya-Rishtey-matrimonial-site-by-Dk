@@ -68,41 +68,48 @@ export async function GET() {
       orderBy: { lastMessageAt: "desc" },
     });
 
-    const formatted = conversations.map(conv => {
-      const otherUser = conv.user1Id === userId ? conv.user2 : conv.user1;
-      const lastMsg = conv.messages[0];
-      const unreadCount = conv._count.messages;
+    const formatted = conversations
+      .map(conv => {
+        const otherUser = conv.user1Id === userId ? conv.user2 : conv.user1;
+        const lastMsg = conv.messages[0];
+        const unreadCount = conv._count.messages;
 
-      // Resolve photo
-      let photo = otherUser.profile?.profilePhoto || null;
-      if (!photo && otherUser.profile?.photos) {
-        try {
-          const parsed = typeof otherUser.profile.photos === "string"
-            ? JSON.parse(otherUser.profile.photos)
-            : otherUser.profile.photos;
-          if (Array.isArray(parsed) && parsed.length > 0) photo = parsed[0];
-        } catch (_) {}
-      }
+        // Resolve photo
+        let photo = otherUser.profile?.profilePhoto || null;
+        if (!photo && otherUser.profile?.photos) {
+          try {
+            const parsed = typeof otherUser.profile.photos === "string"
+              ? JSON.parse(otherUser.profile.photos)
+              : otherUser.profile.photos;
+            if (Array.isArray(parsed) && parsed.length > 0) photo = parsed[0];
+          } catch (_) {}
+        }
 
-      return {
-        id: conv.id,
-        otherUser: {
-          id: otherUser.id,
-          name: otherUser.profile?.fullName || otherUser.name,
-          photo,
-          isOnline: isOnline(otherUser.lastActive),
-          lastActiveText: getRelativeTime(otherUser.lastActive),
-        },
-        lastMessage: lastMsg ? {
-          content: lastMsg.content,
-          isMine: lastMsg.senderId === userId,
-          time: getRelativeTime(lastMsg.createdAt),
-          rawTime: lastMsg.createdAt,
-        } : null,
-        lastMessageAt: conv.lastMessageAt,
-        unreadCount,
-      };
-    });
+        const sortKey = lastMsg?.createdAt ? new Date(lastMsg.createdAt).getTime() : new Date(conv.createdAt).getTime();
+
+        return {
+          id: conv.id,
+          sortKey,
+          otherUser: {
+            id: otherUser.id,
+            name: otherUser.profile?.fullName || otherUser.name,
+            photo,
+            isOnline: isOnline(otherUser.lastActive),
+            lastActiveText: getRelativeTime(otherUser.lastActive),
+          },
+          lastMessage: lastMsg ? {
+            content: lastMsg.content,
+            isMine: lastMsg.senderId === userId,
+            time: getRelativeTime(lastMsg.createdAt),
+            rawTime: lastMsg.createdAt,
+          } : null,
+          lastMessageAt: conv.lastMessageAt,
+          unreadCount,
+        };
+      })
+      // Sort by latest message descending
+      .sort((a, b) => b.sortKey - a.sortKey)
+      .map(({ sortKey: _, ...rest }) => rest);
 
     return NextResponse.json(formatted);
 
