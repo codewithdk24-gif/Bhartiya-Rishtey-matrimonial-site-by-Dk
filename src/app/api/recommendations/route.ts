@@ -51,7 +51,10 @@ export async function GET() {
             age,
             location: p.city || p.state || 'India',
             profession: p.profession || 'Professional',
-            photo: p.profilePhoto || (p.photos ? JSON.parse(p.photos)[0] : null) || `https://api.dicebear.com/7.x/avataaars/svg?seed=${p.fullName}`,
+            profile: {
+                profilePhoto: p.profilePhoto,
+                photos: p.photos
+            },
             isVerified: p.user.isVerified
         };
     });

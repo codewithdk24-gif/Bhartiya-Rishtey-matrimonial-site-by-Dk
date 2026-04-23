@@ -22,8 +22,8 @@ export async function GET() {
         ]
       },
       include: {
-        fromUser: { select: { id: true, name: true, profile: { select: { profilePhoto: true } } } },
-        toUser: { select: { id: true, name: true, profile: { select: { profilePhoto: true } } } }
+        fromUser: { select: { id: true, name: true, profile: { select: { profilePhoto: true, photos: true } } } },
+        toUser: { select: { id: true, name: true, profile: { select: { profilePhoto: true, photos: true } } } }
       },
       orderBy: { updatedAt: "desc" },
       take: 10
@@ -33,7 +33,7 @@ export async function GET() {
     const views = await prisma.profileView.findMany({
       where: { viewedId: userId },
       include: {
-        viewer: { select: { id: true, name: true, profile: { select: { profilePhoto: true, city: true } } } }
+        viewer: { select: { id: true, name: true, profile: { select: { profilePhoto: true, photos: true, city: true } } } }
       },
       orderBy: { createdAt: "desc" },
       take: 10
@@ -64,7 +64,7 @@ export async function GET() {
           text,
           userId: otherUser.id,
           userName: otherUser.name,
-          userPhoto: otherUser.profile?.profilePhoto,
+          profile: otherUser.profile,
           timestamp: i.updatedAt
         });
       }
@@ -77,7 +77,7 @@ export async function GET() {
         text: `${v.viewer.name} from ${v.viewer.profile?.city || 'India'} viewed your profile`,
         userId: v.viewer.id,
         userName: v.viewer.name,
-        userPhoto: v.viewer.profile?.profilePhoto,
+        profile: v.viewer.profile,
         timestamp: v.createdAt
       });
     });

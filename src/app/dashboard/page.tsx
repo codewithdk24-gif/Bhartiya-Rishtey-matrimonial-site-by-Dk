@@ -6,6 +6,7 @@ import DashNav from '@/components/DashNav';
 import { useRouter } from 'next/navigation';
 import { useModals } from '@/context/ModalContext';
 import { useSession } from 'next-auth/react';
+import { getProfileImage } from '@/lib/image';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -58,7 +59,10 @@ export default function DashboardPage() {
   };
 
   const userName = summary?.userName || session?.user?.name || 'User';
+  const resolvedUserImage = getProfileImage(summary?.profile) || session?.user?.image;
   const completionPct = summary?.completionPct || 0;
+
+  console.log("User profile:", summary?.profile);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-rose-50/50 via-white to-rose-50/30 selection:bg-rose-100 transition-all duration-500">
@@ -73,10 +77,10 @@ export default function DashboardPage() {
             
             <div className="flex items-center gap-6 relative z-10 w-full md:w-auto">
               <div className="w-24 h-24 rounded-[2rem] border-4 border-white shadow-2xl overflow-hidden bg-rose-100 flex items-center justify-center ring-4 ring-rose-50 flex-shrink-0">
-                {session?.user?.image ? (
-                  <img src={session.user.image} alt={userName} className="w-full h-full object-cover" />
+                {resolvedUserImage ? (
+                  <img src={resolvedUserImage} alt={userName} className="w-full h-full object-cover" />
                 ) : (
-                  <span className="text-4xl font-black text-rose-300">{userName[0]}</span>
+                  <img src="/default-avatar.png" alt={userName} className="w-full h-full object-cover opacity-50" />
                 )}
               </div>
               <div>
@@ -168,12 +172,10 @@ export default function DashboardPage() {
                     <div key={p.id} className="bg-white rounded-[2.5rem] p-6 border border-rose-50 shadow-sm hover:shadow-xl transition-all group overflow-hidden relative">
                       <div className="flex items-center gap-6 mb-8 relative z-10">
                         <div className="w-20 h-20 rounded-[1.5rem] overflow-hidden shadow-xl bg-stone-50 shrink-0 group-hover:rotate-3 transition-transform duration-500">
-                          {p.photo ? (
-                            <img src={p.photo} alt={p.name} className="w-full h-full object-cover" />
+                          {getProfileImage(p.profile) ? (
+                            <img src={getProfileImage(p.profile)} alt={p.name} className="w-full h-full object-cover" />
                           ) : (
-                            <div className="w-full h-full flex items-center justify-center bg-rose-50 text-rose-300">
-                              <span className="material-symbols-outlined text-3xl">person</span>
-                            </div>
+                            <img src="/default-avatar.png" alt={p.name} className="w-full h-full object-cover opacity-50" />
                           )}
                         </div>
                         <div className="truncate">
@@ -222,12 +224,10 @@ export default function DashboardPage() {
                     {activityFeed.map((activity) => (
                       <Link key={activity.id} href={activity.type === 'interest_accepted' ? `/chat` : `/profile/${activity.userId}`} className="flex items-center gap-5 p-6 hover:bg-stone-50 transition-all group">
                         <div className="w-12 h-12 rounded-xl overflow-hidden bg-stone-100 shrink-0 shadow-sm">
-                           {activity.userPhoto ? (
-                             <img src={activity.userPhoto} alt={activity.userName} className="w-full h-full object-cover" />
+                           {getProfileImage(activity.profile) ? (
+                             <img src={getProfileImage(activity.profile)} alt={activity.userName} className="w-full h-full object-cover" />
                            ) : (
-                             <div className="w-full h-full flex items-center justify-center text-stone-300">
-                               <span className="material-symbols-outlined text-2xl">person</span>
-                             </div>
+                             <img src="/default-avatar.png" alt={activity.userName} className="w-full h-full object-cover opacity-50" />
                            )}
                         </div>
                         <div className="flex-1 min-w-0">

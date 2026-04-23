@@ -61,7 +61,8 @@ export async function GET() {
         profileViews
       },
       completionPct,
-      userName: session.user.name
+      userName: session.user.name,
+      profile: profile
     });
 
   } catch (error) {
