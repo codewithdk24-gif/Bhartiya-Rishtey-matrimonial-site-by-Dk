@@ -114,7 +114,7 @@ export default function DiscoverPage() {
         recentlyActive: filters.recentlyActive.toString(),
       });
 
-      const res = await fetch(`/api/matches?${query.toString()}`);
+      const res = await fetch(`/api/discover?${query.toString()}`);
       const data = await res.json();
 
       if (res.status === 403 && data.error === 'PROFILE_INCOMPLETE') {

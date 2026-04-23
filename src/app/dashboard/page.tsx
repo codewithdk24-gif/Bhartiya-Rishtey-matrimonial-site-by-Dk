@@ -115,7 +115,7 @@ export default function DashboardPage() {
                   <p className="text-white text-lg font-bold leading-tight">
                     {summary.stats.interestsReceived} people are waiting for your response.
                   </p>
-                  <Link href="/interests?tab=received" className="inline-flex items-center gap-2 px-6 py-3 bg-rose-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-rose-700 transition-all shadow-lg shadow-rose-900/40">
+                  <Link href="/matches?tab=requests" className="inline-flex items-center gap-2 px-6 py-3 bg-rose-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-rose-700 transition-all shadow-lg shadow-rose-900/40">
                     Review Requests
                   </Link>
                 </div>
@@ -129,9 +129,9 @@ export default function DashboardPage() {
         {/* QUICK STATS */}
         <section className="mb-12 grid grid-cols-2 lg:grid-cols-4 gap-6">
           {[
-            { label: 'Interests Received', value: summary?.stats?.interestsReceived || 0, icon: 'favorite', color: 'text-rose-600', bg: 'bg-rose-50', link: '/interests?tab=received' },
-            { label: 'Interests Sent', value: summary?.stats?.interestsSent || 0, icon: 'send', color: 'text-blue-600', bg: 'bg-blue-50', link: '/interests?tab=sent' },
-            { label: 'Total Matches', value: summary?.stats?.matches || 0, icon: 'handshake', color: 'text-emerald-600', bg: 'bg-emerald-50', link: '/chat' },
+            { label: 'Interests Received', value: summary?.stats?.interestsReceived || 0, icon: 'favorite', color: 'text-rose-600', bg: 'bg-rose-50', link: '/matches?tab=requests' },
+            { label: 'Interests Sent', value: summary?.stats?.interestsSent || 0, icon: 'send', color: 'text-blue-600', bg: 'bg-blue-50', link: '/matches?tab=sent' },
+            { label: 'Total Matches', value: summary?.stats?.matches || 0, icon: 'handshake', color: 'text-emerald-600', bg: 'bg-emerald-50', link: '/matches?tab=matched' },
             { label: 'Profile Views', value: summary?.stats?.profileViews || 0, icon: 'visibility', color: 'text-amber-500', bg: 'bg-amber-50', link: '/profile/views' },
           ].map((stat, i) => (
             <Link key={i} href={stat.link} className="bg-white border border-rose-50 p-6 rounded-[2rem] shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all group">

@@ -32,6 +32,22 @@ export async function GET(
       return NextResponse.json({ error: "Unauthorized access to this chat" }, { status: 403 });
     }
 
+    const otherUserId = conversation.user1Id === userId ? conversation.user2Id : conversation.user1Id;
+
+    // Verify they have an accepted interest (match)
+    const validMatch = await prisma.interest.findFirst({
+      where: {
+        OR: [
+          { fromUserId: userId, toUserId: otherUserId, status: "ACCEPTED" },
+          { fromUserId: otherUserId, toUserId: userId, status: "ACCEPTED" }
+        ]
+      }
+    });
+
+    if (!validMatch) {
+      return NextResponse.json({ error: "No accepted match found to allow chat" }, { status: 403 });
+    }
+
     const otherUser = conversation.user1Id === userId ? conversation.user2 : conversation.user1;
 
     return NextResponse.json({
