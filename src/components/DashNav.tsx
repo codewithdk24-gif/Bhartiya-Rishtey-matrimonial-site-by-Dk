@@ -35,6 +35,7 @@ export default function DashNav() {
   const navLinks = [
     { href: '/dashboard', icon: 'home', label: 'Home' },
     { href: '/discover', icon: 'local_fire_department', label: 'Discover' },
+    { href: '/interests', icon: 'favorite', label: 'Interests' },
     { href: '/search', icon: 'search', label: 'Search' },
     { href: '/chat', icon: 'chat', label: 'Messages' },
     { href: '/profile', icon: 'person', label: 'Profile' },

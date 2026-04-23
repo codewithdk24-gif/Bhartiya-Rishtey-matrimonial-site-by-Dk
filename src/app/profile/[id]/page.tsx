@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import DashNav from '@/components/DashNav';
 import { useModals } from '@/context/ModalContext';
+import { formatLocation } from '@/lib/location';
 
 export default function ProfileDetailPage() {
   const { id } = useParams();
@@ -19,15 +20,16 @@ export default function ProfileDetailPage() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await fetch(`/api/profile/${id}`);
+        const res = await fetch(`/api/user/${id}`);
         if (res.status === 404) {
-          setError('Profile not found');
+          setError('User not found');
           return;
         }
         if (!res.ok) throw new Error('Failed to load profile');
         
         const data = await res.json();
-        setProfile(data.profile);
+        // Merge user into profile to satisfy existing frontend property access (e.g. profile.user.email)
+        setProfile({ ...data.user.profile, user: data.user });
         setIsMasked(data.isMasked);
       } catch (err: any) {
         setError(err.message);
@@ -50,8 +52,20 @@ export default function ProfileDetailPage() {
     return (
       <div className="min-h-screen bg-[#fdf8f8]">
         <DashNav />
-        <div className="max-w-4xl mx-auto px-4 pt-12 animate-pulse">
-           <div className="h-[600px] bg-white rounded-[3rem] shadow-xl" />
+        <div className="max-w-5xl mx-auto px-4 pt-12 animate-pulse space-y-8">
+           {/* Header Skeleton */}
+           <div className="h-[500px] md:h-[600px] bg-stone-200 rounded-[3rem] shadow-xl" />
+           {/* Content Skeleton */}
+           <div className="bg-white rounded-[3rem] p-12 space-y-12">
+              <div className="space-y-4">
+                 <div className="h-10 w-2/3 bg-stone-100 rounded-xl" />
+                 <div className="h-6 w-1/3 bg-stone-100 rounded-xl" />
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                 <div className="h-48 bg-stone-50 rounded-3xl" />
+                 <div className="h-48 bg-stone-50 rounded-3xl" />
+              </div>
+           </div>
         </div>
       </div>
     );
@@ -65,7 +79,7 @@ export default function ProfileDetailPage() {
            <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl">
              <span className="material-symbols-outlined text-4xl text-rose-300">error</span>
            </div>
-           <h1 className="text-2xl font-black text-stone-900 mb-2">Profile Unavailable</h1>
+           <h1 className="text-2xl font-black text-stone-900 mb-2">User not found</h1>
            <p className="text-sm text-stone-400 mb-8">{error}</p>
            <button onClick={() => router.back()} className="px-8 py-3 bg-rose-600 text-white rounded-full text-xs font-black uppercase tracking-widest shadow-lg shadow-rose-100">Go Back</button>
         </div>
@@ -158,7 +172,7 @@ export default function ProfileDetailPage() {
                       </div>
                       <div className="flex items-center gap-2 text-stone-500 font-bold text-sm">
                          <span className="material-symbols-outlined text-rose-500">location_on</span>
-                         {profile.location}
+                         {formatLocation(profile)}
                       </div>
                       <div className="flex items-center gap-2 text-stone-500 font-bold text-sm">
                          <span className="material-symbols-outlined text-rose-500">church</span>

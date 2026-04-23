@@ -83,7 +83,7 @@ export async function POST(request: Request) {
         fromUserId,
         type: "INTEREST_RECEIVED",
         message: "You have a new interest",
-        link: "/dashboard#incoming",
+        link: "/interests",
       });
 
       return interest;

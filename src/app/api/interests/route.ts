@@ -24,91 +24,72 @@ export async function GET(request: Request) {
 
     const { searchParams } = new URL(request.url);
     
-    const type = searchParams.get("type"); // "received" | "sent"
+    const type = searchParams.get("type"); // "received" | "sent" | null
     const status = searchParams.get("status") as InterestStatus | null;
 
-    if (!type || !["received", "sent"].includes(type)) {
-      return NextResponse.json({ error: "Invalid type parameter" }, { status: 400 });
-    }
-
-    const where: any = {};
-    if (type === "received") {
-      where.toUserId = userId;
-    } else {
-      where.fromUserId = userId;
-    }
-
-    if (status) {
-      where.status = status;
-    }
-
-    const interests = await prisma.interest.findMany({
-      where,
-      include: {
-        fromUser: {
-          select: {
-            id: true,
-            name: true,
-            profile: {
-              select: {
-                city: true,
-                state: true,
-                profilePhoto: true,
-                dateOfBirth: true,
-                religion: true,
-              }
-            }
-          }
-        },
-        toUser: {
-          select: {
-            id: true,
-            name: true,
-            profile: {
-              select: {
-                city: true,
-                state: true,
-                profilePhoto: true,
-                dateOfBirth: true,
-                religion: true,
-              }
-            }
-          }
-        },
-      },
-      orderBy: { createdAt: "desc" },
-    });
-
-    // Format response to simplify UI consumption
-    const formatted = interests.map(interest => {
-      const otherUser = type === "received" ? interest.fromUser : interest.toUser;
-      const profile = otherUser?.profile;
-      
-      let age = null;
-      if (profile?.dateOfBirth) {
-        age = Math.floor((Date.now() - new Date(profile.dateOfBirth).getTime()) / (365.25 * 24 * 60 * 60 * 1000));
+    async function getInterests(interestType: "received" | "sent") {
+      const where: any = {};
+      if (interestType === "received") {
+        where.toUserId = userId;
+      } else {
+        where.fromUserId = userId;
       }
+      if (status) where.status = status;
 
-      // Apply Masking for FREE users on received interests
-      const isMasked = userPlan === "FREE" && type === "received";
+      const interests = await prisma.interest.findMany({
+        where,
+        include: {
+          conversation: { select: { id: true } },
+          fromUser: { select: { id: true, name: true, profile: { select: { city: true, state: true, profilePhoto: true, dateOfBirth: true, religion: true, photos: true, profession: true } } } },
+          toUser: { select: { id: true, name: true, profile: { select: { city: true, state: true, profilePhoto: true, dateOfBirth: true, religion: true, photos: true, profession: true } } } },
+        },
+        orderBy: { createdAt: "desc" },
+      });
 
-      return {
-        id: interest.id,
-        status: interest.status,
-        createdAt: interest.createdAt,
-        otherUser: {
-          id: otherUser?.id,
-          name: isMasked ? "Hidden" : otherUser?.name,
-          city: isMasked ? "Hidden" : profile?.city,
-          state: isMasked ? "Hidden" : profile?.state,
-          photo: isMasked ? null : profile?.profilePhoto,
-          age: isMasked ? null : age,
-          religion: profile?.religion,
+      return interests.map(interest => {
+        const otherUser = interestType === "received" ? interest.fromUser : interest.toUser;
+        const profile = otherUser?.profile;
+        let age = null;
+        if (profile?.dateOfBirth) {
+          age = Math.floor((Date.now() - new Date(profile.dateOfBirth).getTime()) / (365.25 * 24 * 60 * 60 * 1000));
         }
-      };
-    });
 
-    return NextResponse.json(formatted);
+        let userPhoto = profile?.profilePhoto || null;
+        if (!userPhoto && profile?.photos) {
+          try {
+            const parsed = typeof profile.photos === 'string' ? JSON.parse(profile.photos) : profile.photos;
+            if (Array.isArray(parsed) && parsed.length > 0) userPhoto = parsed[0];
+          } catch (e) {
+            console.error("Interest API Photo Parse Error:", e);
+          }
+        }
+
+        return {
+          id: interest.id,
+          status: interest.status,
+          createdAt: interest.createdAt,
+          conversationId: interest.conversation?.id,
+          otherUser: {
+            id: otherUser?.id,
+            name: otherUser?.name || "No Name",
+            city: profile?.city || "India",
+            state: profile?.state || "",
+            photo: userPhoto,
+            age: age,
+            religion: profile?.religion || "",
+            profession: profile?.profession || "Not specified"
+          }
+        };
+      });
+    }
+
+    let sent = await getInterests("sent");
+    let received = await getInterests("received");
+
+    if (type === "received") return NextResponse.json(received);
+    if (type === "sent") return NextResponse.json(sent);
+
+    return NextResponse.json({ sent, received });
 
   } catch (error) {
     logger.error("API_GET_INTERESTS_ERROR", error, { requestId });

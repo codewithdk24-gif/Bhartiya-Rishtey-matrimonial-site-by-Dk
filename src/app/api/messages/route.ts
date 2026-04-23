@@ -56,22 +56,22 @@ export async function POST(request: Request) {
       }
     }
 
-    // 1. Verify match exists and user is part of it
-    const match = await prisma.match.findUnique({
+    // 1. Verify conversation exists and user is part of it
+    const conversation = await prisma.conversation.findUnique({
       where: { id: matchId },
       include: { user1: true, user2: true }
     });
 
-    if (!match || (match.user1Id !== senderId && match.user2Id !== senderId)) {
-      return ErrorResponses.forbidden('Invalid match or unauthorized');
+    if (!conversation || (conversation.user1Id !== senderId && conversation.user2Id !== senderId)) {
+      return ErrorResponses.forbidden('Invalid conversation or unauthorized');
     }
 
-    const receiverId = match.user1Id === senderId ? match.user2Id : match.user1Id;
+    const receiverId = conversation.user1Id === senderId ? conversation.user2Id : conversation.user1Id;
 
     // 2. Save message
     const message = await prisma.message.create({
       data: {
-        matchId: matchId as string,
+        conversationId: matchId as string,
         senderId: senderId as string,
         receiverId: receiverId as string,
         content: content as string,
@@ -104,18 +104,18 @@ export async function GET(request: Request) {
 
     if (!matchId) return ErrorResponses.badRequest('MatchId required');
 
-    // 1. Verify match exists and user is part of it
-    const match = await prisma.match.findUnique({
+    // 1. Verify conversation exists and user is part of it
+    const conversation = await prisma.conversation.findUnique({
       where: { id: matchId }
     });
 
-    if (!match || (match.user1Id !== userId && match.user2Id !== userId)) {
+    if (!conversation || (conversation.user1Id !== userId && conversation.user2Id !== userId)) {
       return ErrorResponses.forbidden();
     }
 
     // 2. Fetch messages
     const messages = await prisma.message.findMany({
-      where: { matchId },
+      where: { conversationId: matchId },
       orderBy: { createdAt: 'asc' },
       take: 100
     });

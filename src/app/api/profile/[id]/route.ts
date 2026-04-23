@@ -1,5 +1,6 @@
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
 import { NextResponse } from 'next/server';
-import { getUserIdFromRequest, unauthorizedResponse } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { isBlocked } from '@/lib/safety';
 import { getPlanLimits } from '@/lib/plans';
@@ -12,8 +13,9 @@ export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const currentUserId = getUserIdFromRequest(request);
-  if (!currentUserId) return unauthorizedResponse();
+  const session = await getServerSession(authOptions);
+  const currentUserId = session?.user?.id;
+  if (!currentUserId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id: targetId } = await params;
 

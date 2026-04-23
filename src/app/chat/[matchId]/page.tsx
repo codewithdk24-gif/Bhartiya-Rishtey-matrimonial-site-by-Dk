@@ -23,22 +23,25 @@ export default function ChatPage() {
 
   const fetchChatData = async () => {
     try {
-      // 1. Fetch Messages
-      const msgRes = await fetch(`/api/messages?matchId=${matchId}`);
-      if (msgRes.status === 403) {
-        router.push('/dashboard');
+      // 1. Fetch Conversation Info first to check access
+      const userRes = await fetch(`/api/conversations/${matchId}`);
+      if (userRes.status === 403 || userRes.status === 404 || userRes.status === 401) {
+        window.location.href = '/chat';
         return;
       }
-      const msgData = await msgRes.json();
-      setMessages(msgData.messages || []);
-
-      // 2. Fetch Other User Details (Using conversation/match endpoint if exists)
-      // For now, let's derive it or fetch from a dedicated endpoint
-      const userRes = await fetch(`/api/conversations/${matchId}`);
-      if (userRes.ok) {
-        const userData = await userRes.json();
+      
+      const userData = await userRes.json();
+      if (userData.otherUser) {
         setOtherUser(userData.otherUser);
       }
+
+      // 2. Fetch Messages
+      const msgRes = await fetch(`/api/messages?matchId=${matchId}`);
+      if (msgRes.ok) {
+        const msgData = await msgRes.json();
+        setMessages(msgData.messages || []);
+      }
+
     } catch (err) {
       console.error('Fetch chat data error:', err);
     } finally {
@@ -93,7 +96,18 @@ export default function ChatPage() {
   }
 
   const otherName = otherUser?.fullName || otherUser?.name || 'Partner';
-  const otherPhoto = otherUser?.photos ? JSON.parse(otherUser.photos)[0] : (otherUser?.image || `https://api.dicebear.com/7.x/avataaars/svg?seed=${otherName}`);
+  
+  let otherPhoto = `https://api.dicebear.com/7.x/avataaars/svg?seed=${otherName}`;
+  if (otherUser?.photo) {
+    otherPhoto = otherUser.photo;
+  } else if (otherUser?.photos) {
+    try {
+      const parsed = typeof otherUser.photos === 'string' ? JSON.parse(otherUser.photos) : otherUser.photos;
+      if (Array.isArray(parsed) && parsed.length > 0) otherPhoto = parsed[0];
+    } catch (e) {
+      console.error("Photo Parse Error:", e);
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-rose-50 via-white to-rose-100 flex flex-col selection:bg-rose-100">
