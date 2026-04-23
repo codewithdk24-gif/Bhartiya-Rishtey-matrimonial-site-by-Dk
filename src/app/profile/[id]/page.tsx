@@ -41,6 +41,19 @@ export default function ProfileDetailPage() {
     if (id) fetchProfile();
   }, [id]);
 
+  useEffect(() => {
+    const logView = async () => {
+      if (id) {
+        try {
+          await fetch(`/api/user/${id}/view`, { method: 'POST' });
+        } catch (e) {
+          console.error("Failed to log view:", e);
+        }
+      }
+    };
+    logView();
+  }, [id]);
+
   const photos = useMemo(() => {
     if (!profile?.photos) return [];
     try {
