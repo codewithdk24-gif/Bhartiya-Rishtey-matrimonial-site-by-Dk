@@ -10,7 +10,10 @@ export function getIp(request: Request) {
 }
 
 // Temporary safe limiter (no blocking — prevents build failure)
-export async function isRateLimited(_key: string): Promise<boolean> {
+export async function isRateLimited(
+  _key: string,
+  _duration?: number
+): Promise<boolean> {
   return false;
 }
 
