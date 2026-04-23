@@ -74,6 +74,7 @@ export const authOptions: NextAuthOptions = {
       console.log(`[NextAuth] JWT Callback - Trigger: ${trigger}, HasUser: ${!!user}`);
       if (user) {
         token.id = user.id;
+        token.image = user.image;
         token.plan = user.plan;
         token.isPremium = user.isPremium;
         token.role = user.role;
@@ -88,6 +89,7 @@ export const authOptions: NextAuthOptions = {
       console.log(`[NextAuth] Session Callback - TokenID: ${token.id}`);
       if (session.user) {
         session.user.id = token.id as string;
+        session.user.image = token.image as string;
         session.user.plan = token.plan as string;
         session.user.isPremium = token.isPremium as boolean;
         session.user.role = token.role as string;
