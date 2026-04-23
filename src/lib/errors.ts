@@ -32,12 +32,33 @@ export function createErrorResponse(
 }
 
 export const ErrorResponses = {
-  unauthorized: () => createErrorResponse("Authentication required", 401, ErrorCode.UNAUTHORIZED),
-  forbidden: (msg = "Access denied") => createErrorResponse(msg, 403, ErrorCode.FORBIDDEN),
-  badRequest: (msg: string, details?: any) => createErrorResponse(msg, 400, ErrorCode.BAD_REQUEST, details),
-  notFound: (msg = "Resource not found") => createErrorResponse(msg, 404, ErrorCode.NOT_FOUND),
-  rateLimited: (msg = "Too many requests") => createErrorResponse(msg, 429, ErrorCode.RATE_LIMITED),
-  internal: (msg = "An unexpected error occurred") => createErrorResponse(msg, 500, ErrorCode.INTERNAL_ERROR),
-  serviceUnavailable: (msg = "Service temporarily unavailable. Please try again later.") => 
-    createErrorResponse(msg, 503, ErrorCode.SERVICE_UNAVAILABLE),
+  unauthorized: (requestId?: string) => 
+    createErrorResponse("Authentication required", 401, ErrorCode.UNAUTHORIZED, null, requestId),
+    
+  forbidden: (msgOrRequestId = "Access denied", requestId?: string) => {
+    if (requestId) return createErrorResponse(msgOrRequestId, 403, ErrorCode.FORBIDDEN, null, requestId);
+    return createErrorResponse(msgOrRequestId, 403, ErrorCode.FORBIDDEN);
+  },
+  
+  badRequest: (msg: string, details?: any, requestId?: string) => 
+    createErrorResponse(msg, 400, ErrorCode.BAD_REQUEST, details, requestId),
+    
+  notFound: (requestIdOrMsg = "Resource not found", msg?: string) => {
+    if (msg) return createErrorResponse(msg, 404, ErrorCode.NOT_FOUND, null, requestIdOrMsg);
+    return createErrorResponse(requestIdOrMsg, 404, ErrorCode.NOT_FOUND);
+  },
+  
+  rateLimited: (msg = "Too many requests", requestId?: string) => 
+    createErrorResponse(msg, 429, ErrorCode.RATE_LIMITED, null, requestId),
+    
+  internal: (msgOrRequestId = "An unexpected error occurred", requestId?: string) => {
+    if (requestId) return createErrorResponse(msgOrRequestId, 500, ErrorCode.INTERNAL_ERROR, null, requestId);
+    return createErrorResponse(msgOrRequestId, 500, ErrorCode.INTERNAL_ERROR);
+  },
+  
+  internalError: (requestId?: string) => 
+    createErrorResponse("An unexpected error occurred", 500, ErrorCode.INTERNAL_ERROR, null, requestId),
+    
+  serviceUnavailable: (msg = "Service temporarily unavailable. Please try again later.", requestId?: string) => 
+    createErrorResponse(msg, 503, ErrorCode.SERVICE_UNAVAILABLE, null, requestId),
 };

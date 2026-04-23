@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, Suspense } from 'react';
 import DashNav from '@/components/DashNav';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -104,6 +104,18 @@ function CompatibilityBar({ score }: { score: number }) {
 }
 
 export default function MatchesPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-[#fdf8f8] flex items-center justify-center">
+        <div className="w-12 h-12 border-4 border-rose-100 border-t-rose-500 rounded-full animate-spin" />
+      </div>
+    }>
+      <MatchesContent />
+    </Suspense>
+  );
+}
+
+function MatchesContent() {
   const searchParams = useSearchParams();
   const defaultTab = (searchParams.get('tab') as 'requests' | 'sent' | 'matched') || 'matched';
 

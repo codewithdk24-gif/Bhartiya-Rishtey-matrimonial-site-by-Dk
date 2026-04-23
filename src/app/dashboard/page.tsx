@@ -35,7 +35,6 @@ export default function DashboardPage() {
     } finally {
       setLoadingFeed(false);
       setLoadingRecs(false);
-      setLoading(false);
     }
   };
 
