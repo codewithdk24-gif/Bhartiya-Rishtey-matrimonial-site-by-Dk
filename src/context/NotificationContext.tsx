@@ -56,7 +56,7 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
     fetchUnreadCount();
 
     // Step 3 & 4: Polling with visibility control
-    pollingRef.current = setInterval(fetchUnreadCount, 30000);
+    pollingRef.current = setInterval(fetchUnreadCount, 10000); // 10 seconds for live feel
 
     const handleVisibility = () => {
       if (document.visibilityState === 'visible') fetchUnreadCount();

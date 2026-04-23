@@ -29,6 +29,29 @@ export async function POST(
       }
     });
 
+    // Notify the viewed user (throttle: only once per hour per viewer)
+    const recentView = await prisma.profileView.count({
+      where: {
+        viewerId,
+        viewedId,
+        createdAt: { gte: new Date(Date.now() - 60 * 60 * 1000) }
+      }
+    });
+
+    if (recentView <= 1) {
+      try {
+        await prisma.notification.create({
+          data: {
+            userId: viewedId,
+            fromUserId: viewerId,
+            type: "PROFILE_VIEWED",
+            message: `${session.user.name || 'Someone'} viewed your profile`,
+            link: `/profile/${viewerId}`
+          }
+        });
+      } catch (_) {}
+    }
+
     // Optional: Update lastActive for viewer
     await prisma.user.update({
       where: { id: viewerId },

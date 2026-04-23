@@ -79,6 +79,17 @@ export async function POST(request: Request) {
       }
     });
 
+    // 3. Create NEW_MESSAGE notification for receiver (fire and forget)
+    prisma.notification.create({
+      data: {
+        userId: receiverId,
+        fromUserId: senderId as string,
+        type: "NEW_MESSAGE",
+        message: `New message: "${content.length > 40 ? content.slice(0, 40) + '…' : content}"`,
+        link: `/chat/${matchId}`
+      }
+    }).catch(() => {});
+
     return NextResponse.json(message);
 
   } catch (error) {

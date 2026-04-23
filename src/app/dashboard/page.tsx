@@ -113,14 +113,25 @@ export default function DashboardPage() {
               {summary?.stats?.interestsReceived > 0 ? (
                 <div className="space-y-4">
                   <p className="text-white text-lg font-bold leading-tight">
-                    {summary.stats.interestsReceived} people are waiting for your response.
+                    <span className="text-3xl mr-2">💌</span><br />
+                    <span className="text-rose-400">{summary.stats.interestsReceived} {summary.stats.interestsReceived === 1 ? 'person is' : 'people are'}</span> waiting for your response!
                   </p>
+                  <p className="text-stone-400 text-xs">Don't keep them waiting — show some love!</p>
                   <Link href="/matches?tab=requests" className="inline-flex items-center gap-2 px-6 py-3 bg-rose-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-rose-700 transition-all shadow-lg shadow-rose-900/40">
+                    <span className="material-symbols-outlined text-sm">favorite</span>
                     Review Requests
                   </Link>
                 </div>
               ) : (
-                <p className="text-stone-400 text-sm font-medium">You're all caught up! No pending requests.</p>
+                <div className="space-y-3">
+                  <p className="text-4xl">🎉</p>
+                  <p className="text-white text-lg font-bold">You&apos;re all caught up!</p>
+                  <p className="text-stone-400 text-sm">No pending requests right now. Keep exploring!</p>
+                  <Link href="/discover" className="inline-flex items-center gap-2 px-6 py-3 bg-stone-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-stone-600 transition-all mt-2">
+                    <span className="material-symbols-outlined text-sm">local_fire_department</span>
+                    Discover Profiles
+                  </Link>
+                </div>
               )}
             </div>
           </div>
