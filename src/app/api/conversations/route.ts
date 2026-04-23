@@ -3,6 +3,23 @@ import { NextResponse } from "next/server";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
+function getRelativeTime(date: Date | string | null): string {
+  if (!date) return "";
+  const diff = Date.now() - new Date(date).getTime();
+  const s = Math.floor(diff / 1000);
+  if (s < 60) return "Just now";
+  const m = Math.floor(s / 60);
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h ago`;
+  return new Date(date).toLocaleDateString("en-IN", { day: "numeric", month: "short" });
+}
+
+function isOnline(date: Date | null): boolean {
+  if (!date) return false;
+  return Date.now() - new Date(date).getTime() < 5 * 60 * 1000;
+}
+
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
@@ -21,8 +38,18 @@ export async function GET() {
         ],
       },
       include: {
-        user1: { select: { id: true, name: true, profile: { select: { profilePhoto: true } } } },
-        user2: { select: { id: true, name: true, profile: { select: { profilePhoto: true } } } },
+        user1: {
+          select: {
+            id: true, name: true, lastActive: true,
+            profile: { select: { profilePhoto: true, photos: true, fullName: true } }
+          }
+        },
+        user2: {
+          select: {
+            id: true, name: true, lastActive: true,
+            profile: { select: { profilePhoto: true, photos: true, fullName: true } }
+          }
+        },
         messages: {
           orderBy: { createdAt: "desc" },
           take: 1,
@@ -43,18 +70,36 @@ export async function GET() {
 
     const formatted = conversations.map(conv => {
       const otherUser = conv.user1Id === userId ? conv.user2 : conv.user1;
-      const lastMessage = conv.messages[0];
+      const lastMsg = conv.messages[0];
       const unreadCount = conv._count.messages;
+
+      // Resolve photo
+      let photo = otherUser.profile?.profilePhoto || null;
+      if (!photo && otherUser.profile?.photos) {
+        try {
+          const parsed = typeof otherUser.profile.photos === "string"
+            ? JSON.parse(otherUser.profile.photos)
+            : otherUser.profile.photos;
+          if (Array.isArray(parsed) && parsed.length > 0) photo = parsed[0];
+        } catch (_) {}
+      }
 
       return {
         id: conv.id,
         otherUser: {
           id: otherUser.id,
-          name: otherUser.name,
-          photo: otherUser.profile?.profilePhoto,
+          name: otherUser.profile?.fullName || otherUser.name,
+          photo,
+          isOnline: isOnline(otherUser.lastActive),
+          lastActiveText: getRelativeTime(otherUser.lastActive),
         },
-        lastMessage: lastMessage?.content || "No messages yet",
-        lastMessageTime: lastMessage?.createdAt || conv.createdAt,
+        lastMessage: lastMsg ? {
+          content: lastMsg.content,
+          isMine: lastMsg.senderId === userId,
+          time: getRelativeTime(lastMsg.createdAt),
+          rawTime: lastMsg.createdAt,
+        } : null,
+        lastMessageAt: conv.lastMessageAt,
         unreadCount,
       };
     });

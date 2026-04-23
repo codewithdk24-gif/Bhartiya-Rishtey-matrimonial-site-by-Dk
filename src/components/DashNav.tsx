@@ -31,12 +31,11 @@ export default function DashNav() {
     return count;
   };
 
-  // User requested exactly 5 items: Home, Discover, Search, Message, Profile
+  // Main nav: Home, Discover, Matches, Messages, Profile
   const navLinks = [
     { href: '/dashboard', icon: 'home', label: 'Home' },
     { href: '/discover', icon: 'local_fire_department', label: 'Discover' },
     { href: '/matches', icon: 'handshake', label: 'Matches' },
-    { href: '/search', icon: 'search', label: 'Search' },
     { href: '/chat', icon: 'chat', label: 'Messages' },
     { href: '/profile', icon: 'person', label: 'Profile' },
   ];
