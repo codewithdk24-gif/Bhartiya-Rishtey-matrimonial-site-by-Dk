@@ -29,12 +29,19 @@ html {
 
 body {
   font-family: var(--font-body);
-  background: linear-gradient(160deg, #fff5f5 0%, #fffaf8 40%, #f9f5f2 100%);
+  background: #FDFCFB;
   color: #2D2422;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
+  transition: background-color 0.4s ease;
+}
+
+/* ── Dark Mode (Reserved for Future) ─── */
+.dark body {
+  background: #0F172A;
+  color: #F9FAFB;
 }
 
 /* ── Typography ──────────────────────── */

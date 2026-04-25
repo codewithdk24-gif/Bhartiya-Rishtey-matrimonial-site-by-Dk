@@ -94,7 +94,7 @@ export default function NotifDropdown({ isOpen, onClose }: NotifDropdownProps) {
   return (
     <div 
       ref={dropdownRef}
-      className="absolute top-14 right-0 w-[320px] md:w-[380px] bg-white rounded-[1.5rem] shadow-2xl border border-stone-100 overflow-hidden z-[60] animate-in fade-in zoom-in duration-200"
+      className="fixed inset-x-4 top-20 md:absolute md:top-14 md:right-0 md:inset-x-auto md:w-[380px] bg-white rounded-[1.5rem] shadow-2xl border border-stone-100 overflow-hidden z-[60] animate-in fade-in slide-in-from-top-4 duration-300"
     >
       <div className="p-4 border-b border-stone-50 flex items-center justify-between">
         <h3 className="font-headline text-sm font-black text-stone-900 uppercase tracking-widest">Notifications</h3>

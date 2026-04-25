@@ -176,7 +176,8 @@ export async function GET(request: Request) {
         activityStatus: getActivityLabel(p.user.lastActive),
         hasSentInterest: !!interest,
         interestStatus: interest?.status || null,
-        conversationId: conversation?.id || null
+        conversationId: conversation?.id || null,
+        isNew: new Date(p.createdAt).getTime() > Date.now() - 24 * 60 * 60 * 1000
       };
     });
 

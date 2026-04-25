@@ -5,13 +5,25 @@ import { prisma } from "@/lib/prisma";
 
 function getRelativeTime(date: Date | null): string {
   if (!date) return "Unknown";
-  const diff = Date.now() - new Date(date).getTime();
+  const now = new Date();
+  const d = new Date(date);
+  const diff = now.getTime() - d.getTime();
+  
   const minutes = Math.floor(diff / 60000);
-  if (minutes < 2) return "Active now";
+  if (minutes < 5) return "Online now";
   if (minutes < 60) return `Active ${minutes}m ago`;
+  
   const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `Active ${hours}h ago`;
+  if (hours < 24) {
+    if (d.toDateString() === now.toDateString()) {
+      if (d.getHours() < 12) return "Active this morning";
+      return "Active today";
+    }
+    return `Active ${hours}h ago`;
+  }
+  
   const days = Math.floor(hours / 24);
+  if (days === 1) return "Active yesterday";
   return `Active ${days}d ago`;
 }
 
@@ -77,7 +89,8 @@ export async function GET(request: Request) {
     const sent: any[] = [];
     const matched: any[] = [];
 
-    interests.forEach(interest => {
+    // Parallel processing for unread counts
+    const results = await Promise.all(interests.map(async (interest) => {
       const isIncoming = interest.toUserId === userId;
       const otherUser = isIncoming ? interest.fromUser : interest.toUser;
       
@@ -88,12 +101,22 @@ export async function GET(request: Request) {
 
       const lastMsg = interest.conversation?.messages?.[0] || null;
 
-      const formatted = {
+      const unreadCount = interest.conversation ? await prisma.message.count({
+        where: {
+          conversationId: interest.conversation.id,
+          receiverId: userId,
+          isRead: false
+        }
+      }) : 0;
+
+      return {
         id: interest.id,
         status: interest.status,
         timestamp: interest.createdAt,
         conversationId: interest.conversation?.id || null,
         compatibilityScore: getCompatibilityScore(),
+        unreadCount,
+        isNewMatch: interest.status === 'ACCEPTED' && (Date.now() - new Date(interest.updatedAt).getTime() < 24 * 60 * 60 * 1000),
         lastMessage: lastMsg ? {
           content: lastMsg.content,
           isMine: lastMsg.senderId === userId,
@@ -106,16 +129,19 @@ export async function GET(request: Request) {
           isOnline: isOnline(otherUser.lastActive),
           lastActiveText: getRelativeTime(otherUser.lastActive),
           profile: otherUser.profile
-        }
+        },
+        isIncoming
       };
+    }));
 
-      if (interest.status === "ACCEPTED") {
-        matched.push(formatted);
-      } else if (interest.status === "PENDING") {
-        if (isIncoming) {
-          received.push(formatted);
+    results.forEach(item => {
+      if (item.status === "ACCEPTED") {
+        matched.push(item);
+      } else if (item.status === "PENDING") {
+        if (item.isIncoming) {
+          received.push(item);
         } else {
-          sent.push(formatted);
+          sent.push(item);
         }
       }
     });

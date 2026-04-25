@@ -145,12 +145,14 @@ function HeroSection() {
           <div className="relative">
             <div className="w-full aspect-[3/4] lg:aspect-auto lg:h-[550px] lg:rounded-3xl relative lg:overflow-hidden lg:shadow-3xl lg:ring-1 lg:ring-black/5">
               <Image
-                src="https://images.unsplash.com/photo-1583939003579-730e3918a45a?auto=format&fit=crop&w=800&q=80"
-                alt="Happy couple"
+                src="/images/hero_indian_wedding_v7.jpg"
+                alt="Happy Indian Couple"
                 fill
                 priority
-                className="object-cover lg:hover:scale-105 transition-transform duration-1000 lg:rounded-3xl"
+                className="object-cover object-[center_left] lg:hover:scale-105 transition-transform duration-1000 lg:rounded-3xl"
               />
+              {/* Warm gradient overlay for cultural feel */}
+              <div className="absolute inset-0 bg-[rgba(255,180,120,0.08)] pointer-events-none z-[5]" />
                {/* Elliptical Softener - Unified with background */}
               <div className="absolute -bottom-24 left-1/2 -translate-x-1/2 w-[160%] h-64 bg-[#f8f6f4] blur-[80px] rounded-[100%] lg:hidden z-30" />
               
@@ -171,7 +173,7 @@ function HeroSection() {
               </div>
             </div>
 
-            <div className="absolute top-12 right-12 bg-white rounded-2xl border border-stone-100 p-3.5 items-center gap-3.5 shadow-2xl z-20 transition-transform hover:scale-110 hidden lg:flex float-animation-delay ring-4 ring-white/50">
+            <div className="absolute top-6 right-6 bg-white rounded-2xl border border-stone-100 p-3.5 items-center gap-3.5 shadow-2xl z-20 transition-transform hover:scale-110 hidden lg:flex float-animation-delay ring-4 ring-white/50">
               <div className="w-11 h-11 rounded-full bg-pink-500 flex items-center justify-center shrink-0 shadow-lg shadow-pink-200 pulse-ring">
                 <span className="material-symbols-outlined text-white text-xl">favorite</span>
               </div>

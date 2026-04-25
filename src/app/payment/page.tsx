@@ -8,7 +8,7 @@ import Link from 'next/link';
 function PaymentContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const planId = searchParams.get('plan') || 'PRIME';
+  const initialPlanId = searchParams.get('plan') || 'PRIME';
   
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -16,15 +16,34 @@ function PaymentContent() {
   const [requestId, setRequestId] = useState<string | null>(null);
   
   const [utr, setUtr] = useState('');
-  const [screenshotUrl, setScreenshotUrl] = useState(''); // Placeholder for upload logic
+  const [screenshotUrl, setScreenshotUrl] = useState('');
 
-  const PLANS_INFO: Record<string, { name: string; price: number; duration: string }> = {
-    PRIME: { name: 'Prime', price: 1100, duration: '90 Days' },
-    ROYAL: { name: 'Royal', price: 2500, duration: '180 Days' },
-    LEGACY: { name: 'Legacy', price: 4900, duration: '365 Days' },
+  const PLANS_INFO: Record<string, { name: string; price: number; duration: string; tag: string; features: string[] }> = {
+    BASIC: { 
+      name: 'Basic', 
+      price: 499, 
+      duration: '30 Days', 
+      tag: 'Starter',
+      features: ['Unlimited Interests', 'View Contact Details (10)', 'Basic Support']
+    },
+    PRIME: { 
+      name: 'Prime', 
+      price: 1100, 
+      duration: '90 Days', 
+      tag: 'Most Popular',
+      features: ['Priority Profile', 'View Contact Details (50)', 'Dedicated Matchmaker']
+    },
+    ELITE: { 
+      name: 'Elite', 
+      price: 1999, 
+      duration: '180 Days', 
+      tag: 'Best Value',
+      features: ['Personalized Scouting', 'Unlimited Contacts', '24/7 Priority Support']
+    },
   };
 
-  const selectedPlan = PLANS_INFO[planId as keyof typeof PLANS_INFO] || PLANS_INFO.PRIME;
+  const [selectedPlanId, setSelectedPlanId] = useState(initialPlanId);
+  const selectedPlan = PLANS_INFO[selectedPlanId as keyof typeof PLANS_INFO] || PLANS_INFO.PRIME;
 
   const handleCopyUPI = () => {
     navigator.clipboard.writeText('bhartiyarishtey@upi');
@@ -46,7 +65,7 @@ function PaymentContent() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          planId,
+          planId: selectedPlanId,
           utr,
           screenshotUrl
         })
@@ -80,17 +99,17 @@ function PaymentContent() {
           </div>
           <div className="flex justify-between items-center">
             <span className="text-[10px] font-black text-stone-300 uppercase tracking-widest">Selected Plan</span>
-            <span className="text-xs font-black text-primary uppercase tracking-widest">{selectedPlan.name}</span>
+            <span className="text-xs font-black text-rose-600 uppercase tracking-widest">{selectedPlan.name}</span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-[10px] font-black text-stone-300 uppercase tracking-widest">Status</span>
-            <span className="px-2 py-1 bg-amber-50 text-amber-600 text-[9px] font-black uppercase tracking-widest rounded-lg">Pending Review</span>
+            <span className="text-[10px] font-black text-stone-300 uppercase tracking-widest">Amount Paid</span>
+            <span className="text-xs font-black text-stone-900">₹{selectedPlan.price.toLocaleString()}</span>
           </div>
         </div>
 
         <button 
           onClick={() => router.push('/dashboard')}
-          className="btn-primary w-full py-4 shadow-xl shadow-primary/20"
+          className="w-full py-4 bg-stone-900 text-white rounded-full text-xs font-black uppercase tracking-widest shadow-xl shadow-stone-900/20 active:scale-95 transition-all"
         >
           Go to Dashboard
         </button>
@@ -99,128 +118,193 @@ function PaymentContent() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-8 pb-32">
-      {/* Plan Header */}
-      <div className="bg-stone-900 rounded-[2.5rem] p-8 text-white mb-8 shadow-2xl shadow-stone-900/20 overflow-hidden relative group">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16 blur-2xl group-hover:scale-150 transition-all duration-700" />
-        <div className="relative z-10">
-          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/50 mb-2">Selected Membership</p>
-          <div className="flex items-end justify-between gap-4">
-            <div>
-              <h1 className="text-4xl font-black tracking-tight">{selectedPlan.name}</h1>
-              <p className="text-sm font-bold text-primary mt-1">{selectedPlan.duration}</p>
-            </div>
-            <div className="text-right">
-              <p className="text-4xl font-black tracking-tighter">₹{selectedPlan.price.toLocaleString()}</p>
-              <p className="text-[9px] font-black text-white/30 uppercase tracking-widest mt-1">Inclusive of GST</p>
-            </div>
-          </div>
+    <div className="max-w-4xl mx-auto px-4 py-8 pb-32">
+      {/* 1. PLAN SELECTION */}
+      <section className="mb-12">
+        <div className="text-center mb-8">
+          <h2 className="text-3xl font-black text-stone-900 tracking-tight mb-2">Choose Your Plan</h2>
+          <p className="text-stone-500 text-sm font-medium">Select the membership that fits your needs</p>
         </div>
-      </div>
 
-      <div className="grid md:grid-cols-2 gap-8">
-        {/* Left: Payment Info */}
-        <div className="space-y-6">
-          <div className="bg-white rounded-[2rem] p-8 border border-stone-100 shadow-xl shadow-stone-200/50 text-center">
-            <h3 className="text-xs font-black text-stone-400 uppercase tracking-[0.2em] mb-6">Scan to Pay</h3>
-            <div className="relative w-48 h-48 mx-auto mb-6 bg-stone-50 rounded-2xl p-2 border border-stone-100">
-              <img src="/images/upi-qr.png" alt="UPI QR Code" className="w-full h-full object-contain" />
-            </div>
-            <div className="bg-stone-50 rounded-2xl p-4 border border-stone-100 flex items-center justify-between gap-3">
-              <div className="text-left">
-                <p className="text-[9px] font-black text-stone-300 uppercase tracking-widest leading-none mb-1">UPI ID</p>
-                <p className="text-sm font-black text-stone-900 tracking-tight">bhartiyarishtey@upi</p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {Object.entries(PLANS_INFO).map(([id, plan]) => (
+            <button
+              key={id}
+              onClick={() => setSelectedPlanId(id)}
+              className={`relative text-left p-8 rounded-[2.5rem] border-2 transition-all duration-500 active:scale-[0.98] ${
+                selectedPlanId === id 
+                ? 'bg-gradient-to-br from-white to-rose-50/30 border-[#E11D48] shadow-[0_20px_50px_rgba(225,29,72,0.15)] scale-[1.02] ring-4 ring-rose-50/50' 
+                : 'bg-white border-stone-100 hover:border-stone-200 hover:shadow-lg'
+              }`}
+            >
+              {plan.tag && (
+                <span className={`absolute -top-3 left-8 px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest z-10 ${
+                  selectedPlanId === id ? 'bg-[#E11D48] text-white shadow-lg' : 'bg-stone-900 text-white'
+                }`}>
+                  {plan.tag}
+                </span>
+              )}
+
+              {selectedPlanId === id && (
+                <div className="absolute top-4 right-6 flex items-center gap-1.5 px-3 py-1 bg-rose-100 text-[#E11D48] rounded-full animate-in fade-in zoom-in duration-500">
+                   <span className="text-[9px] font-black uppercase tracking-widest">Selected</span>
+                   <span className="material-symbols-outlined text-[14px] font-bold fill-1">check_circle</span>
+                </div>
+              )}
+
+              <div className="mb-6">
+                <h3 className={`text-xl font-black transition-colors ${selectedPlanId === id ? 'text-[#E11D48]' : 'text-stone-900'}`}>{plan.name}</h3>
+                <p className="text-[10px] font-black text-stone-400 uppercase tracking-widest mt-1">{plan.duration}</p>
               </div>
-              <button 
-                onClick={handleCopyUPI}
-                className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-stone-400 hover:text-primary hover:bg-primary/5 transition-all shadow-sm active:scale-90"
-              >
-                <span className="material-symbols-outlined text-lg">content_copy</span>
-              </button>
-            </div>
-          </div>
 
-          <div className="bg-white rounded-[2rem] p-8 border border-stone-100 shadow-xl shadow-stone-200/50">
-            <h3 className="text-xs font-black text-stone-900 uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
-              <span className="material-symbols-outlined text-sm text-primary">info</span>
-              Instructions
-            </h3>
-            <ul className="space-y-4">
-              {[
-                'Open any UPI app (GPay, PhonePe, Paytm)',
-                'Scan the QR or enter the UPI ID manually',
-                `Pay the exact amount of ₹${selectedPlan.price.toLocaleString()}`,
-                'Note down the UTR / Transaction ID after payment'
-              ].map((step, i) => (
-                <li key={i} className="flex gap-4">
-                  <span className="flex-shrink-0 w-6 h-6 rounded-full bg-stone-50 text-[10px] font-black text-stone-400 flex items-center justify-center border border-stone-100">
-                    {i + 1}
-                  </span>
-                  <p className="text-xs text-stone-600 font-medium leading-relaxed">{step}</p>
-                </li>
-              ))}
-            </ul>
-          </div>
+              <div className="flex items-baseline gap-1 mb-8">
+                <span className="text-3xl font-black text-stone-900">₹{plan.price}</span>
+                <span className="text-[10px] text-stone-400 font-bold uppercase">One-time payment</span>
+              </div>
+
+              <ul className="space-y-3 mb-4">
+                {plan.features.map((f, i) => (
+                  <li key={i} className="flex items-center gap-3 text-xs text-stone-600 font-medium">
+                    <span className={`material-symbols-outlined text-sm font-bold ${selectedPlanId === id ? 'text-emerald-500' : 'text-stone-300'}`}>
+                      {selectedPlanId === id ? 'check_circle' : 'circle'}
+                    </span>
+                    {f}
+                  </li>
+                ))}
+              </ul>
+            </button>
+          ))}
         </div>
+      </section>
 
-        {/* Right: Submission Form */}
-        <div className="bg-white rounded-[2rem] p-8 border border-stone-100 shadow-xl shadow-stone-200/50">
-          <h3 className="text-xs font-black text-stone-900 uppercase tracking-[0.2em] mb-8">Submit Details</h3>
+      {/* 2. UNIFIED PAYMENT CONTAINER */}
+      <section className="bg-white rounded-[3rem] border border-stone-100 shadow-[0_30px_100px_rgba(0,0,0,0.04)] overflow-hidden">
+        <div className="grid md:grid-cols-2">
           
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-2">
-              <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest ml-1">UTR / Transaction ID</label>
-              <input 
-                type="text"
-                value={utr}
-                onChange={(e) => setUtr(e.target.value.toUpperCase())}
-                placeholder="12-digit number (e.g. 3056...)"
-                className="w-full bg-stone-50 border-none rounded-2xl px-5 py-4 text-sm font-bold text-stone-900 placeholder:text-stone-300 focus:ring-2 focus:ring-primary/20 transition-all outline-none"
-              />
-            </div>
+          {/* LEFT SIDE: SCAN & INFO */}
+          <div className="p-8 md:p-12 bg-stone-50/50 border-b md:border-b-0 md:border-r border-stone-100 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-rose-50/50 rounded-full -mr-32 -mt-32 blur-3xl opacity-40" />
+            
+            <div className="relative">
+              <h3 className="text-xs font-black text-stone-400 uppercase tracking-[0.25em] mb-10 text-center md:text-left">1. Scan & Pay</h3>
+              
+              <div className="relative w-56 h-56 mx-auto mb-10 bg-white rounded-[2.5rem] p-5 shadow-2xl shadow-stone-200/50 border border-stone-50 group">
+                <img src="/images/upi-qr.png" alt="UPI QR Code" className="w-full h-full object-contain" />
+                <div className="absolute -bottom-3 -right-3 bg-[#E11D48] text-white w-12 h-12 rounded-2xl flex items-center justify-center shadow-xl border-4 border-white rotate-12 group-hover:rotate-0 transition-transform duration-500">
+                   <span className="material-symbols-outlined text-xl font-bold">qr_code_scanner</span>
+                </div>
+              </div>
 
-            <div className="space-y-2">
-              <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest ml-1">Payment Screenshot (Optional)</label>
-              <div className="relative group/upload">
+              <div className="space-y-4">
+                <div className="bg-white rounded-2xl p-5 border border-stone-100 flex items-center justify-between gap-4 shadow-sm">
+                  <div>
+                    <p className="text-[9px] font-black text-stone-300 uppercase tracking-widest leading-none mb-1.5">Amount to pay</p>
+                    <p className="text-2xl font-black text-stone-900 tracking-tighter">₹{selectedPlan.price.toLocaleString()}</p>
+                  </div>
+                  <div className="px-4 py-2 bg-rose-50 text-[#E11D48] rounded-xl text-[10px] font-black uppercase tracking-widest border border-rose-100/50">
+                    {selectedPlan.name}
+                  </div>
+                </div>
+                
+                <div className="bg-white rounded-2xl p-5 border border-stone-100 flex items-center justify-between gap-4 shadow-sm">
+                  <div>
+                    <p className="text-[9px] font-black text-stone-300 uppercase tracking-widest leading-none mb-1.5">UPI ID</p>
+                    <p className="text-sm font-black text-stone-900 tracking-tight">bhartiyarishtey@upi</p>
+                  </div>
+                  <button 
+                    onClick={handleCopyUPI}
+                    className="w-11 h-11 bg-stone-50 text-stone-400 hover:text-[#E11D48] hover:bg-rose-50 rounded-xl flex items-center justify-center transition-all active:scale-90"
+                  >
+                    <span className="material-symbols-outlined text-lg">content_copy</span>
+                  </button>
+                </div>
+              </div>
+
+              <div className="mt-10 p-6 bg-white/50 rounded-2xl border border-stone-100/50">
+                <h4 className="text-[10px] font-black text-stone-900 uppercase tracking-widest mb-4 flex items-center gap-2">
+                   <span className="material-symbols-outlined text-sm text-rose-500">tips_and_updates</span>
+                   Quick Tip
+                </h4>
+                <p className="text-[11px] text-stone-500 font-medium leading-relaxed italic">
+                  "Take a screenshot of the payment confirmation page in your UPI app. It helps in faster verification!"
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* RIGHT SIDE: SUBMISSION FORM */}
+          <div className="p-8 md:p-12 flex flex-col justify-center">
+            <div className="flex items-center justify-between mb-10">
+              <h3 className="text-xs font-black text-stone-900 uppercase tracking-[0.25em]">2. Confirm Transaction</h3>
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-emerald-50 text-emerald-600 rounded-full text-[9px] font-black uppercase tracking-widest border border-emerald-100/50">
+                 <span className="material-symbols-outlined text-[12px] fill-1">verified_user</span>
+                 Secure
+              </div>
+            </div>
+            
+            <form onSubmit={handleSubmit} className="space-y-8">
+              <div className="space-y-3">
+                <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest ml-1">UTR / Transaction ID</label>
                 <input 
                   type="text"
-                  value={screenshotUrl}
-                  onChange={(e) => setScreenshotUrl(e.target.value)}
-                  placeholder="Enter image URL"
-                  className="w-full bg-stone-50 border-none rounded-2xl px-5 py-4 text-sm font-bold text-stone-900 placeholder:text-stone-300 focus:ring-2 focus:ring-primary/20 transition-all outline-none"
+                  value={utr}
+                  onChange={(e) => setUtr(e.target.value.toUpperCase())}
+                  placeholder="Enter 12-digit UTR number"
+                  className="w-full bg-stone-50 border-2 border-transparent focus:border-rose-100 focus:bg-white rounded-2xl px-6 py-5 text-sm font-bold text-stone-900 placeholder:text-stone-300 transition-all outline-none"
                 />
-                <p className="text-[9px] text-stone-400 mt-2 ml-1 font-medium italic">Upload logic can be integrated with Cloudinary/S3</p>
               </div>
-            </div>
 
-            {error && (
-              <div className="p-4 bg-red-50 text-red-600 rounded-2xl text-[11px] font-bold flex items-start gap-3 animate-shake">
-                <span className="material-symbols-outlined text-lg mt-0.5">error</span>
-                <p>{error}</p>
+              <div className="space-y-3">
+                <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest ml-1">Payment Screenshot (Optional)</label>
+                <div className="relative group/upload">
+                  <input 
+                    type="text"
+                    value={screenshotUrl}
+                    onChange={(e) => setScreenshotUrl(e.target.value)}
+                    placeholder="Enter hosted image URL"
+                    className="w-full bg-stone-50 border-2 border-transparent focus:border-rose-100 focus:bg-white rounded-2xl px-6 py-5 text-sm font-bold text-stone-900 placeholder:text-stone-300 transition-all outline-none"
+                  />
+                  <div className="flex items-center gap-2 mt-3 ml-1 text-stone-400">
+                    <span className="material-symbols-outlined text-sm">cloud_upload</span>
+                    <p className="text-[10px] font-medium italic">Instant activation after automated UTR check</p>
+                  </div>
+                </div>
               </div>
-            )}
 
-            <button 
-              type="submit"
-              disabled={loading}
-              className="btn-primary w-full py-5 shadow-2xl shadow-primary/20 flex items-center justify-center gap-3 active:scale-95 disabled:opacity-50 disabled:scale-100"
-            >
-              {loading ? (
-                <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
-              ) : (
-                <>
-                  <span className="material-symbols-outlined text-lg font-bold">verified</span>
-                  I Have Paid
-                </>
+              {error && (
+                <div className="p-5 bg-rose-50 text-[#E11D48] rounded-2xl text-[11px] font-bold flex items-start gap-4 animate-shake border border-rose-100/50">
+                  <span className="material-symbols-outlined text-lg">error_outline</span>
+                  <p>{error}</p>
+                </div>
               )}
-            </button>
 
-            <p className="text-[9px] text-stone-400 text-center font-medium leading-relaxed">
-              By clicking "I Have Paid", you confirm that you have made the transaction. False claims may result in account suspension.
-            </p>
-          </form>
+              <div className="pt-4">
+                <button 
+                  type="submit"
+                  disabled={loading}
+                  className="w-full py-6 bg-[#E11D48] text-white rounded-[1.5rem] text-xs font-black uppercase tracking-[0.25em] shadow-2xl shadow-rose-200 hover:bg-[#BE123C] hover:-translate-y-1 transition-all flex flex-col items-center justify-center gap-1 active:scale-95 disabled:opacity-50 disabled:scale-100"
+                >
+                  {loading ? (
+                    <div className="w-6 h-6 border-3 border-white/20 border-t-white rounded-full animate-spin" />
+                  ) : (
+                    <>
+                      <div className="flex items-center gap-3">
+                        <span className="material-symbols-outlined text-xl font-bold">check_circle</span>
+                        Confirm Payment
+                      </div>
+                      <span className="text-[9px] font-black text-white/50 tracking-widest">Payable: ₹{selectedPlan.price.toLocaleString()}</span>
+                    </>
+                  )}
+                </button>
+              </div>
+
+              <p className="text-[10px] text-stone-400 text-center font-bold leading-relaxed px-6">
+                Your account will be activated within <span className="text-stone-900">2–4 hours</span> of verification.
+              </p>
+            </form>
+          </div>
         </div>
-      </div>
+      </section>
     </div>
   );
 }
