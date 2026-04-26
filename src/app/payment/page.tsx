@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import DashNav from '@/components/DashNav';
-import { PLANS } from '@/lib/constants/plans';
+import { PLANS, Plan } from '@/lib/constants/plans';
 
 function PaymentContent() {
   const searchParams = useSearchParams();
@@ -18,7 +18,7 @@ function PaymentContent() {
   const [utr, setUtr] = useState('');
   const [screenshotUrl, setScreenshotUrl] = useState('');
 
-  const [selectedPlanId, setSelectedPlanId] = useState(initialPlanId);
+  const [selectedPlanId, setSelectedPlanId] = useState<string | null>(initialPlanId);
   const selectedPlan = PLANS.find(p => p.id === selectedPlanId) || PLANS[1]; // Fallback to Prime
 
   const paymentRef = useRef<HTMLDivElement>(null);
@@ -137,22 +137,22 @@ function PaymentContent() {
       {/* 2. PLAN SELECTION - COMPACT FOR MOBILE */}
       <section className="mb-12 md:mb-20">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
-          {PLANS.map((plan) => (
+          {PLANS.map((plan: Plan) => (
             <button
               key={plan.id}
               onClick={() => handlePlanSelect(plan.id)}
               className={`group relative text-left p-6 md:p-10 rounded-[2rem] md:rounded-[3rem] border-2 transition-all duration-500 active:scale-[0.98] ${
-                selectedPlanId === plan.id 
+                selectedPlanId === plan?.id 
                 ? 'bg-gradient-to-br from-white to-rose-50/50 border-[#E11D48] shadow-xl md:shadow-[0_30px_60px_rgba(225,29,72,0.15)] scale-[1.02] md:scale-[1.05] ring-2 md:ring-4 ring-rose-50' 
                 : 'bg-white border-stone-100 opacity-70 md:opacity-100 scale-95 md:scale-100'
               }`}
             >
               <div className="flex justify-between items-start mb-4">
                 <div>
-                  <h3 className={`text-xl md:text-2xl font-black transition-colors ${selectedPlanId === plan.id ? 'text-[#E11D48]' : 'text-stone-900'}`}>{plan.name}</h3>
+                  <h3 className={`text-xl md:text-2xl font-black transition-colors ${selectedPlanId === plan?.id ? 'text-[#E11D48]' : 'text-stone-900'}`}>{plan?.name}</h3>
                   <p className="text-[10px] font-black text-stone-400 uppercase tracking-widest">{plan.period}</p>
                 </div>
-                {selectedPlanId === plan.id && (
+                {selectedPlanId === plan?.id && (
                   <span className="material-symbols-outlined text-[#E11D48] font-bold fill-1 animate-in zoom-in duration-500">check_circle</span>
                 )}
               </div>

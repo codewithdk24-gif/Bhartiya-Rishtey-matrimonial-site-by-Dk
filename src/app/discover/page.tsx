@@ -24,7 +24,7 @@ interface ProfileCard {
   photos: string;
   matchScore: number;
   activityStatus: string;
-  isVerified: boolean;
+  verificationStatus: 'VERIFIED' | 'PENDING' | 'NONE';
   interestStatus: string | null;
   conversationId: string | null;
   isNew?: boolean;
@@ -639,7 +639,7 @@ export default function DiscoverPage() {
                             {/* TOP ROW */}
                             <div className="flex items-center justify-between mb-4 relative z-20">
                                <div className="bg-rose-50/80 backdrop-blur-md text-rose-600 px-3 py-1 rounded-full text-[8px] md:text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5 border border-rose-100">
-                                 {p.matchScore}% Match {p.isVerified && <span className="material-symbols-outlined text-[10px] fill-1">verified</span>}
+                                 {p.matchScore}% Match {p.verificationStatus === 'VERIFIED' && <span className="material-symbols-outlined text-[10px] fill-1">verified</span>}
                                </div>
                                <button 
                                  onClick={(e) => { e.preventDefault(); toggleSave(p.userId); }} 
