@@ -6,54 +6,54 @@ import DashNav from '@/components/DashNav';
 
 const PREMIUM_PLANS = [
   {
+    id: 'BASIC',
+    name: 'Basic Membership',
+    price: '₹499',
+    originalPrice: '₹799',
+    duration: '30 Days',
+    recommended: false,
+    tagline: 'Get started with matching',
+    features: [
+      { text: 'Send Unlimited Interests', included: true },
+      { text: 'View Contact Details (10)', included: true },
+      { text: 'See Who Viewed Your Profile', included: true },
+      { text: 'Basic Search Filters', included: true },
+      { text: 'Mobile App Access', included: true },
+      { text: 'Priority Listing', included: false },
+    ]
+  },
+  {
     id: 'PRIME',
     name: 'Prime Membership',
     price: '₹1,100',
     originalPrice: '₹1,500',
-    duration: '3 Months',
+    duration: '90 Days',
     recommended: true,
     tagline: 'Best for serious seekers',
     features: [
       { text: 'Send Unlimited Interests', included: true },
-      { text: 'Unlimited Direct Messaging', included: true },
+      { text: 'View Contact Details (50)', included: true },
       { text: 'See Who Viewed Your Profile', included: true },
       { text: 'Advanced Search Filters', included: true },
-      { text: 'Share Contact Details', included: false },
-      { text: 'Invisible Mode', included: false },
+      { text: 'Dedicated Matchmaker', included: true },
+      { text: 'Priority Profile Listing', included: true },
     ]
   },
   {
-    id: 'ROYAL',
-    name: 'Royal Membership',
-    price: '₹2,500',
-    originalPrice: '₹3,500',
-    duration: '6 Months',
+    id: 'ELITE',
+    name: 'Elite Membership',
+    price: '₹1,999',
+    originalPrice: '₹2,999',
+    duration: '180 Days',
     recommended: false,
     tagline: 'Maximum privacy & access',
     features: [
-      { text: 'Send Unlimited Interests', included: true },
-      { text: 'Unlimited Direct Messaging', included: true },
-      { text: 'See Who Viewed Your Profile', included: true },
-      { text: 'Advanced Search Filters', included: true },
-      { text: 'Share Contact Details', included: true },
+      { text: 'Everything in Prime', included: true },
+      { text: 'Personalized Scouting', included: true },
+      { text: 'Unlimited Contact Views', included: true },
+      { text: '24/7 Priority Support', included: true },
       { text: 'Invisible Mode', included: true },
-    ]
-  },
-  {
-    id: 'LEGACY',
-    name: 'Legacy Membership',
-    price: '₹4,900',
-    originalPrice: '₹7,500',
-    duration: '12 Months',
-    recommended: false,
-    tagline: 'One year of premium matching',
-    features: [
-      { text: 'Everything in Royal', included: true },
-      { text: 'Personalized Matchmaker', included: true },
       { text: 'Profile Highlighting', included: true },
-      { text: 'Priority Customer Support', included: true },
-      { text: 'Share Contact Details', included: true },
-      { text: 'Invisible Mode', included: true },
     ]
   }
 ];

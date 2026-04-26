@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import CustomSelect from '@/components/CustomSelect';
 
 export default function OnboardingPage() {
   const router = useRouter();
@@ -106,13 +107,12 @@ export default function OnboardingPage() {
               <h2 className="font-headline text-xl font-bold text-stone-900 mb-4 flex items-center gap-2">
                 <span className="material-symbols-outlined text-gold">diversity_3</span> Background
               </h2>
-              <div>
-                <label className="block text-sm font-semibold text-stone-700 mb-2">Religion</label>
-                <select className="input-field" value={form.religion} onChange={e => setForm({...form, religion: e.target.value})}>
-                  <option value="">Select</option>
-                  {['Hindu','Muslim','Sikh','Christian','Buddhist','Jain','Other'].map(r => <option key={r} value={r}>{r}</option>)}
-                </select>
-              </div>
+              <CustomSelect
+                label="Religion"
+                value={form.religion}
+                options={['Hindu','Muslim','Sikh','Christian','Buddhist','Jain','Other']}
+                onChange={(val) => setForm({...form, religion: val})}
+              />
               <div>
                 <label className="block text-sm font-semibold text-stone-700 mb-2">Caste / Community</label>
                 <input className="input-field" placeholder="e.g., Brahmin, Kshatriya" value={form.caste} onChange={e => setForm({...form, caste: e.target.value})} />
@@ -141,17 +141,18 @@ export default function OnboardingPage() {
                 <label className="block text-sm font-semibold text-stone-700 mb-2">Profession</label>
                 <input className="input-field" placeholder="e.g., Software Engineer" value={form.profession} onChange={e => setForm({...form, profession: e.target.value})} />
               </div>
-              <div>
-                <label className="block text-sm font-semibold text-stone-700 mb-2">Annual Income</label>
-                <select className="input-field" value={form.incomeTier} onChange={e => setForm({...form, incomeTier: e.target.value})}>
-                  <option value="">Select</option>
-                  <option value="Below 5L">Below ₹5 Lakh</option>
-                  <option value="5-10L">₹5 - 10 Lakh</option>
-                  <option value="10-20L">₹10 - 20 Lakh</option>
-                  <option value="20-50L">₹20 - 50 Lakh</option>
-                  <option value="50L+">₹50 Lakh+</option>
-                </select>
-              </div>
+              <CustomSelect
+                label="Annual Income"
+                value={form.incomeTier}
+                options={[
+                  { label: 'Below ₹5 Lakh', value: 'Below 5L' },
+                  { label: '₹5 - 10 Lakh', value: '5-10L' },
+                  { label: '₹10 - 20 Lakh', value: '10-20L' },
+                  { label: '₹20 - 50 Lakh', value: '20-50L' },
+                  { label: '₹50 Lakh+', value: '50L+' }
+                ]}
+                onChange={(val) => setForm({...form, incomeTier: val})}
+              />
               <div>
                 <label className="block text-sm font-semibold text-stone-700 mb-2">About Yourself</label>
                 <textarea className="input-field min-h-[100px] resize-y" placeholder="Tell potential matches about yourself..." value={form.bio} onChange={e => setForm({...form, bio: e.target.value})} maxLength={1000} />

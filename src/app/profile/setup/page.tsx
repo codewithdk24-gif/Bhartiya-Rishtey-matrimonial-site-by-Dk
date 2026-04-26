@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
+import CustomSelect from '@/components/CustomSelect';
 
 export default function ProfileSetupPage() {
   const router = useRouter();
@@ -85,20 +86,12 @@ export default function ProfileSetupPage() {
               </div>
 
               {/* Gender */}
-              <div className="space-y-2">
-                <label className="block text-xs font-bold text-stone-700 uppercase tracking-widest px-1">Gender</label>
-                <select
-                  required
-                  className="w-full h-14 px-6 rounded-2xl bg-stone-50 border-2 border-stone-100 focus:border-primary focus:bg-white transition-all outline-none text-sm font-bold appearance-none"
-                  value={form.gender}
-                  onChange={(e) => setForm({ ...form, gender: e.target.value })}
-                >
-                  <option value="">Select Gender</option>
-                  <option value="Male">Male</option>
-                  <option value="Female">Female</option>
-                  <option value="Other">Other</option>
-                </select>
-              </div>
+              <CustomSelect
+                label="Gender"
+                value={form.gender}
+                options={['Male', 'Female', 'Other']}
+                onChange={(val) => setForm({ ...form, gender: val })}
+              />
             </div>
 
             {/* City */}

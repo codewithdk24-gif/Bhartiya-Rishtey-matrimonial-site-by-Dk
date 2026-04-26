@@ -8,6 +8,8 @@ import ProfileGate from '@/components/ProfileGate';
 import { useSession } from 'next-auth/react';
 import { formatLocation } from '@/lib/location';
 import { getProfileImage } from '@/lib/image';
+import { toast } from 'sonner';
+import CustomSelect from '@/components/CustomSelect';
 
 /* ────── Types ────── */
 interface ProfileCard {
@@ -230,10 +232,16 @@ export default function DiscoverPage() {
     fetchAiRecs();
   }, []);
 
+  // ────── Debounce Filters ──────
   useEffect(() => {
-    setPage(0);
-    setProfiles([]);
-    setIsRelaxed(false);
+    const handler = setTimeout(() => {
+      setPage(0);
+      setProfiles([]);
+      setIsRelaxed(false);
+      // fetchProfiles(0) will be triggered by the page/fetchProfiles effect
+    }, 500);
+
+    return () => clearTimeout(handler);
   }, [filters]);
 
   // ────── Interactions ──────
@@ -249,11 +257,15 @@ export default function DiscoverPage() {
       const data = await res.json();
       if (res.ok) {
         setSentInterestIds(prev => new Set(prev).add(receiverId));
+        toast.success("Interest sent successfully");
       } else {
         if (data.error === "UPGRADE_REQUIRED") openUpgradeModal(data.feature, data.requiredPlan);
-        else alert(data.error || "Failed to send interest");
+        else toast.error(data.error || "Failed to send interest");
       }
-    } catch (err) { console.error("Interest Request Failed:", err); }
+    } catch (err) { 
+      console.error("Interest Request Failed:", err);
+      toast.error("Something went wrong. Please try again.");
+    }
     finally { setProcessingIds(prev => { const n = new Set(prev); n.delete(receiverId); return n; }); }
   };
 
@@ -343,33 +355,21 @@ export default function DiscoverPage() {
 
                   <div className="h-px bg-rose-50" />
 
-                  <div className="space-y-4">
-                     <label className="text-[9px] font-black text-stone-400 uppercase tracking-[0.15em] flex items-center gap-2">
-                       <span className="material-symbols-outlined text-sm">church</span>
-                       Religion
-                     </label>
-                     <select 
-                       value={filters.religion} onChange={(e) => setFilters(prev => ({ ...prev, religion: e.target.value }))}
-                       className="w-full bg-[#F9FAFB] border border-rose-50 rounded-xl px-4 py-3 text-xs font-bold text-stone-600 outline-none focus:ring-2 focus:ring-rose-100 transition-all cursor-pointer hover:bg-white"
-                     >
-                        <option>All</option>
-                        {['Hindu','Muslim','Sikh','Christian','Buddhist','Jain','Other'].map(r => <option key={r} value={r}>{r}</option>)}
-                     </select>
-                  </div>
+                  <CustomSelect
+                    label="Religion"
+                    icon="church"
+                    value={filters.religion}
+                    options={['All', 'Hindu', 'Muslim', 'Sikh', 'Christian', 'Buddhist', 'Jain', 'Other']}
+                    onChange={(val) => setFilters(prev => ({ ...prev, religion: val }))}
+                  />
 
-                  <div className="space-y-4">
-                     <label className="text-[9px] font-black text-stone-400 uppercase tracking-[0.15em] flex items-center gap-2">
-                       <span className="material-symbols-outlined text-sm">favorite</span>
-                       Marital Status
-                     </label>
-                     <select 
-                       value={filters.maritalStatus} onChange={(e) => setFilters(prev => ({ ...prev, maritalStatus: e.target.value }))}
-                       className="w-full bg-[#F9FAFB] border border-rose-50 rounded-xl px-4 py-3 text-xs font-bold text-stone-600 outline-none focus:ring-2 focus:ring-rose-100 transition-all cursor-pointer hover:bg-white"
-                     >
-                        <option>All</option>
-                        {['Never Married', 'Divorced', 'Widowed', 'Awaiting Divorce'].map(s => <option key={s} value={s}>{s}</option>)}
-                     </select>
-                  </div>
+                  <CustomSelect
+                    label="Marital Status"
+                    icon="favorite"
+                    value={filters.maritalStatus}
+                    options={['All', 'Never Married', 'Divorced', 'Widowed', 'Awaiting Divorce']}
+                    onChange={(val) => setFilters(prev => ({ ...prev, maritalStatus: val }))}
+                  />
 
                   <div className="h-px bg-rose-50" />
 
@@ -439,14 +439,18 @@ export default function DiscoverPage() {
                   </div>
 
                   <div className="hidden md:flex items-center gap-6 shrink-0">
-                     <select 
-                        value={filters.sort} onChange={(e) => setFilters(prev => ({ ...prev, sort: e.target.value }))}
-                        className="bg-white border border-rose-50 rounded-2xl px-5 py-3 text-[10px] font-black uppercase tracking-widest text-stone-500 shadow-sm outline-none focus:ring-2 focus:ring-rose-100 cursor-pointer hover:border-rose-200 transition-all"
-                      >
-                        <option value="best_match">Best Match</option>
-                        <option value="recently_active">Recently Active</option>
-                        <option value="new_profiles">Newest First</option>
-                      </select>
+                     <div className="w-48">
+                       <CustomSelect
+                         label="Sort By"
+                         value={filters.sort}
+                         options={[
+                           { label: 'Best Match', value: 'best_match' },
+                           { label: 'Recently Active', value: 'recently_active' },
+                           { label: 'Newest First', value: 'new_profiles' }
+                         ]}
+                         onChange={(val) => setFilters(prev => ({ ...prev, sort: val }))}
+                       />
+                     </div>
                       <ProfileStrengthWidget percentage={completionPct} />
                   </div>
                </header>
@@ -505,7 +509,7 @@ export default function DiscoverPage() {
                           className="flex gap-4 md:gap-8 overflow-x-auto pb-4 md:pb-8 px-2 hide-scrollbar snap-x snap-mandatory"
                         >
                           {aiRecs.map((p) => (
-                            <div key={p.id} className="snap-center shrink-0 w-[80%] md:w-[340px] bg-white rounded-[2.5rem] md:rounded-[3.5rem] p-5 md:p-7 border border-rose-100/50 shadow-xl shadow-rose-50/20 hover:shadow-2xl hover:-translate-y-2 transition-all duration-700 group relative overflow-hidden">
+                            <Link key={p.id} href={`/profile/${p.id}`} className="snap-center shrink-0 w-[80%] md:w-[340px] bg-white rounded-[2.5rem] md:rounded-[3.5rem] p-5 md:p-7 border border-rose-100/50 shadow-xl shadow-rose-50/20 hover:shadow-2xl hover:-translate-y-2 transition-all duration-700 group relative overflow-hidden block">
                                <div className="absolute top-0 right-0 w-32 h-32 bg-rose-50 rounded-full blur-3xl opacity-40 group-hover:opacity-60 transition-opacity" />
                                
                                {/* AI Match Badge */}
@@ -537,11 +541,11 @@ export default function DiscoverPage() {
                                      <span className="px-2 md:px-3 py-1 md:py-1.5 bg-rose-50 text-rose-500 text-[8px] md:text-[9px] font-black uppercase tracking-widest rounded-lg border border-rose-100">Shared Background</span>
                                   </div>
 
-                                  <Link href={`/profile/${p.id}`} className="block w-full py-4 md:py-5 bg-[#111827] text-white rounded-2xl text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] text-center hover:bg-black transition-all active:scale-95 shadow-xl shadow-stone-100">
+                                  <div className="w-full py-4 md:py-5 bg-[#111827] text-white rounded-2xl text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] text-center group-hover:bg-black transition-all shadow-xl shadow-stone-100">
                                      View Detailed AI Profile
-                                  </Link>
+                                  </div>
                                </div>
-                            </div>
+                            </Link>
                           ))}
                         </div>
 
@@ -696,7 +700,14 @@ export default function DiscoverPage() {
                             <div className="space-y-4 md:space-y-5 flex-1 flex flex-col">
                                <div className="flex-1">
                                   <div className="flex items-center justify-between mb-1 md:mb-2">
-                                     <h3 className="text-lg md:text-xl font-headline font-black text-stone-900 leading-none group-hover:text-rose-600 transition-colors truncate">{p.fullName}, {p.age}</h3>
+                                     <div className="flex items-center gap-1.5 min-w-0">
+                                       <h3 className="text-lg md:text-xl font-headline font-black text-stone-900 leading-none group-hover:text-rose-600 transition-colors truncate">{p.fullName}, {p.age}</h3>
+                                       {p.verificationStatus === 'VERIFIED' ? (
+                                         <span className="material-symbols-outlined text-[18px] md:text-[20px] text-blue-500 fill-1 shrink-0" title="Verified Profile">verified</span>
+                                       ) : p.verificationStatus === 'PENDING' ? (
+                                         <span className="material-symbols-outlined text-[18px] md:text-[20px] text-amber-500 shrink-0" title="Verification Pending">pending</span>
+                                       ) : null}
+                                     </div>
                                   </div>
                                   <p className="text-[9px] md:text-[10px] font-black text-rose-500 uppercase tracking-[0.1em]">{p.profession}</p>
                                   <div className="flex items-center gap-2 md:gap-3 mt-3 text-stone-400">
@@ -713,27 +724,30 @@ export default function DiscoverPage() {
                                 <button 
                                   onClick={() => handleInterest(p.userId)} 
                                   disabled={processingIds.has(p.userId) || sentInterestIds.has(p.userId) || p.interestStatus === 'PENDING' || p.interestStatus === 'ACCEPTED' || p.interestStatus === 'REJECTED'}
-                                  className={`w-full py-4 rounded-xl md:rounded-2xl text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all disabled:opacity-80 flex items-center justify-center gap-2 ${
-                                    (p.interestStatus === 'ACCEPTED') 
-                                      ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' 
-                                      : (p.interestStatus === 'REJECTED')
-                                      ? 'bg-stone-100 text-stone-400'
-                                      : (sentInterestIds.has(p.userId) || p.interestStatus === 'PENDING')
-                                      ? 'bg-stone-100 text-stone-500 border border-stone-100' 
-                                      : 'bg-rose-600 text-white shadow-xl shadow-rose-100 hover:bg-rose-700 hover:-translate-y-1 active:scale-95'
-                                  }`}
+                                    className={`w-full py-4 rounded-xl md:rounded-2xl text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all disabled:opacity-80 flex items-center justify-center gap-2 ${
+                                      (p.interestStatus === 'ACCEPTED') 
+                                        ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' 
+                                        : (p.interestStatus === 'REJECTED')
+                                        ? 'bg-rose-50 text-rose-600 border border-rose-100'
+                                        : (sentInterestIds.has(p.userId) || p.interestStatus === 'PENDING')
+                                        ? 'bg-stone-100 text-stone-500 border border-stone-200 cursor-not-allowed'
+                                        : 'bg-rose-600 text-white shadow-xl shadow-rose-100 hover:bg-rose-700 active:scale-95'
+                                    }`}
                                 >
-                                  {processingIds.has(p.userId) ? (
-                                    'Sending...'
-                                  ) : (p.interestStatus === 'ACCEPTED') ? (
-                                    <>Mutual Match <span className="material-symbols-outlined text-sm">verified_user</span></>
-                                  ) : (p.interestStatus === 'REJECTED') ? (
-                                    'Not Interested'
-                                  ) : (sentInterestIds.has(p.userId) || p.interestStatus === 'PENDING') ? (
-                                    <>Interest Sent <span className="material-symbols-outlined text-sm">check</span></>
-                                  ) : (
-                                    <>Send Interest <span className="material-symbols-outlined text-sm">favorite</span></>
-                                  )}
+                                    {processingIds.has(p.userId) ? (
+                                      <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                                    ) : (sentInterestIds.has(p.userId) || p.interestStatus === 'PENDING') ? (
+                                      <>Interest Sent ✅</>
+                                    ) : (p.interestStatus === 'ACCEPTED') ? (
+                                      <>Interest Accepted ❤️</>
+                                    ) : (p.interestStatus === 'REJECTED') ? (
+                                      <>Interest Declined</>
+                                    ) : (
+                                      <>
+                                        <span className="material-symbols-outlined text-[16px] md:text-[18px] fill-1">heart_plus</span>
+                                        Send Interest
+                                      </>
+                                    )}
                                 </button>
 
                                 <Link href={`/profile/${p.userId}`} className="w-full py-3 md:py-4 bg-stone-50 text-stone-600 rounded-xl md:rounded-2xl text-[9px] md:text-[10px] font-black uppercase tracking-widest text-center hover:bg-stone-100 transition-all border border-stone-100 active:scale-95">
@@ -853,19 +867,13 @@ export default function DiscoverPage() {
                         />
                      </div>
 
-                     <div className="space-y-4">
-                        <label className="text-[10px] font-black text-stone-400 uppercase tracking-[0.15em] flex items-center gap-2">
-                           <span className="material-symbols-outlined text-sm">payments</span>
-                           Annual Income
-                        </label>
-                        <select 
-                          value={filters.incomeTier} onChange={(e) => setFilters(prev => ({ ...prev, incomeTier: e.target.value }))}
-                          className="w-full bg-[#F9FAFB] border border-rose-50 rounded-2xl px-5 py-4 text-xs font-bold text-stone-600 outline-none focus:ring-2 focus:ring-rose-100 transition-all cursor-pointer"
-                        >
-                           <option>All</option>
-                           {['Below 5L', '5-10L', '10-20L', '20-50L', '50L+'].map(i => <option key={i} value={i}>{i}</option>)}
-                        </select>
-                     </div>
+                      <CustomSelect
+                        label="Annual Income"
+                        icon="payments"
+                        value={filters.incomeTier}
+                        options={['All', 'Below 5L', '5-10L', '10-20L', '20-50L', '50L+']}
+                        onChange={(val) => setFilters(prev => ({ ...prev, incomeTier: val }))}
+                      />
                   </div>
 
                   <div className="space-y-10">

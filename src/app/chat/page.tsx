@@ -119,21 +119,39 @@ export default function ChatPage() {
     if (stored) { sessionStorage.removeItem('openChatId'); setActiveChatId(stored); setMobileView('chat'); }
   }, []);
 
+  const [msgError, setMsgError] = useState<string | null>(null);
+  const retryCountRef = useRef(0);
+
   const fetchMessages = useCallback(async (id: string, silent = false) => {
-    if (!silent) setMsgLoading(true);
+    if (!silent) { setMsgLoading(true); setMsgError(null); }
     try {
       const res = await fetch(`/api/messages?matchId=${id}`);
       if (res.ok) {
         const data = await res.json();
         const msgs: Message[] = data.messages || [];
         setMessages(msgs);
+        setMsgError(null);
+        retryCountRef.current = 0;
         if (msgs.length !== lastCountRef.current) {
           lastCountRef.current = msgs.length;
-          setTimeout(() => endRef.current?.scrollIntoView({ behavior: 'smooth' }), 60);
+          setTimeout(() => endRef.current?.scrollIntoView({ behavior: silent ? 'smooth' : 'auto' }), 60);
         }
+      } else if (res.status === 403) {
+        setMsgError("Match access required to view these messages.");
+      } else {
+        throw new Error("Failed to load");
       }
-    } catch (_) {}
-    finally { if (!silent) setMsgLoading(false); }
+    } catch (err) {
+      console.error("Message Fetch Error:", err);
+      if (!silent) setMsgError("Network error. Retrying...");
+      // Auto-retry once if it fails
+      if (retryCountRef.current < 2) {
+        retryCountRef.current++;
+        setTimeout(() => fetchMessages(id, silent), 2000);
+      }
+    } finally {
+      if (!silent) setMsgLoading(false);
+    }
   }, []);
 
   useEffect(() => {
@@ -340,8 +358,20 @@ export default function ChatPage() {
                 {/* Messages */}
                 <div className="flex-1 overflow-y-auto px-4 py-4 bg-[#fdfafa]/80" style={{ scrollbarWidth: 'thin' }}>
                   {msgLoading && messages.length === 0 ? (
-                    <div className="flex items-center justify-center h-full">
+                    <div className="flex flex-col items-center justify-center h-full space-y-3">
                       <div className="w-8 h-8 border-[3px] border-rose-100 border-t-rose-500 rounded-full animate-spin" />
+                      <p className="text-[10px] font-black text-stone-300 uppercase tracking-widest">Whispering to server...</p>
+                    </div>
+                  ) : msgError ? (
+                    <div className="flex flex-col items-center justify-center h-full px-8 text-center">
+                      <div className="w-16 h-16 bg-rose-50 text-rose-300 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span className="material-symbols-outlined text-3xl">error_outline</span>
+                      </div>
+                      <h3 className="text-sm font-black text-stone-900 mb-1">Unable to load messages</h3>
+                      <p className="text-[11px] text-stone-400 max-w-[200px] leading-relaxed mb-6">{msgError}</p>
+                      <button onClick={() => fetchMessages(activeChatId as string)} className="px-6 py-2 bg-stone-900 text-white rounded-full text-[9px] font-black uppercase tracking-widest hover:bg-stone-800 transition-all">
+                        Retry Fetch
+                      </button>
                     </div>
                   ) : messages.length === 0 ? (
                     <div className="flex flex-col items-center justify-center h-full text-center p-8">

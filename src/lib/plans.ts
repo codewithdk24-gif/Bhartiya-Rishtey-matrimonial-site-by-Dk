@@ -7,26 +7,26 @@ import { prisma } from './prisma';
 // Step 1: Plan Hierarchy
 export const PLAN_HIERARCHY: Record<string, number> = {
   'FREE': 0,
-  'PRIME': 1,
-  'ROYAL': 2,
-  'LEGACY': 3,
+  'BASIC': 1,
+  'PRIME': 2,
+  'ELITE': 3,
 };
 
 export const PLANS = {
+  BASIC: {
+    name: 'BASIC',
+    price: 499,
+    durationDays: 30,
+  },
   PRIME: {
     name: 'PRIME',
     price: 1100,
     durationDays: 90,
   },
-  ROYAL: {
-    name: 'ROYAL',
-    price: 2500,
+  ELITE: {
+    name: 'ELITE',
+    price: 1999,
     durationDays: 180,
-  },
-  LEGACY: {
-    name: 'LEGACY',
-    price: 4900,
-    durationDays: 365,
   }
 };
 
@@ -44,25 +44,25 @@ export function getPlanLimits(plan: string): PlanLimits {
   const p = plan.toUpperCase();
   
   switch (p) {
-    case 'PRIME':
+    case 'BASIC':
       return {
-        interestLimit: 50,
-        messageLimit: 100,
-        searchLimit: 1000,
+        interestLimit: 20,
+        messageLimit: 50,
+        searchLimit: 500,
         canShareContact: false,
         canSeeProfileViews: true,
         hasInvisibleMode: false,
       };
-    case 'ROYAL':
+    case 'PRIME':
       return {
-        interestLimit: Infinity,
-        messageLimit: Infinity,
+        interestLimit: 100,
+        messageLimit: 500,
         searchLimit: Infinity,
         canShareContact: true,
         canSeeProfileViews: true,
-        hasInvisibleMode: true,
+        hasInvisibleMode: false,
       };
-    case 'LEGACY':
+    case 'ELITE':
       return {
         interestLimit: Infinity,
         messageLimit: Infinity,

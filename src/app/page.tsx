@@ -45,8 +45,8 @@ function Navbar() {
             </div>
 
             <div className="flex items-center gap-1 md:gap-3">
-              <Link href="/login" className="btn-secondary !text-[8px] min-[360px]:!text-[9px] md:!text-xs !px-2 md:!px-4 !py-1 md:!py-2.5 whitespace-nowrap">Login</Link>
-              <Link href="/signup" className="btn-primary !text-[8px] min-[360px]:!text-[9px] md:!text-xs !px-2 md:!px-4 !py-1 md:!py-2.5 whitespace-nowrap">Join</Link>
+              <Link href="/login" className="btn-secondary !text-[11px] min-[360px]:!text-xs md:!text-sm !px-3 md:!px-5 !py-1.5 md:!py-3 whitespace-nowrap">Login</Link>
+              <Link href="/signup" className="btn-primary !text-[11px] min-[360px]:!text-xs md:!text-sm !px-3 md:!px-5 !py-1.5 md:!py-3 whitespace-nowrap">Join</Link>
             </div>
           </div>
         </div>
@@ -189,7 +189,7 @@ function HeroSection() {
         {/* Text Section - Adjusted margin for better readability on mobile */}
         <div className="relative z-30 animate-fade-in-up order-2 lg:order-1 -mt-40 xs:-mt-48 lg:mt-0 px-6 lg:px-0">
           <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/10 backdrop-blur-2xl border border-white/40 mb-8 shadow-2xl">
-            <span className="text-[10px] font-bold text-[#9b1c31] tracking-[0.15em] uppercase">Trusted by 10,000+ families</span>
+            <span className="text-[10px] font-bold text-[#9b1c31] tracking-[0.15em] uppercase">Built for Modern Indian Families</span>
           </div>
 
           <h1 className="font-headline text-3xl xs:text-4xl md:text-6xl font-extrabold leading-[1.4] text-stone-900 mb-6">
@@ -218,8 +218,8 @@ function HeroSection() {
                   <UserCheck className="w-5 h-5" />
                 </div>
                 <div>
-                  <p className="font-headline text-2xl md:text-3xl font-black text-stone-900 leading-none mb-1">50K+</p>
-                  <p className="text-[10px] md:text-xs text-stone-500 font-bold uppercase tracking-wider">Active Profiles</p>
+                  <p className="font-headline text-2xl md:text-3xl font-black text-stone-900 leading-none mb-1">Authentic</p>
+                  <p className="text-[10px] md:text-xs text-stone-500 font-bold uppercase tracking-wider">Profiles</p>
                 </div>
               </div>
               
@@ -228,8 +228,8 @@ function HeroSection() {
                   <Crown className="w-5 h-5" />
                 </div>
                 <div>
-                  <p className="font-headline text-2xl md:text-3xl font-black text-stone-900 leading-none mb-1">1,200+</p>
-                  <p className="text-[10px] md:text-xs text-stone-500 font-bold uppercase tracking-wider">Success Stories</p>
+                  <p className="font-headline text-2xl md:text-3xl font-black text-stone-900 leading-none mb-1">Trusted</p>
+                  <p className="text-[10px] md:text-xs text-stone-500 font-bold uppercase tracking-wider">Community</p>
                 </div>
               </div>
               
@@ -238,8 +238,8 @@ function HeroSection() {
                   <Shield className="w-5 h-5" />
                 </div>
                 <div>
-                  <p className="font-headline text-2xl md:text-3xl font-black text-stone-900 leading-none mb-1">98%</p>
-                  <p className="text-[10px] md:text-xs text-stone-500 font-bold uppercase tracking-wider">Verified Profiles</p>
+                  <p className="font-headline text-2xl md:text-3xl font-black text-stone-900 leading-none mb-1">Secure</p>
+                  <p className="text-[10px] md:text-xs text-stone-500 font-bold uppercase tracking-wider">Data Privacy</p>
                 </div>
               </div>
             </div>

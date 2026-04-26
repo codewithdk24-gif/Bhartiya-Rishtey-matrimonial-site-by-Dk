@@ -15,21 +15,8 @@ export default function ProfileGate({ children }: ProfileGateProps) {
     session?.user?.isProfileComplete === false && 
     process.env.NODE_ENV === "production";
 
-  const showDevWarning = status === 'authenticated' && 
-    session?.user?.isProfileComplete === false && 
-    process.env.NODE_ENV !== "production";
-
   return (
     <div className="relative w-full">
-      {/* Dev Warning Banner */}
-      {showDevWarning && (
-        <div className="bg-amber-50 border border-amber-100 rounded-2xl p-4 mb-4 flex items-center gap-3 text-amber-700 animate-pulse-subtle">
-          <span className="material-symbols-outlined text-amber-500">warning</span>
-          <span className="text-xs font-bold uppercase tracking-tight">
-            ⚠ Development Mode: Complete your profile for better matches
-          </span>
-        </div>
-      )}
 
       {/* MAIN CONTENT - Blurred when incomplete */}
       <div className={isIncomplete ? "blur-sm pointer-events-none select-none overflow-hidden" : ""}>

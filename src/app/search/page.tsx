@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import DashNav from '@/components/DashNav';
 import ProfileGate from '@/components/ProfileGate';
+import { toast } from 'sonner';
 
 export default function SearchPage() {
   const [profiles, setProfiles] = useState<any[]>([]);
@@ -34,22 +35,54 @@ export default function SearchPage() {
       if (!res.ok) throw new Error("Failed to fetch");
       
       const data = await res.json();
+      const newProfiles = data.profiles || [];
       
       if (isLoadMore) {
-        setProfiles(prev => [...prev, ...data.profiles]);
+        setProfiles(prev => [...prev, ...newProfiles]);
       } else {
-        setProfiles(data.profiles);
+        setProfiles(newProfiles);
       }
       
-      setFuzzyUsed(data.fuzzyUsed);
+      setFuzzyUsed(data.fuzzyUsed || false);
       // Simulating hasMore logic
-      setHasMore(data.profiles.length > 0 && !isLoadMore); 
+      setHasMore(newProfiles.length > 0 && !isLoadMore); 
 
     } catch (err) {
       console.error(err);
       setError(true);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const [processingIds, setProcessingIds] = useState<Set<string>>(new Set());
+  const [sentInterestIds, setSentInterestIds] = useState<Set<string>>(new Set());
+
+  const handleInterest = async (receiverId: string) => {
+    if (processingIds.has(receiverId) || sentInterestIds.has(receiverId)) return;
+    setProcessingIds(prev => new Set(prev).add(receiverId));
+    try {
+      const res = await fetch('/api/interests/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ toUserId: receiverId }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setSentInterestIds(prev => new Set(prev).add(receiverId));
+        toast.success("Interest sent successfully");
+      } else {
+        toast.error(data.error || "Failed to send interest");
+      }
+    } catch (err) { 
+      console.error("Interest Request Failed:", err);
+      toast.error("Something went wrong");
+    } finally {
+      setProcessingIds(prev => {
+        const n = new Set(prev);
+        n.delete(receiverId);
+        return n;
+      });
     }
   };
 
@@ -225,9 +258,25 @@ export default function SearchPage() {
                       </div>
 
                       <div className="flex gap-3">
-                        <button className="flex-1 bg-primary text-white py-3 rounded-2xl text-xs font-bold hover:bg-primary-dark transition-all flex items-center justify-center gap-2">
-                          <span className="material-symbols-outlined text-sm">favorite</span>
-                          Interest
+                        <button 
+                          onClick={() => handleInterest(profile.userId)}
+                          disabled={processingIds.has(profile.userId) || sentInterestIds.has(profile.userId) || profile.interestStatus === 'PENDING'}
+                          className={`flex-1 py-3 rounded-2xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+                            (sentInterestIds.has(profile.userId) || profile.interestStatus === 'PENDING')
+                            ? 'bg-stone-100 text-stone-400 border border-stone-200 cursor-not-allowed'
+                            : 'bg-primary text-white hover:bg-primary-dark shadow-sm'
+                          }`}
+                        >
+                          {processingIds.has(profile.userId) ? (
+                            <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                          ) : (sentInterestIds.has(profile.userId) || profile.interestStatus === 'PENDING') ? (
+                            <>Interest Sent ✅</>
+                          ) : (
+                            <>
+                              <span className="material-symbols-outlined text-sm">favorite</span>
+                              Interest
+                            </>
+                          )}
                         </button>
                         <Link href={`/profile/${profile.userId}`} className="flex-1 bg-stone-100 text-stone-700 py-3 rounded-2xl text-xs font-bold hover:bg-stone-200 transition-all flex items-center justify-center">
                           View Profile

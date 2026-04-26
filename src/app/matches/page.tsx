@@ -188,19 +188,22 @@ function MatchesContent() {
     <div className="min-h-screen bg-[#fdf8f8]">
       <DashNav />
 
-      <main className="max-w-6xl mx-auto px-4 py-12 pb-32">
-        {/* Header */}
-        <header className="mb-6 md:mb-10 flex items-center justify-between flex-wrap gap-4 sticky top-16 md:top-20 z-40 bg-[#fdf8f8]/80 backdrop-blur-md py-2 -mx-4 px-4 border-b border-rose-100/50 md:border-none md:relative md:top-0 md:bg-transparent">
-          <div>
-            <h1 className="text-2xl md:text-4xl font-black text-stone-900 tracking-tight">Matches</h1>
-            <p className="hidden md:block text-[10px] font-black text-rose-500 uppercase tracking-widest mt-2">
-              Your connections &amp; relationship requests
+      <main className="max-w-5xl mx-auto px-4 pt-6 md:pt-10 pb-32">
+        {/* Header Section Redesigned */}
+        <header className="mb-8 md:mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div className="relative">
+            <h1 className="text-2xl md:text-3xl font-black text-stone-900 leading-tight tracking-tight">
+              Matches
+            </h1>
+            <p className="text-[10px] md:text-[11px] font-black text-rose-500 uppercase tracking-[0.1em] mt-1">
+              Your connections & relationship requests
             </p>
+            <div className="h-[3px] w-12 bg-rose-500 rounded-full mt-3 opacity-80" />
           </div>
-          {/* Live Pulse - Hidden on mobile */}
-          <div className="hidden md:flex items-center gap-2 bg-white px-4 py-2 rounded-2xl border border-rose-50 shadow-sm text-[10px] font-black text-stone-400 uppercase tracking-widest">
-            <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-            Live Updates
+
+          <div className="hidden md:flex items-center gap-3 bg-white px-5 py-2.5 rounded-2xl border border-rose-50 shadow-sm">
+            <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+            <span className="text-[10px] font-black text-stone-400 uppercase tracking-widest">Live Updates</span>
           </div>
         </header>
 

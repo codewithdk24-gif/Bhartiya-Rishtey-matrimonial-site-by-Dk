@@ -178,7 +178,8 @@ export default function DashboardPage() {
     return Math.floor(seconds) + "s ago";
   };
 
-  const userName = summary?.userName || session?.user?.name || 'User';
+  // Use session name as primary source of truth to avoid 'rahul' inconsistency
+  const userName = session?.user?.name || summary?.userName || 'Premium Member';
   const resolvedUserImage = getProfileImage(summary?.profile) || session?.user?.image;
   const completionPct = summary?.completionPct || 0;
 

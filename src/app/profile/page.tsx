@@ -238,21 +238,61 @@ export default function ProfilePage() {
       <DashNav />
       <div className="max-w-3xl mx-auto px-4 py-10 pb-32">
         
-        {/* Header Section */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-10">
-          <div>
-            <h1 className="text-3xl font-black text-stone-900 tracking-tight">Edit Profile</h1>
-            <p className="text-stone-500 text-sm font-medium mt-1">Make your first impression count</p>
-          </div>
-          <div className="flex items-center gap-4 bg-white p-2 rounded-3xl border border-stone-100 shadow-sm pr-6">
-            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center font-black text-lg ${
-              completionPct === 100 ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'
-            }`}>
-              {completionPct}%
+        {/* Premium Profile Header Section */}
+        <div className="bg-white rounded-[2.5rem] p-8 shadow-sm border border-stone-100 text-center mb-8 relative overflow-hidden group">
+          <div className="absolute top-0 left-0 w-full h-24 bg-gradient-to-b from-rose-50 to-transparent opacity-50" />
+          
+          <div className="relative z-10">
+            {/* Profile Image with Edit Overlay */}
+            <div className="relative mx-auto w-28 h-28 mb-4">
+              <div className="w-full h-full rounded-full overflow-hidden border-4 border-white shadow-xl bg-stone-100">
+                {photos[0] ? (
+                  <img src={photos[0]} alt={form.name} className="w-full h-full object-cover transition-transform group-hover:scale-105 duration-700" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-stone-50">
+                    <span className="material-symbols-outlined text-4xl text-stone-200">person</span>
+                  </div>
+                )}
+              </div>
+              <button 
+                onClick={() => document.getElementById('section-photos')?.scrollIntoView({ behavior: 'smooth' })}
+                className="absolute bottom-1 right-1 w-8 h-8 bg-rose-600 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-rose-700 transition-colors active:scale-90"
+              >
+                <span className="material-symbols-outlined text-base">edit</span>
+              </button>
             </div>
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-widest text-stone-400">Completion</p>
-              <p className="text-sm font-bold text-stone-900">{completionPct === 100 ? 'Verified Quality' : 'Keep Going'}</p>
+
+            {/* User Primary Info */}
+            <h2 className="text-2xl font-black text-stone-900 tracking-tight">
+              {form.name || 'Your Name'}
+            </h2>
+            <div className="flex items-center justify-center gap-2 mt-1.5 text-stone-500 font-medium">
+              <span className="text-sm">{form.profession || 'Profession'}</span>
+              <span className="w-1 h-1 bg-stone-300 rounded-full" />
+              <span className="text-sm">{form.location || 'Location'}</span>
+            </div>
+
+            {/* Completion Progress Container */}
+            <div className="mt-8 max-w-xs mx-auto">
+              <div className="flex items-center justify-between mb-3 px-1">
+                <div className="inline-flex items-center gap-2 bg-rose-50 px-4 py-1.5 rounded-full">
+                  <span className="text-xs font-black text-rose-600 tracking-wider">{completionPct}%</span>
+                  <span className="text-[10px] font-black text-rose-400 uppercase tracking-widest">Complete</span>
+                </div>
+                <span className="text-[10px] font-black text-stone-400 uppercase tracking-widest">
+                  {completionPct === 100 ? 'Perfect' : 'Keep Going'}
+                </span>
+              </div>
+              
+              {/* Sleek Progress Bar */}
+              <div className="h-2 bg-stone-100 rounded-full overflow-hidden shadow-inner p-0.5">
+                <div 
+                  className={`h-full rounded-full transition-all duration-1000 ease-out shadow-sm ${
+                    completionPct === 100 ? 'bg-emerald-500' : 'bg-rose-500'
+                  }`}
+                  style={{ width: `${completionPct}%` }}
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -271,21 +311,42 @@ export default function ProfilePage() {
                 </div>
                 <p className="text-xs font-medium text-stone-400 mb-6">At least 1 high-quality photo required for visibility.</p>
                 
-                <div className="grid grid-cols-2 min-[400px]:grid-cols-3 sm:grid-cols-5 gap-3">
+                <div className="grid grid-cols-2 min-[400px]:grid-cols-3 sm:grid-cols-5 gap-4">
                   {photos.map((p, i) => (
-                    <div key={i} className={`relative aspect-[3/4] rounded-2xl overflow-hidden group border-2 transition-all ${i === 0 ? 'border-rose-500 shadow-lg' : 'border-transparent'}`}>
+                    <div 
+                      key={i} 
+                      onClick={() => i !== 0 && setAsPrimary(i)}
+                      className={`relative aspect-[3/4] rounded-2xl overflow-hidden group border-2 transition-all cursor-pointer ${
+                        i === 0 ? 'border-rose-500 shadow-xl scale-[1.02] z-10' : 'border-transparent hover:border-rose-200'
+                      }`}
+                    >
                       <img src={p} className="w-full h-full object-cover" alt="" />
-                      <div className="absolute inset-0 bg-stone-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                        {i !== 0 && (
-                          <button onClick={() => setAsPrimary(i)} className="p-2 bg-white rounded-xl text-rose-600 shadow-lg">
-                            <span className="material-symbols-outlined text-sm font-bold">star</span>
-                          </button>
-                        )}
-                        <button onClick={() => removePhoto(i)} className="p-2 bg-white rounded-xl text-stone-600 shadow-lg">
-                          <span className="material-symbols-outlined text-sm font-bold">delete</span>
-                        </button>
-                      </div>
-                      {i === 0 && <div className="absolute top-2 left-2 px-2 py-1 bg-rose-600 text-[8px] font-black text-white rounded-lg tracking-widest uppercase">Primary</div>}
+                      
+                      {/* Primary Badge */}
+                      {i === 0 && (
+                        <div className="absolute top-2 left-2 bg-black/70 backdrop-blur-md text-white text-[9px] font-black px-2.5 py-1 rounded-full uppercase tracking-widest flex items-center gap-1.5 border border-white/20">
+                          <span className="w-1.5 h-1.5 bg-rose-500 rounded-full animate-pulse" />
+                          Profile
+                        </div>
+                      )}
+
+                      {/* Hover Overlay for Secondary Photos */}
+                      {i !== 0 && (
+                        <div className="absolute inset-0 bg-stone-900/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2 text-center p-3">
+                          <div className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white border border-white/20 group-hover:scale-110 transition-transform">
+                            <span className="material-symbols-outlined text-xl font-bold">star</span>
+                          </div>
+                          <p className="text-white text-[8px] font-black uppercase tracking-widest">Set as Profile Photo</p>
+                        </div>
+                      )}
+
+                      {/* Delete Action (Fixed Position) */}
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); removePhoto(i); }} 
+                        className="absolute top-2 right-2 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-xl text-stone-500 hover:text-rose-600 shadow-lg opacity-0 group-hover:opacity-100 transition-all active:scale-90 flex items-center justify-center border border-stone-100"
+                      >
+                        <span className="material-symbols-outlined text-[16px] font-bold">delete</span>
+                      </button>
                     </div>
                   ))}
                   {photos.length < 5 && (
@@ -494,6 +555,7 @@ export default function ProfilePage() {
           </div>
         </div>
       )}
+
     </div>
   );
 }

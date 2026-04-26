@@ -54,11 +54,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: `You already have a pending request for ${planId}` }, { status: 400 });
     }
 
-    // 5. Validate UTR (8-20 alphanumeric)
+    // 5. Validate UTR (Exactly 12 digits)
     if (utr) {
-      const utrRegex = /^[A-Za-z0-9]{8,20}$/;
+      const utrRegex = /^\d{12}$/;
       if (!utrRegex.test(utr)) {
-        return NextResponse.json({ error: 'Invalid UTR format. Should be 8-20 alphanumeric characters.' }, { status: 400 });
+        return NextResponse.json({ error: 'UTR number must be exactly 12 digits.' }, { status: 400 });
       }
 
       // Check UTR uniqueness (excluding REJECTED)

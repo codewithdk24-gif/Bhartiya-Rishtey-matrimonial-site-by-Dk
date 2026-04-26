@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import DashNav from '@/components/DashNav';
 import { useRouter } from 'next/navigation';
+import CustomSelect from '@/components/CustomSelect';
 
 const MOCK_MATCHES = [
   { id: '1', name: 'Ananya Sharma', age: 26, location: 'Mumbai, MH', profession: 'Interior Designer', photo: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Ananya' },
@@ -38,27 +39,33 @@ export default function SuggestedMatchesPage() {
           
           {/* SIMPLE FILTERS */}
           <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
-             <select 
-               className="bg-white border border-stone-200 text-xs font-bold px-4 py-2.5 rounded-full outline-none focus:ring-2 focus:ring-rose-500/20"
-               value={filters.age}
-               onChange={(e) => setFilters({...filters, age: e.target.value})}
-             >
-               <option value="">Age: All</option>
-               <option value="20-25">20 - 25</option>
-               <option value="26-30">26 - 30</option>
-               <option value="31+">31+</option>
-             </select>
+             <div className="w-32">
+               <CustomSelect
+                 label="Age"
+                 value={filters.age}
+                 options={[
+                   { label: 'All', value: '' },
+                   { label: '20 - 25', value: '20-25' },
+                   { label: '26 - 30', value: '26-30' },
+                   { label: '31+', value: '31+' }
+                 ]}
+                 onChange={(val) => setFilters({...filters, age: val})}
+               />
+             </div>
              
-             <select 
-               className="bg-white border border-stone-200 text-xs font-bold px-4 py-2.5 rounded-full outline-none focus:ring-2 focus:ring-rose-500/20"
-               value={filters.location}
-               onChange={(e) => setFilters({...filters, location: e.target.value})}
-             >
-               <option value="">Location: All</option>
-               <option value="mumbai">Mumbai</option>
-               <option value="delhi">Delhi</option>
-               <option value="pune">Pune</option>
-             </select>
+             <div className="w-40">
+               <CustomSelect
+                 label="Location"
+                 value={filters.location}
+                 options={[
+                   { label: 'All', value: '' },
+                   { label: 'Mumbai', value: 'mumbai' },
+                   { label: 'Delhi', value: 'delhi' },
+                   { label: 'Pune', value: 'pune' }
+                 ]}
+                 onChange={(val) => setFilters({...filters, location: val})}
+               />
+             </div>
 
              <button 
                onClick={() => setMatches([])} // Simulate empty state for demo
